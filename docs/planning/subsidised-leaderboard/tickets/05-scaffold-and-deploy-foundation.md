@@ -1,7 +1,7 @@
 # 05: Scaffold the Vite+ workspace and deploy the template site
 
 Type: task
-Status: ready-for-human
+Status: claimed
 Blocked by: none
 
 ## What to build
