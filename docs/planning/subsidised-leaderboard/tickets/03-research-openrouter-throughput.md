@@ -1,7 +1,7 @@
 # Research: OpenRouter throughput data access
 
 Type: research
-Status: open
+Status: resolved
 
 ## Question
 
@@ -17,3 +17,15 @@ Specifically:
 Context: this feeds average time in the spec (ticket 04) and the model mapping. Map: [../map.md](../map.md); decisions so far: [01-charting-grilling.md](01-charting-grilling.md).
 
 Resolve by calling the Skill tool with "research"; capture findings on a `research/openrouter-throughput` branch.
+
+## Answer
+
+Resolved on 2026-08-20. The full findings and point-in-time model snapshot are in [OpenRouter throughput research](../research/openrouter-throughput.md).
+
+Use OpenRouter's documented `GET /api/v1/models/{author}/{slug}/endpoints` endpoint with a bearer API key. It returns 30-minute throughput percentiles for each provider endpoint. Unauthenticated calls return the endpoint list but leave throughput and latency as `null`. OpenRouter does not publish a separate numeric limit for this route, so the refresh script should handle HTTP 429 responses and `Retry-After`.
+
+For the leaderboard, use the unweighted median of the non-null default-tier endpoint p50 values. The headline number on a model page is the fastest provider's p50, which can be distorted by endpoints with only a handful of recent requests. OpenRouter's normal price-weighted routing does not expose one aggregate throughput figure.
+
+Throughput is output tokens divided by generation time, including fetch latency, time to first token, and streaming time. Reasoning tokens are output tokens in OpenRouter's accounting, but the throughput pipeline does not document its reasoning-token numerator precisely. Average time remains a rough estimate because it omits tool work and gaps between the benchmark's many model calls.
+
+All 25 models in the current DeepSWE v1.1 artifact have exact OpenRouter listings. The report records their mappings, provider medians, page-best values, ranges, sample coverage, and three additional Codex-family references.

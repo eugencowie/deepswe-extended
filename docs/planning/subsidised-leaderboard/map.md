@@ -17,11 +17,11 @@ A spec at `docs/planning/subsidised-leaderboard/spec.md`, executable by a build 
 
 - [Charting grilling: destination and core decisions](tickets/01-charting-grilling.md): destination (spec), row model (API row + six tier rows), all maths (subsidisation factor with usage multiplier, Fable 5 = 0.5; average time; cost per solved task), SemiAnalysis tier figures captured verbatim, hand-curated model mapping, table UX (columns, filters, per-model include/exclude, default sort Pass@1 desc), stack (Vite + React + TS + TanStack Table, build-time data import, TS refresh scripts), hosting (GitHub Pages, public repo).
 - [DeepSWE v1.1 source and metric semantics](tickets/02-research-deepswe-leaderboard-data.md): use the public versioned leaderboard JSON and versions manifest; keep all 62 configurations; apply the site's three v1.1 display-cost factors; treat Pass@1 as scored-attempt pass rate and cost, output tokens, and steps as per-attempt means; pin v1.1 while monitoring both the manifest and live artifact timestamp.
+- [OpenRouter throughput research](research/openrouter-throughput.md): the documented model-endpoints API returns 30-minute provider-level p50 throughput with bearer authentication; use the median across non-null default-tier endpoints, not the model page's fastest-provider headline. All 25 current DeepSWE v1.1 models have OpenRouter listings. The snapshot also records three Codex-family references and the limits of the average-time estimate.
 
 ## Not yet specified
 
-- **Throughput fallback**: if ticket 03 finds no usable API, decide between scraping the frontend and hand-maintained throughput values.
-- **Token-semantics reconciliation**: DeepSWE output tokens include provider-reported reasoning tokens; once ticket 03 establishes OpenRouter's throughput semantics, pick a convention in the spec.
+- **Token-semantics reconciliation**: DeepSWE output tokens include provider-reported reasoning tokens, while OpenRouter does not precisely document whether its throughput numerator includes reasoning tokens; pick and document a convention in the spec.
 - **Version-bump workflow**: the site exposes a versions manifest and keeps v1.1 live; specify the review step for a new manifest `latest` value and for display-cost-factor changes.
 
 ## Out of scope
