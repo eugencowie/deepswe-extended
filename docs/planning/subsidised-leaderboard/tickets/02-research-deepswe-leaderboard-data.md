@@ -1,7 +1,7 @@
 # Research: DeepSWE leaderboard v1.1 data source and semantics
 
 Type: research
-Status: open
+Status: resolved
 
 ## Question
 
@@ -17,3 +17,13 @@ Specifically:
 Context: this feeds the spec in ticket 04 and the model mapping. Map: [../map.md](../map.md); decisions so far: [01-charting-grilling.md](01-charting-grilling.md).
 
 Resolve by calling the Skill tool with "research"; capture findings on a `research/deepswe-leaderboard-data` branch.
+
+## Answer
+
+Resolved on 2026-08-20. The v1.1 leaderboard is available as a public, version-pinned JSON artifact. The source currently has 62 configurations across 25 model names. Pass@1 is the pass rate over scored rollout attempts, while cost, output tokens, and steps are per-attempt means. Output tokens include provider-reported reasoning tokens, and one step is one agent model turn.
+
+The source JSON has one sharp edge: its cost fields precede three display-time price adjustments in the deployed site code. The normalized capture applies those adjustments and retains the raw values and factors.
+
+- [Research findings](../research/deepswe-leaderboard-data.md)
+- [Raw v1.1 snapshot](../research/deepswe-v1.1-leaderboard.raw.json)
+- [Normalized 62-entry dataset](../research/deepswe-v1.1-leaderboard.normalized.json)

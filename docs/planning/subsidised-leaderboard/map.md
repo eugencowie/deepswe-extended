@@ -16,13 +16,13 @@ A spec at `docs/planning/subsidised-leaderboard/spec.md`, executable by a build 
 ## Decisions so far
 
 - [Charting grilling: destination and core decisions](tickets/01-charting-grilling.md): destination (spec), row model (API row + six tier rows), all maths (subsidisation factor with usage multiplier, Fable 5 = 0.5; average time; cost per solved task), SemiAnalysis tier figures captured verbatim, hand-curated model mapping, table UX (columns, filters, per-model include/exclude, default sort Pass@1 desc), stack (Vite + React + TS + TanStack Table, build-time data import, TS refresh scripts), hosting (GitHub Pages, public repo).
+- [DeepSWE v1.1 source and metric semantics](tickets/02-research-deepswe-leaderboard-data.md): use the public versioned leaderboard JSON and versions manifest; keep all 62 configurations; apply the site's three v1.1 display-cost factors; treat Pass@1 as scored-attempt pass rate and cost, output tokens, and steps as per-attempt means; pin v1.1 while monitoring both the manifest and live artifact timestamp.
 
 ## Not yet specified
 
-- **Leaderboard ingestion fallback**: if ticket 02 finds no machine-readable source, a manual-transcription task ticket (and a documented refresh procedure) needs charting.
 - **Throughput fallback**: if ticket 03 finds no usable API, decide between scraping the frontend and hand-maintained throughput values.
-- **Token-semantics reconciliation**: if output tokens and throughput count reasoning tokens differently, pick a convention (surfaces from 02+03, settled in the spec).
-- **Version-bump workflow**: what refreshing looks like when the leaderboard moves past v1.1 — sharpens once 02 reveals how versions are exposed.
+- **Token-semantics reconciliation**: DeepSWE output tokens include provider-reported reasoning tokens; once ticket 03 establishes OpenRouter's throughput semantics, pick a convention in the spec.
+- **Version-bump workflow**: the site exposes a versions manifest and keeps v1.1 live; specify the review step for a new manifest `latest` value and for display-cost-factor changes.
 
 ## Out of scope
 
