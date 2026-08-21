@@ -4,9 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prepare": "vp config"
+    "prepare": "vp config",
+    "dev:tailnet": "concurrently --kill-others --success first --names tailscale,vp 'tailscale serve 5173' '__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=.ts.net vp dev --host 127.0.0.1'"
   },
   "devDependencies": {
+    "concurrently": "^10.0.5",
     "typescript": "~6.0.2",
     "vite": "catalog:",
     "vite-plus": "catalog:"
