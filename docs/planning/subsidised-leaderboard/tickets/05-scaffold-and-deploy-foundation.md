@@ -14,7 +14,7 @@ User-owned: repo creation and GitHub Actions setup are handled by the user.
 
 ## Acceptance criteria
 
-- [x] Template app runs locally under pnpm + mise; `vp check` passes
-- [ ] Public GitHub repo exists with this repo's history pushed
-- [ ] Push to main runs `vp run ready`, builds, and deploys to GitHub Pages
+- [x] Template app runs locally under pnpm + mise; `vp run ready` passes
+- [x] Public GitHub repo exists with this repo's history pushed
+- [x] Push to main runs `vp run ready`, builds, and deploys to GitHub Pages
 - [ ] The template site loads at the project Pages URL (correct `base` path)

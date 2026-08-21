@@ -16,6 +16,10 @@ run = "vp install"
 description = "Update dependencies"
 run = "vp update"
 
+[tasks.ready]
+description = "Run checks, tests, and build"
+run = "vp run ready"
+
 [tasks.check]
 description = "Run format, lint, and type checks"
 run = "vp check"
