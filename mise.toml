@@ -1,5 +1,37 @@
+# mise (https://mise.jdx.dev) manages the project's development tools and
+# tasks. Run `mise run install` to set up the development environment and
+# `mise tasks` to list the available tasks.
+
 [plugins]
 vite-plus = "https://github.com/markmals/mise-vite-plus"
 
 [tools]
 vite-plus = "latest"
+
+[tasks.install]
+description = "Install dependencies"
+run = "vp install"
+
+[tasks.update]
+description = "Update dependencies"
+run = "vp update"
+
+[tasks.check]
+description = "Run format, lint, and type checks"
+run = "vp check"
+
+[tasks.test]
+description = "Run tests"
+run = "vp test"
+
+[tasks.dev]
+description = "Run development server"
+run = "vp dev"
+
+[tasks.build]
+description = "Build for production"
+run = "vp build"
+
+[tasks.preview]
+description = "Preview production build"
+run = "vp preview"

@@ -4,9 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vp dev",
-    "build": "tsc && vp build",
-    "preview": "vp preview",
     "prepare": "vp config"
   },
   "devDependencies": {
@@ -18,6 +15,11 @@
     "packageManager": {
       "name": "pnpm",
       "version": "11.22.0",
+      "onFail": "download"
+    },
+    "runtime": {
+      "name": "node",
+      "version": "24.19.0",
       "onFail": "download"
     }
   }
