@@ -43,3 +43,7 @@ run = "vp build"
 [tasks.preview]
 description = "Preview production build"
 run = "vp preview"
+
+[tasks."preview:tailnet"]
+description = "Preview production build on tailnet"
+run = "vp run preview:tailnet"
