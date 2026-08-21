@@ -28,7 +28,7 @@ Vite+ project at the repo root, keeping `docs/` as-is:
 │   ├── data/types.ts          ← shared data-shape types (scripts import from here)
 │   ├── data/derive.ts         ← row expansion + maths (pure functions)
 │   └── ...
-└── .github/workflows/deploy.yml
+└── .github/workflows/ci.yml
 ```
 
 Data is imported at build time (`import data from "../data/..."`), no runtime fetch. Scripts and app share the types in `src/data/types.ts`.
@@ -152,7 +152,7 @@ Blank cells render as "–" and always sort last regardless of direction (custom
 
 ## App
 
-React + TypeScript + TanStack Table on the Vite+ toolchain. Single page, one table.
+React + TypeScript + TanStack Table on the Vite+ toolchain, with shadcn/ui components (Base UI primitives) and Tailwind for styling ([ADR 0001](../../architecture/0001-toolchain-conventions.md)). Single page, one table.
 
 - Columns: Model (mapping `displayName`), Effort ("default" when null), Access ("API" or tier label), Pass@1 (%), Effective cost ($), Avg time, Cost per solved task ($), Output tokens, Steps, Throughput (tok/s).
 - Default sort: Pass@1 descending. Default access-route filter: **API only** (62 rows); tiers are opt-in via the filter.
@@ -174,8 +174,8 @@ The OpenRouter key lives only in the user's local environment (gitignored `.env`
 
 1. User scaffolds the Vite+ template (pnpm, mise with vite-plus plugin) — user-owned step.
 2. Create the public GitHub repo: `gh repo create deepswe-analysis --public --source . --push` (no remote exists yet).
-3. `.github/workflows/deploy.yml`: on push to `main` — checkout, mise/pnpm setup, `vp run ready` (the template's CI checks, gating deploy), build, `actions/upload-pages-artifact`, `actions/deploy-pages`. Enable Pages with "GitHub Actions" as the source.
-4. Vite `base: "/deepswe-analysis/"` for project-page URLs.
+3. `.github/workflows/ci.yml`: `vp run ready` (the template's CI checks) runs on pull requests and on push to `main`. Pushes to `main` additionally build and deploy via `actions/upload-pages-artifact` and `actions/deploy-pages`, gated by the ready job. Enable Pages with "GitHub Actions" as the source.
+4. The deploy job derives the base path from `actions/configure-pages` and passes it to `vp build --base`. Nothing hardcodes `/deepswe-analysis/`; local builds use `/`.
 
 ## Acceptance criteria
 

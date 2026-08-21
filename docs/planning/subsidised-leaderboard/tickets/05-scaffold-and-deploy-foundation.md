@@ -1,7 +1,7 @@
 # 05: Scaffold the Vite+ workspace and deploy the template site
 
 Type: task
-Status: claimed
+Status: resolved
 Blocked by: none
 
 ## What to build
@@ -18,3 +18,13 @@ User-owned: repo creation and GitHub Actions setup are handled by the user.
 - [x] Public GitHub repo exists with this repo's history pushed
 - [x] Push to main runs `vp run ready`, builds, and deploys to GitHub Pages
 - [x] The template site loads at the project Pages URL (correct `base` path)
+
+## Answer
+
+Deployed: the template site is live at <https://eugencowie.github.io/deepswe-analysis/>. `vp run ready` passes locally and gates the deploy workflow.
+
+Three deviations from the spec, reviewed and accepted (spec amended; rationale in [ADR 0001](../../../architecture/0001-toolchain-conventions.md)):
+
+- The base path is derived at deploy time by `actions/configure-pages` instead of hardcoding `base: "/deepswe-analysis/"`. Local builds use `/`; a Playwright smoke at a sentinel base (ticket 06) covers the gap.
+- The workflow is `.github/workflows/ci.yml`, not `deploy.yml`, because it also runs the ready gate on pull requests.
+- Tailnet dev/preview scripts were added so development can happen from a remote machine. Not in the spec; kept as tooling.
