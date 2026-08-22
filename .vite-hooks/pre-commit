@@ -1,6 +1,1 @@
-# Checks files staged for commit by running `vp staged`, which runs
-# the `staged` rules from `vite.config.ts` against the files staged
-# for commit, which runs `vp check --fix` to format, lint, and type
-# check them. A failing check aborts the commit.
-
 vp staged
