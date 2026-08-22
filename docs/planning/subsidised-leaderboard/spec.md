@@ -19,7 +19,7 @@ Vite+ project at the repo root, keeping `docs/` as-is:
 │   ├── openrouter-throughput.json
 │   ├── tiers.json
 │   └── model-mapping.json
-├── scripts/                   ← TS refresh scripts, run with tsx
+├── scripts/                   ← TS refresh scripts, run via the toolchain
 │   ├── refresh-deepswe.ts
 │   └── refresh-openrouter.ts
 ├── src/                       ← React app
@@ -170,10 +170,9 @@ The OpenRouter key lives only in the user's local environment (gitignored `.env`
 
 ## Repo and deploy
 
-1. User scaffolds the Vite+ template (pnpm, mise with vite-plus plugin) — user-owned step.
-2. Create the public GitHub repo: `gh repo create deepswe-analysis --public --source . --push` (no remote exists yet).
-3. `.github/workflows/ci.yml`: `vp run ready` (the template's CI checks) runs on pull requests and on push to `main`. Pushes to `main` additionally build and deploy via `actions/upload-pages-artifact` and `actions/deploy-pages`, gated by the ready job. Enable Pages with "GitHub Actions" as the source.
-4. The deploy job derives the base path from `actions/configure-pages` and passes it to `vp build --base`. Nothing hardcodes `/deepswe-analysis/`; local builds use `/`.
+1. ~~Scaffold and repo creation~~ — done in ticket [05](tickets/05-scaffold-and-deploy-foundation.md): scaffold, public repo, and Pages deploy are live (<https://eugencowie.github.io/deepswe-analysis/>).
+2. `.github/workflows/ci.yml`: `vp run ready` (the template's CI checks) runs on pull requests and on push to `main`. Pushes to `main` additionally build and deploy via `actions/upload-pages-artifact` and `actions/deploy-pages`, gated by the ready job. Pages uses "GitHub Actions" as the source.
+3. The deploy job derives the base path from `actions/configure-pages` and passes it to `vp build --base`. Nothing hardcodes `/deepswe-analysis/`; local builds use `/`. The Playwright sentinel-base smoke (ticket 06, [ADR 0001](../../architecture/0001-toolchain-conventions.md)) guards the root-absolute-URL gap this leaves.
 
 ## Acceptance criteria
 
@@ -181,4 +180,5 @@ The OpenRouter key lives only in the user's local environment (gitignored `.env`
 - Sorting any column places "–" cells last in both directions.
 - Unticking a model removes all its rows (all efforts, all access routes).
 - `derive.ts` has unit tests for row expansion, subsidisation (incl. multiplier), blank propagation, and cost per solved task; `vp run ready` passes and gates deploy.
+- The Playwright sentinel-base smoke passes: a build at a non-root base renders the table with no failed requests.
 - Both refresh scripts run clean against live sources and produce no diff immediately after a snapshot is committed (modulo `capturedAt`/`source_generated_at`).
