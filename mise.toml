@@ -1,0 +1,58 @@
+[plugins]
+vite-plus = "https://github.com/markmals/mise-vite-plus"
+
+[tools]
+vite-plus = "latest"
+
+[tasks.install]
+description = "Install dependencies"
+run = "vp install"
+
+[tasks.update]
+description = "Update dependencies"
+run = "vp update"
+
+[tasks.upgrade]
+description = "Upgrade all dependencies and tooling to latest"
+run = ["mise plugins upgrade", "mise upgrade --local --bump", "mise run upgrade:deps"]
+
+[tasks."upgrade:deps"]
+hide = true
+run = [
+  "vp env pin latest",
+  "vp env exec npm --force pkg set devEngines.packageManager.version=$(vp info pnpm version)", # https://github.com/voidzero-dev/vite-plus/pull/2398
+  "vp migrate",
+  "vp update --latest",
+]
+
+[tasks.ready]
+description = "Run checks, tests, and build"
+run = "vp run ready"
+
+[tasks.check]
+description = "Run format, lint, and type checks"
+run = "vp check"
+
+[tasks.test]
+description = "Run tests"
+run = "vp test"
+
+[tasks.dev]
+description = "Run development server"
+run = "vp dev"
+
+[tasks."dev:tailnet"]
+description = "Run development server on tailnet"
+run = "vp run dev:tailnet"
+
+[tasks.build]
+description = "Build for production"
+run = "vp build"
+
+[tasks.preview]
+description = "Preview production build"
+run = "vp preview"
+
+[tasks."preview:tailnet"]
+description = "Preview production build on tailnet"
+run = "vp run preview:tailnet"
