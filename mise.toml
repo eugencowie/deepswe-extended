@@ -16,6 +16,19 @@ run = "vp install"
 description = "Update dependencies"
 run = "vp update"
 
+[tasks.upgrade]
+description = "Upgrade all dependencies and tooling to latest"
+run = ["mise plugins upgrade", "mise upgrade --local --bump", "mise run upgrade:deps"]
+
+[tasks."upgrade:deps"]
+hide = true
+run = [
+  "vp env pin latest",
+  "vp env exec npm --force pkg set devEngines.packageManager.version=$(vp info pnpm version)", # https://github.com/voidzero-dev/vite-plus/pull/2398
+  "vp migrate",
+  "vp update --latest",
+]
+
 [tasks.ready]
 description = "Run checks, tests, and build"
 run = "vp run ready"

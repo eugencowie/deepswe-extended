@@ -10,3 +10,10 @@ peerDependencyRules:
     - vite
   allowedVersions:
     vite: "*"
+
+# `vp migrate` owns Vite+ and its Vite alias. Excluding them from bulk updates
+# avoids pnpm writing a `catalog:` importer that frozen installs reject.
+update:
+  ignoreDeps:
+    - vite
+    - vite-plus
