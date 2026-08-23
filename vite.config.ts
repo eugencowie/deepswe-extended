@@ -45,6 +45,8 @@ const shadcnConfig: UserConfig = {
 
 const projectConfig: UserConfig = {
   fmt: { ignorePatterns: ["docs/"] },
+  // e2e/ is Playwright's, not Vitest's; vp test must not pick up its specs.
+  test: { include: ["src/**/*.test.{ts,tsx}"] },
 };
 
 function defineMergedConfig(configs: UserConfig[]) {

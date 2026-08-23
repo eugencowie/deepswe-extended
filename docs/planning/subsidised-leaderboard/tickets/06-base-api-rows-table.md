@@ -40,7 +40,7 @@ Foundations this slice establishes, per the [spec](../spec.md) (Data files, Deri
 - Model-sort effort tiebreak uses semantic order: default (null) first, then low, medium, high, xhigh, max. Presentation logic, not glossary material.
 - Row type gets `accessRoute: "api"` (a union of one), widened with tier ids in ticket 08. Widening satisfies "adds rows instead of reshaping the type". In the UI, API is the unmarked default, like default effort: only tier rows get a tag (ticket 08).
 - The sentinel-base build replaces the plain `vp build` in `ready`: the deploy job rebuilds with the real Pages base anyway, so building twice adds nothing. `ready` becomes check, test, `vp build --base /sentinel-base/`, `playwright test`, with Playwright's `webServer` owning the `vp preview` lifecycle.
-- Editing `ci.yml` is in scope: the CI job needs a Chromium install step (`pnpm exec playwright install chromium --with-deps`) or the smoke can't run.
+- Editing `ci.yml` is in scope: the CI job needs a Chromium install step or the smoke can't run. (Implemented as `vp exec playwright install chromium --with-deps` — vp wraps the package manager per AGENTS.md, and plain `pnpm` isn't guaranteed on PATH.)
 - The footer provenance line links to <https://deepswe.datacurve.ai> (the site, not the raw artifact URL). Date is the UTC date of `source_generated_at`.
 - The Cost/perf tooltip trigger is the header text itself with a dotted underline, no info icon. Annotated header/cell text being hoverable is the convention tickets 07 and 08 reuse for "(est)" and "(e)".
 

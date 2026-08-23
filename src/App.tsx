@@ -5,8 +5,9 @@ import { deepsweSnapshot, modelMapping } from "@/data/sources";
 
 const rows = deriveRows(deepsweSnapshot, modelMapping);
 
-// The snapshot timestamp is UTC; the first ten characters are its date.
-const snapshotDate = deepsweSnapshot.source_generated_at.slice(0, 10);
+// The UTC date of the snapshot timestamp, robust to non-UTC offsets in a
+// future refresh (a plain slice would take the offset-local date).
+const snapshotDate = new Date(deepsweSnapshot.source_generated_at).toISOString().slice(0, 10);
 
 function App() {
   return (
