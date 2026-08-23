@@ -24,3 +24,5 @@ Per the [spec](../spec.md) (Derivation rules, tiers data): subsidisation factor 
 ## Comments
 
 **From the ticket 06 grilling (2026-08-23):** the Model-sort tiebreak extends to access routes: display name, then effort (default first, then low, medium, high, xhigh, max), then access route with API first and tiers in ascending price order (their order in `tiers.json`). Also, widen ticket 06's `accessRoute: "api"` union with tier ids here rather than reshaping the row type.
+
+**From the ticket 06 review grilling (2026-08-23):** Model-sort descending is the exact inverse of ascending, tiebreaks included — the effort order above (and the access-route order once this ticket adds it) mirrors too. Separately: the e2e smoke asserts the tbody row count against the snapshot entry count; when this ticket expands the table to 191 rows, update that expectation to the derived row count.

@@ -7,7 +7,7 @@
     "prepare": "vp config",
     "ready": "vp check && vp test && vp build",
     "e2e:install": "playwright install chromium --with-deps",
-    "e2e": "vp build --base /e2e/ && playwright test",
+    "e2e": "playwright test",
     "dev:tailnet": "concurrently --passthrough-arguments --kill-others --success first --names tailscale,vp 'tailscale serve 5173' '__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=.ts.net vp dev --host 127.0.0.1 --port 5173 --strictPort {@}' --",
     "preview:tailnet": "concurrently --passthrough-arguments --kill-others --success first --names tailscale,vp 'tailscale serve 4173' '__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=.ts.net vp preview --host 127.0.0.1 --port 4173 --strictPort {@}' --"
   },
