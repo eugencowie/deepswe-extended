@@ -20,3 +20,7 @@ Per the [spec](../spec.md) (Derivation rules, tiers data): subsidisation factor 
 - [ ] Approximation disclaimer visible in the footer
 - [ ] Unit tests cover row expansion, subsidisation factor (incl. multiplier), and per-row cost per solved task
 - [ ] `vp run ready` passes and the deployed site shows tier rows
+
+## Comments
+
+**From the ticket 06 grilling (2026-08-23):** the Model-sort tiebreak extends to access routes: display name, then effort (default first, then low, medium, high, xhigh, max), then access route with API first and tiers in ascending price order (their order in `tiers.json`). Also, widen ticket 06's `accessRoute: "api"` union with tier ids here rather than reshaping the row type.

@@ -32,3 +32,14 @@ Foundations this slice establishes, per the [spec](../spec.md) (Data files, Deri
 ## Comments
 
 **2026-08-23** — Scope addition during foundation work: a theme system (`theme-provider.tsx`, `mode-toggle.tsx`, dark-mode CSS variant) landed alongside the shadcn init. No spec or ticket asked for dark mode; both files are copied from the shadcn docs and treated as vendored, like the rest of `src/components/ui/`. The dropdown-menu component (also shadcn-vendored) currently exists only to serve the mode toggle; ticket 09 will reuse it for the filter dropdown. The Inter font came in as part of the shadcn setup.
+
+**Grilling decisions (2026-08-23):**
+
+- `DeepsweSnapshot` types the whole file, including `source_latest_job`, `source_scope`, and `source_unit`, which the spec's type sketch omits. The spec's claim that its type matches the research capture was wrong; the capture has these three extra fields, and ticket 10's zod validation should cover them.
+- First-click sort direction follows TanStack's convention: numeric columns start descending, Model starts ascending. Single-column sort only, no shift-click multi-sort.
+- Model-sort effort tiebreak uses semantic order: default (null) first, then low, medium, high, xhigh, max. Presentation logic, not glossary material.
+- Row type gets `accessRoute: "api"` (a union of one), widened with tier ids in ticket 08. Widening satisfies "adds rows instead of reshaping the type". In the UI, API is the unmarked default, like default effort: only tier rows get a tag (ticket 08).
+- The sentinel-base build replaces the plain `vp build` in `ready`: the deploy job rebuilds with the real Pages base anyway, so building twice adds nothing. `ready` becomes check, test, `vp build --base /sentinel-base/`, `playwright test`, with Playwright's `webServer` owning the `vp preview` lifecycle.
+- Editing `ci.yml` is in scope: the CI job needs a Chromium install step (`pnpm exec playwright install chromium --with-deps`) or the smoke can't run.
+- The footer provenance line links to <https://deepswe.datacurve.ai> (the site, not the raw artifact URL). Date is the UTC date of `source_generated_at`.
+- The Cost/perf tooltip trigger is the header text itself with a dotted underline, no info icon. Annotated header/cell text being hoverable is the convention tickets 07 and 08 reuse for "(est)" and "(e)".
