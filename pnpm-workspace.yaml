@@ -5,6 +5,9 @@ catalog:
 overrides:
   vite: "catalog:"
 
+patchedDependencies:
+  shadcn@4.19.0: patches/shadcn@4.19.0.patch
+
 peerDependencyRules:
   allowAny: [vite]
   allowedVersions:
