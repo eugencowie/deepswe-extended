@@ -19,7 +19,7 @@ Vite+ project at the repo root, keeping `docs/` as-is:
 │   ├── openrouter-throughput.json
 │   ├── tiers.json
 │   └── model-mapping.json
-├── scripts/                   ← TS refresh scripts, run with tsx
+├── scripts/                   ← TS refresh scripts, run via the toolchain
 │   ├── refresh-deepswe.ts
 │   └── refresh-openrouter.ts
 ├── src/                       ← React app
@@ -44,6 +44,7 @@ type DeepsweSnapshot = {
   source_url: string;
   source_generated_at: string;      // ISO timestamp from the artifact
   n_tasks_in_set: number;           // 113
+  raw_sha256: string;               // hash of the upstream artifact this was derived from
   cost_adjustments: { model: string; factor: number }[];
   entries: DeepsweEntry[];
 };
@@ -128,7 +129,7 @@ Hand-curated; one entry per leaderboard model (effort levels share it). `display
 | muse-spark-1-1 | Muse Spark 1.1 | Meta | meta/muse-spark-1.1 | none | 1.0 |
 | muse-spark-1-2 | Muse Spark 1.2 | Meta | meta/muse-spark-1.2 | none | 1.0 |
 
-Entry shape: `{ "leaderboardModel": string, "displayName": string, "vendor": string, "openrouterId": string | null, "family": "claude" | "chatgpt" | "none", "usageMultiplier": number }`. A leaderboard model missing from the mapping is a build-time error (fail loudly, don't silently drop rows). `openrouterId: null` is allowed and yields blank throughput/time.
+Entry shape: `{ "leaderboardModel": string, "displayName": string, "vendor": string, "openrouterId": string | null, "family": "claude" | "chatgpt" | "none", "usageMultiplier": number }`. A leaderboard model missing from the mapping makes derive throw, and a unit test enforces full coverage — the failure surfaces through `vp run ready` and CI (don't silently drop rows). `openrouterId: null` is allowed and yields blank throughput/time.
 
 Family membership asserts genuine subscription access (user's best knowledge of the plans, not research-verified). If a mapped model turns out to be API-only, flip its family to `none` — one-line fix.
 
@@ -152,12 +153,13 @@ Blank cells render as "–" and always sort last regardless of direction (custom
 
 React + TypeScript + TanStack Table on the Vite+ toolchain, with shadcn/ui components (Base UI primitives) and Tailwind for styling ([ADR 0001](../../architecture/0001-toolchain-conventions.md)). Single page, one table.
 
-- Columns: Model (mapping `displayName`), Effort ("default" when null), Access ("API" or tier label), Pass@1 (%), Effective cost ($), Avg time, Cost per solved task ($), Output tokens, Steps, Throughput (tok/s).
-- Default sort: Pass@1 descending. Default access-route filter: **API only** (62 rows); tiers are opt-in via the filter.
-- Filters: vendor (mapping `vendor` field), access route (API / each tier), effort level, and a per-model include/exclude multi-select dropdown (all checked by default, like the DeepSWE site's models dropdown).
-- Number formatting: effective cost and cost per solved task as `$` + three significant figures ($4.33, $0.0866, $0.00619); Pass@1 as one-decimal percent; output tokens and steps as integers; throughput one decimal; avg time as `Xm Ys`.
+- Columns (headers match DeepSWE's style where possible): Model (mapping `displayName`), Pass@1, Avg cost, Cost/perf, Out tok, Steps, Avg time (est), Tok/s (est). Effort and access route are **not** columns — they render inside the Model cell: effort as a DeepSWE-style bracket ("Claude Opus 5 [max]", nothing for default effort), access as a tag on tier rows (exact styling decided in ticket 08). Model sorts by display name with effort as tiebreaker, so a model's effort variants stay adjacent.
+- Header/cell annotations, each with a tooltip: Cost/perf is the cost per solved task ("Avg cost ÷ Pass@1: what you pay per task actually solved"); "(est)" on Avg time and Tok/s marks them estimates (Avg time tooltip: excludes tool execution and gaps between the agent's calls); tier-row Avg cost cells carry "(e)" ("effective cost: average cost × subsidisation factor"). API-row Avg cost is the unadjusted average cost.
+- Sorting: every column sorts both ways via a two-state toggle (ascending ↔ descending, no unsorted state). Default sort: Pass@1 descending. Default access-route filter: **API only** (62 rows); tiers are opt-in via the filter.
+- Filters: vendor (mapping `vendor` field), access route (API / each tier), effort level, and a per-model include/exclude multi-select dropdown (all checked by default, like the DeepSWE site's models dropdown). Filtering by effort and access needs no column — they're row fields.
+- Number formatting: avg cost and cost/perf as `$` + three significant figures ($4.33, $0.0866, $0.00619); Pass@1 as one-decimal percent (no error margin, diverging from DeepSWE's "74%±4%"); output tokens and steps as integers; throughput one decimal; avg time as `Xm Ys`.
 - Attempt counts (`n_scored_attempts`) are not displayed anywhere, matching the DeepSWE site.
-- Footer/header note: DeepSWE v1.1 snapshot date, OpenRouter capture date, and "subsidised costs are rough approximations based on SemiAnalysis estimates".
+- Footer, one line per ticket that ships the data: DeepSWE v1.1 snapshot date read from `source_generated_at` (ticket 06), OpenRouter capture date (ticket 07), and "subsidised costs are rough approximations based on SemiAnalysis estimates" (ticket 08).
 
 ## Refresh scripts (manual cadence: run, review diff, commit)
 
@@ -170,10 +172,9 @@ The OpenRouter key lives only in the user's local environment (gitignored `.env`
 
 ## Repo and deploy
 
-1. User scaffolds the Vite+ template (pnpm, mise with vite-plus plugin) — user-owned step.
-2. Create the public GitHub repo: `gh repo create deepswe-analysis --public --source . --push` (no remote exists yet).
-3. `.github/workflows/ci.yml`: `vp run ready` (the template's CI checks) runs on pull requests and on push to `main`. Pushes to `main` additionally build and deploy via `actions/upload-pages-artifact` and `actions/deploy-pages`, gated by the ready job. Enable Pages with "GitHub Actions" as the source.
-4. The deploy job derives the base path from `actions/configure-pages` and passes it to `vp build --base`. Nothing hardcodes `/deepswe-analysis/`; local builds use `/`.
+1. ~~Scaffold and repo creation~~ — done in ticket [05](tickets/05-scaffold-and-deploy-foundation.md): scaffold, public repo, and Pages deploy are live (<https://eugencowie.github.io/deepswe-analysis/>).
+2. `.github/workflows/ci.yml`: `vp run ready` (the template's CI checks) runs on pull requests and on push to `main`. Pushes to `main` additionally build and deploy via `actions/upload-pages-artifact` and `actions/deploy-pages`, gated by the ready job. Pages uses "GitHub Actions" as the source.
+3. The deploy job derives the base path from `actions/configure-pages` and passes it to `vp build --base`. Nothing hardcodes `/deepswe-analysis/`; local builds use `/`. The Playwright sentinel-base smoke (ticket 06, [ADR 0001](../../architecture/0001-toolchain-conventions.md)) guards the root-absolute-URL gap this leaves.
 
 ## Acceptance criteria
 
@@ -181,4 +182,5 @@ The OpenRouter key lives only in the user's local environment (gitignored `.env`
 - Sorting any column places "–" cells last in both directions.
 - Unticking a model removes all its rows (all efforts, all access routes).
 - `derive.ts` has unit tests for row expansion, subsidisation (incl. multiplier), blank propagation, and cost per solved task; `vp run ready` passes and gates deploy.
+- The Playwright sentinel-base smoke passes: a build at a non-root base renders the table with no failed requests.
 - Both refresh scripts run clean against live sources and produce no diff immediately after a snapshot is committed (modulo `capturedAt`/`source_generated_at`).
