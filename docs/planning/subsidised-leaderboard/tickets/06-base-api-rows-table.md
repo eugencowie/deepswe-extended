@@ -28,3 +28,7 @@ Foundations this slice establishes, per the [spec](../spec.md) (Data files, Deri
 - [ ] Footer shows the DeepSWE snapshot date sourced from the data file
 - [ ] Playwright smoke passes: sentinel-base build renders the table with no failed requests
 - [ ] `vp run ready` passes and the deployed site shows the table
+
+## Comments
+
+**2026-08-23** — Scope addition during foundation work: a theme system (`theme-provider.tsx`, `mode-toggle.tsx`, dark-mode CSS variant) landed alongside the shadcn init. No spec or ticket asked for dark mode; both files are copied from the shadcn docs and treated as vendored, like the rest of `src/components/ui/`. The dropdown-menu component (also shadcn-vendored) currently exists only to serve the mode toggle; ticket 09 will reuse it for the filter dropdown. The Inter font came in as part of the shadcn setup.
