@@ -1,0 +1,57 @@
+// Shared data-shape types. Refresh scripts (tickets 10/11) import these too,
+// so they describe the checked-in files completely, not just what the UI reads.
+
+export type DeepsweSnapshot = {
+  schema_version: 1;
+  benchmark_version: "v1.1";
+  source_url: string;
+  source_generated_at: string; // ISO timestamp from the artifact
+  source_latest_job: { name: string; finished_at: string };
+  n_tasks_in_set: number;
+  source_scope: string;
+  source_unit: string;
+  raw_sha256: string; // hash of the upstream artifact this was derived from
+  cost_adjustments: { model: string; factor: number }[];
+  entries: DeepsweEntry[];
+};
+
+export type DeepsweEntry = {
+  model: string; // site model id, e.g. "claude-fable-5"
+  effort: string | null; // null = model's default effort
+  pass_at_1: number; // fraction 0..1
+  average_cost_usd: number; // display-adjusted
+  output_tokens: number; // per-attempt mean, includes reasoning tokens
+  steps: number; // agent turns per attempt
+  n_scored_attempts: number;
+  source_config: string;
+  raw_average_cost_usd: number;
+  cost_adjustment_factor: number;
+};
+
+export type SubscriptionFamily = "claude" | "chatgpt" | "none";
+
+export type ModelMappingEntry = {
+  leaderboardModel: string;
+  displayName: string;
+  vendor: string;
+  openrouterId: string | null; // null yields blank throughput/time (ticket 07)
+  family: SubscriptionFamily;
+  usageMultiplier: number;
+};
+
+// Ticket 08 widens this union with tier ids; widening adds rows without
+// reshaping the row type.
+export type AccessRoute = "api";
+
+export type LeaderboardRow = {
+  model: string;
+  displayName: string;
+  vendor: string;
+  effort: string | null;
+  accessRoute: AccessRoute;
+  passAt1: number;
+  effectiveCostUsd: number;
+  costPerSolvedTaskUsd: number | null; // null when passAt1 is 0
+  outputTokens: number;
+  steps: number;
+};
