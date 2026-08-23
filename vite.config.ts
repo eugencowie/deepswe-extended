@@ -1,5 +1,7 @@
 import { defineConfig, lazyPlugins, mergeConfig, type UserConfig } from "vite-plus";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import path from "node:path";
 
 const baseConfig: UserConfig = {
   lint: { plugins: ["eslint", "typescript", "unicorn", "oxc"] },
@@ -26,6 +28,21 @@ const reactConfig: UserConfig = {
   plugins: lazyPlugins(() => [react()]),
 };
 
+const shadcnConfig: UserConfig = {
+  lint: {
+    overrides: [
+      {
+        files: ["**/components/ui/**"],
+        rules: { "react/only-export-components": "off" },
+      },
+    ],
+  },
+  plugins: lazyPlugins(() => [tailwindcss()]),
+  resolve: {
+    alias: { "@": path.resolve(__dirname, "./src") },
+  },
+};
+
 const projectConfig: UserConfig = {
   fmt: { ignorePatterns: ["docs/"] },
 };
@@ -34,4 +51,10 @@ function defineMergedConfig(configs: UserConfig[]) {
   return defineConfig(configs.reduce((merged, next) => mergeConfig(merged, next), {}));
 }
 
-export default defineMergedConfig([baseConfig, vitePlusConfig, reactConfig, projectConfig]);
+export default defineMergedConfig([
+  baseConfig,
+  vitePlusConfig,
+  reactConfig,
+  shadcnConfig,
+  projectConfig,
+]);
