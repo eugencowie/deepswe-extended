@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { createColumnHelper, tableFeatures, useTable } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp } from "lucide-react";
 
@@ -16,98 +16,118 @@ import { compareBlankLast, compareModel, type SortDirection } from "@/data/deriv
 import { formatInteger, formatPassAt1, formatTokens, formatUsd } from "@/data/format";
 import type { LeaderboardRow } from "@/data/types";
 
+type ColumnId = "model" | "passAt1" | "avgCost" | "costPerf" | "outTok" | "steps";
+
+// Everything a column needs lives in one spec: adding a column (tickets 07/08)
+// means adding one entry here, nothing else.
+type ColumnSpec = {
+  id: ColumnId;
+  header: string;
+  tooltip?: string;
+  align: "left" | "right";
+  firstDirection: SortDirection;
+  cell: (row: LeaderboardRow) => ReactNode;
+  compare: (a: LeaderboardRow, b: LeaderboardRow, direction: SortDirection) => number;
+};
+
+function numericColumn(spec: {
+  id: ColumnId;
+  header: string;
+  tooltip?: string;
+  value: (row: LeaderboardRow) => number | null;
+  cell: (row: LeaderboardRow) => ReactNode;
+}): ColumnSpec {
+  return {
+    ...spec,
+    align: "right",
+    firstDirection: "desc",
+    compare: (a, b, direction) => compareBlankLast(spec.value(a), spec.value(b), direction),
+  };
+}
+
+const columnSpecs: ColumnSpec[] = [
+  {
+    id: "model",
+    header: "Model",
+    align: "left",
+    firstDirection: "asc",
+    compare: (a, b, direction) => (direction === "asc" ? compareModel(a, b) : compareModel(b, a)),
+    cell: (row) => (
+      <>
+        {row.displayName}
+        {row.effort !== null && <span className="text-muted-foreground"> [{row.effort}]</span>}
+      </>
+    ),
+  },
+  numericColumn({
+    id: "passAt1",
+    header: "Pass@1",
+    value: (row) => row.passAt1,
+    cell: (row) => formatPassAt1(row.passAt1),
+  }),
+  numericColumn({
+    id: "avgCost",
+    header: "Avg cost",
+    value: (row) => row.effectiveCostUsd,
+    cell: (row) => formatUsd(row.effectiveCostUsd),
+  }),
+  numericColumn({
+    id: "costPerf",
+    header: "Cost/perf",
+    tooltip: "Avg cost ÷ Pass@1: what you pay per task actually solved",
+    value: (row) => row.costPerSolvedTaskUsd,
+    cell: (row) => formatUsd(row.costPerSolvedTaskUsd),
+  }),
+  numericColumn({
+    id: "outTok",
+    header: "Out tok",
+    value: (row) => row.outputTokens,
+    cell: (row) => formatTokens(row.outputTokens),
+  }),
+  numericColumn({
+    id: "steps",
+    header: "Steps",
+    value: (row) => row.steps,
+    cell: (row) => formatInteger(row.steps),
+  }),
+];
+
 const features = tableFeatures({});
 const helper = createColumnHelper<typeof features, LeaderboardRow>();
 
-const columns = helper.columns([
-  helper.accessor("displayName", {
-    id: "model",
-    header: "Model",
-    cell: ({ row }) => (
-      <>
-        {row.original.displayName}
-        {row.original.effort !== null && (
-          <span className="text-muted-foreground"> [{row.original.effort}]</span>
-        )}
-      </>
-    ),
-  }),
-  helper.accessor("passAt1", {
-    id: "passAt1",
-    header: "Pass@1",
-    cell: ({ row }) => formatPassAt1(row.original.passAt1),
-  }),
-  helper.accessor("effectiveCostUsd", {
-    id: "avgCost",
-    header: "Avg cost",
-    cell: ({ row }) => formatUsd(row.original.effectiveCostUsd),
-  }),
-  helper.accessor("costPerSolvedTaskUsd", {
-    id: "costPerf",
-    header: "Cost/perf",
-    cell: ({ row }) => formatUsd(row.original.costPerSolvedTaskUsd),
-  }),
-  helper.accessor("outputTokens", {
-    id: "outTok",
-    header: "Out tok",
-    cell: ({ row }) => formatTokens(row.original.outputTokens),
-  }),
-  helper.accessor("steps", {
-    id: "steps",
-    header: "Steps",
-    cell: ({ row }) => formatInteger(row.original.steps),
-  }),
-]);
-
-// Sorting lives outside TanStack: its sorted row model reverses comparator
-// results for descending order, which would put blank cells first. These
-// comparators receive the direction instead, so blanks sort last both ways.
-type ColumnSort = {
-  compare: (a: LeaderboardRow, b: LeaderboardRow, direction: SortDirection) => number;
-  firstDirection: SortDirection;
-};
-
-const numericSort = (value: (row: LeaderboardRow) => number | null): ColumnSort => ({
-  compare: (a, b, direction) => compareBlankLast(value(a), value(b), direction),
-  firstDirection: "desc",
-});
-
-const columnSorts: Record<string, ColumnSort> = {
-  model: {
-    compare: (a, b, direction) => (direction === "asc" ? compareModel(a, b) : compareModel(b, a)),
-    firstDirection: "asc",
-  },
-  passAt1: numericSort((row) => row.passAt1),
-  avgCost: numericSort((row) => row.effectiveCostUsd),
-  costPerf: numericSort((row) => row.costPerSolvedTaskUsd),
-  outTok: numericSort((row) => row.outputTokens),
-  steps: numericSort((row) => row.steps),
-};
-
-const headerTooltips: Record<string, string> = {
-  costPerf: "Avg cost ÷ Pass@1: what you pay per task actually solved",
-};
+const columns = helper.columns(
+  columnSpecs.map((spec) =>
+    helper.display({
+      id: spec.id,
+      header: spec.header,
+      cell: ({ row }) => spec.cell(row.original),
+    }),
+  ),
+);
 
 export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
-  const [sort, setSort] = useState<{ columnId: string; direction: SortDirection }>({
+  const [sort, setSort] = useState<{ columnId: ColumnId; direction: SortDirection }>({
     columnId: "passAt1",
     direction: "desc",
   });
 
+  // Sorting lives outside TanStack: its sorted row model reverses comparator
+  // results for descending order, which would put blank cells first. The spec
+  // comparators receive the direction instead, so blanks sort last both ways.
   const sortedRows = useMemo(() => {
-    const { compare } = columnSorts[sort.columnId];
-    return rows.toSorted((a, b) => compare(a, b, sort.direction));
+    const spec = columnSpecs.find((s) => s.id === sort.columnId) ?? columnSpecs[0];
+    return rows.toSorted((a, b) => spec.compare(a, b, sort.direction));
   }, [rows, sort]);
 
   const table = useTable({ features, columns, data: sortedRows });
 
   // Two-state toggle: a sorted column flips direction, a fresh column starts
   // in its natural direction. There is no unsorted state.
-  const toggleSort = (columnId: string) => {
+  const toggleSort = (spec: ColumnSpec) => {
     setSort((current) =>
-      current.columnId === columnId
-        ? { columnId, direction: current.direction === "asc" ? "desc" : "asc" }
-        : { columnId, direction: columnSorts[columnId].firstDirection },
+      current.columnId === spec.id
+        ? { columnId: spec.id, direction: current.direction === "asc" ? "desc" : "asc" }
+        : { columnId: spec.id, direction: spec.firstDirection },
     );
   };
 
@@ -116,11 +136,14 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
       <TableHeader>
         {table.getHeaderGroups().map((group) => (
           <TableRow key={group.id}>
-            {group.headers.map((header) => {
-              const isSorted = sort.columnId === header.column.id;
-              const tooltip = headerTooltips[header.column.id];
+            {/* Column order never changes, so headers zip with specs by index. */}
+            {group.headers.map((header, index) => {
+              const spec = columnSpecs[index];
+              const isSorted = sort.columnId === spec.id;
               const label = (
-                <span className={cn(tooltip && "underline decoration-dotted underline-offset-4")}>
+                <span
+                  className={cn(spec.tooltip && "underline decoration-dotted underline-offset-4")}
+                >
                   <table.FlexRender header={header} />
                 </span>
               );
@@ -130,17 +153,17 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
                   aria-sort={
                     isSorted ? (sort.direction === "asc" ? "ascending" : "descending") : undefined
                   }
-                  className={cn(header.column.id !== "model" && "text-right")}
+                  className={cn(spec.align === "right" && "text-right")}
                 >
                   <button
                     type="button"
-                    onClick={() => toggleSort(header.column.id)}
+                    onClick={() => toggleSort(spec)}
                     className="inline-flex cursor-pointer items-center gap-1 font-medium"
                   >
-                    {tooltip ? (
+                    {spec.tooltip ? (
                       <Tooltip>
                         <TooltipTrigger render={<span />}>{label}</TooltipTrigger>
-                        <TooltipContent>{tooltip}</TooltipContent>
+                        <TooltipContent>{spec.tooltip}</TooltipContent>
                       </Tooltip>
                     ) : (
                       label
@@ -161,10 +184,10 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
       <TableBody>
         {table.getRowModel().rows.map((row) => (
           <TableRow key={row.id}>
-            {row.getAllCells().map((cell) => (
+            {row.getAllCells().map((cell, index) => (
               <TableCell
                 key={cell.id}
-                className={cn(cell.column.id !== "model" && "text-right tabular-nums")}
+                className={cn(columnSpecs[index].align === "right" && "text-right tabular-nums")}
               >
                 <table.FlexRender cell={cell} />
               </TableCell>
