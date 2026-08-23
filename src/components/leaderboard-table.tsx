@@ -13,7 +13,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/components/ui/utils";
 import { compareBlankLast, compareModel, type SortDirection } from "@/data/derive";
-import { formatInteger, formatPassAt1, formatUsd } from "@/data/format";
+import { formatInteger, formatPassAt1, formatTokens, formatUsd } from "@/data/format";
 import type { LeaderboardRow } from "@/data/types";
 
 const features = tableFeatures({});
@@ -50,7 +50,7 @@ const columns = helper.columns([
   helper.accessor("outputTokens", {
     id: "outTok",
     header: "Out tok",
-    cell: ({ row }) => formatInteger(row.original.outputTokens),
+    cell: ({ row }) => formatTokens(row.original.outputTokens),
   }),
   helper.accessor("steps", {
     id: "steps",

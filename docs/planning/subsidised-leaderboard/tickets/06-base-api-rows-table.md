@@ -12,7 +12,7 @@ Foundations this slice establishes, per the [spec](../spec.md) (Data files, Deri
 
 - The DeepSWE snapshot copied **verbatim** from the research capture (keeping `raw_sha256`; the type gains the field) and the full 25-entry model mapping (display name, vendor, OpenRouter id, family, usage multiplier) checked in as data files, imported at build time through shared TypeScript types.
 - A pure derive layer producing API rows from snapshot + mapping. Each row carries an access-route field, fixed to "API" in this slice, so ticket 08 adds rows instead of reshaping the type. A leaderboard model missing from the mapping makes derive throw, and a unit test enforces full coverage — the failure surfaces through `vp run ready` and CI, with no separate build-step check.
-- Cost per solved task = cost ÷ Pass@1, formatted as `$` + three significant figures, displayed under the "Cost/perf" header.
+- Cost per solved task = cost ÷ Pass@1, formatted as standard two-decimal currency, displayed under the "Cost/perf" header.
 - Sorting is a two-state toggle (ascending ↔ descending, no unsorted state). The blank-last comparator ("–" cells sort last in both directions) is built and unit-tested now, even though the seed data may never blank a cell.
 - A footer line shows the snapshot provenance — "DeepSWE v1.1 snapshot, 2026-08-20" — read from the data file's `source_generated_at`, not hardcoded. Tickets 07 and 08 add their own footer lines.
 - The UI stack replaces the template scaffold: React + TanStack Table + shadcn/ui (Base UI primitives) + Tailwind, per [ADR 0001](../../../architecture/0001-toolchain-conventions.md). Use shadcn's table markup with your own TanStack wiring; don't stack two table abstractions. shadcn footprint is minimal: init plus Table, Tooltip, and Button — later tickets `shadcn add` their own.
@@ -43,3 +43,5 @@ Foundations this slice establishes, per the [spec](../spec.md) (Data files, Deri
 - Editing `ci.yml` is in scope: the CI job needs a Chromium install step (`pnpm exec playwright install chromium --with-deps`) or the smoke can't run.
 - The footer provenance line links to <https://deepswe.datacurve.ai> (the site, not the raw artifact URL). Date is the UTC date of `source_generated_at`.
 - The Cost/perf tooltip trigger is the header text itself with a dotted underline, no info icon. Annotated header/cell text being hoverable is the convention tickets 07 and 08 reuse for "(est)" and "(e)".
+
+**Formatting revision (2026-08-23):** after a side-by-side with the DeepSWE site, the user changed the number formats: Pass@1 as a whole percent, costs as standard two-decimal currency (sub-cent collapses to $0.01/$0.00, reading as "effectively free" on future tier rows), output tokens in thousands with a k suffix. Spec and ticket 08 updated to match.
