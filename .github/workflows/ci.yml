@@ -16,9 +16,23 @@ jobs:
         with: { cache: true }
       - run: vp run ready
 
+  e2e:
+    needs: ready
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with: { persist-credentials: false }
+      - uses: voidzero-dev/setup-vp@v1.17.0
+        with: { cache: true }
+      - run: vp run e2e:install
+      - run: vp run e2e
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with: { name: playwright-report, path: playwright-report }
+
   deploy:
     if: github.event_name == 'push'
-    needs: ready
+    needs: e2e
     runs-on: ubuntu-latest
     permissions:
       contents: read

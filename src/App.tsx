@@ -1,18 +1,34 @@
-import { Button } from "@/components/ui/button";
+import { LeaderboardTable } from "@/components/leaderboard-table";
 import { ModeToggle } from "@/components/ui/mode-toggle";
+import { deriveRows } from "@/data/derive";
+import { deepsweSnapshot, modelMapping } from "@/data/sources";
+
+const rows = deriveRows(deepsweSnapshot, modelMapping);
+
+// The UTC date of the snapshot timestamp, robust to non-UTC offsets in a
+// future refresh (a plain slice would take the offset-local date).
+const snapshotDate = new Date(deepsweSnapshot.source_generated_at).toISOString().slice(0, 10);
 
 function App() {
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <ModeToggle />
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
-      </div>
+    <div className="mx-auto flex min-h-svh max-w-4xl flex-col gap-4 p-6">
+      <header className="flex items-center justify-between">
+        <h1 className="text-lg font-semibold">DeepSWE v1.1 leaderboard</h1>
+        <ModeToggle />
+      </header>
+      <main>
+        <LeaderboardTable rows={rows} />
+      </main>
+      <footer className="text-xs text-muted-foreground">
+        <p>
+          <a
+            href="https://deepswe.datacurve.ai"
+            className="underline decoration-dotted underline-offset-4 hover:text-foreground"
+          >
+            DeepSWE v1.1 snapshot, {snapshotDate}
+          </a>
+        </p>
+      </footer>
     </div>
   );
 }

@@ -37,6 +37,14 @@ run = "vp check"
 description = "Run tests"
 run = "vp test"
 
+[tasks."e2e:install"]
+description = "Install browsers for end-to-end tests"
+run = "vp run e2e:install"
+
+[tasks.e2e]
+description = "Run end-to-end tests"
+run = "vp run e2e"
+
 [tasks.dev]
 description = "Run development server"
 run = "vp dev"

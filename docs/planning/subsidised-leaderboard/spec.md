@@ -43,7 +43,10 @@ type DeepsweSnapshot = {
   benchmark_version: "v1.1";
   source_url: string;
   source_generated_at: string;      // ISO timestamp from the artifact
+  source_latest_job: { name: string; finished_at: string };
   n_tasks_in_set: number;           // 113
+  source_scope: string;
+  source_unit: string;
   raw_sha256: string;               // hash of the upstream artifact this was derived from
   cost_adjustments: { model: string; factor: number }[];
   entries: DeepsweEntry[];
@@ -157,7 +160,7 @@ React + TypeScript + TanStack Table on the Vite+ toolchain, with shadcn/ui compo
 - Header/cell annotations, each with a tooltip: Cost/perf is the cost per solved task ("Avg cost ÷ Pass@1: what you pay per task actually solved"); "(est)" on Avg time and Tok/s marks them estimates (Avg time tooltip: excludes tool execution and gaps between the agent's calls); tier-row Avg cost cells carry "(e)" ("effective cost: average cost × subsidisation factor"). API-row Avg cost is the unadjusted average cost.
 - Sorting: every column sorts both ways via a two-state toggle (ascending ↔ descending, no unsorted state). Default sort: Pass@1 descending. Default access-route filter: **API only** (62 rows); tiers are opt-in via the filter.
 - Filters: vendor (mapping `vendor` field), access route (API / each tier), effort level, and a per-model include/exclude multi-select dropdown (all checked by default, like the DeepSWE site's models dropdown). Filtering by effort and access needs no column — they're row fields.
-- Number formatting: avg cost and cost/perf as `$` + three significant figures ($4.33, $0.0866, $0.00619); Pass@1 as one-decimal percent (no error margin, diverging from DeepSWE's "74%±4%"); output tokens and steps as integers; throughput one decimal; avg time as `Xm Ys`.
+- Number formatting: avg cost and cost/perf as standard two-decimal currency ($4.33, $0.61); sub-cent values collapse to $0.01 or $0.00, which is deliberate — tiny tier costs should read as "effectively free" rather than invite comparison of raw values. Pass@1 as a whole percent (no error margin, diverging from DeepSWE's "74%±4%"); output tokens in thousands with a k suffix (118k); steps as integers; throughput one decimal; avg time as `Xm Ys`. (Revised during ticket 06 from three-significant-figure costs and one-decimal percents, after a side-by-side with the DeepSWE site.)
 - Attempt counts (`n_scored_attempts`) are not displayed anywhere, matching the DeepSWE site.
 - Footer, one line per ticket that ships the data: DeepSWE v1.1 snapshot date read from `source_generated_at` (ticket 06), OpenRouter capture date (ticket 07), and "subsidised costs are rough approximations based on SemiAnalysis estimates" (ticket 08).
 
@@ -174,7 +177,7 @@ The OpenRouter key lives only in the user's local environment (gitignored `.env`
 
 1. ~~Scaffold and repo creation~~ — done in ticket [05](tickets/05-scaffold-and-deploy-foundation.md): scaffold, public repo, and Pages deploy are live (<https://eugencowie.github.io/deepswe-analysis/>).
 2. `.github/workflows/ci.yml`: `vp run ready` (the template's CI checks) runs on pull requests and on push to `main`. Pushes to `main` additionally build and deploy via `actions/upload-pages-artifact` and `actions/deploy-pages`, gated by the ready job. Pages uses "GitHub Actions" as the source.
-3. The deploy job derives the base path from `actions/configure-pages` and passes it to `vp build --base`. Nothing hardcodes `/deepswe-analysis/`; local builds use `/`. The Playwright sentinel-base smoke (ticket 06, [ADR 0001](../../architecture/0001-toolchain-conventions.md)) guards the root-absolute-URL gap this leaves.
+3. The deploy job derives the base path from `actions/configure-pages` and passes it to `vp build --base`. Nothing hardcodes `/deepswe-analysis/`; local builds use `/`. The Playwright e2e smoke (ticket 06, [ADR 0001](../../architecture/0001-toolchain-conventions.md)) guards the root-absolute-URL gap this leaves.
 
 ## Acceptance criteria
 
@@ -182,5 +185,5 @@ The OpenRouter key lives only in the user's local environment (gitignored `.env`
 - Sorting any column places "–" cells last in both directions.
 - Unticking a model removes all its rows (all efforts, all access routes).
 - `derive.ts` has unit tests for row expansion, subsidisation (incl. multiplier), blank propagation, and cost per solved task; `vp run ready` passes and gates deploy.
-- The Playwright sentinel-base smoke passes: a build at a non-root base renders the table with no failed requests.
+- The Playwright e2e smoke passes: a build at a non-root base renders the table with no failed requests.
 - Both refresh scripts run clean against live sources and produce no diff immediately after a snapshot is committed (modulo `capturedAt`/`source_generated_at`).

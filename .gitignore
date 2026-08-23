@@ -150,6 +150,16 @@ vite.config.ts.timestamp-*
 .vite/
 
 #
+# Playwright
+#
+
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+playwright/.auth/
+
+#
 # https://github.com/github/gitignore/blob/main/Global/mise.gitignore
 #
 
