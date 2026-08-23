@@ -9,7 +9,15 @@
     "dev:tailnet": "concurrently --passthrough-arguments --kill-others --success first --names tailscale,vp 'tailscale serve 5173' '__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=.ts.net vp dev --host 127.0.0.1 --port 5173 --strictPort {@}' --",
     "preview:tailnet": "concurrently --passthrough-arguments --kill-others --success first --names tailscale,vp 'tailscale serve 4173' '__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=.ts.net vp preview --host 127.0.0.1 --port 4173 --strictPort {@}' --"
   },
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
   "devDependencies": {
+    "@types/node": "^26.2.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.1.0",
     "concurrently": "^10.0.5",
     "typescript": "~7.0.2",
     "vite": "catalog:",

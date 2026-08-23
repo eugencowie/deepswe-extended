@@ -1,7 +1,7 @@
 # 06: Base leaderboard table of API rows
 
 Type: task
-Status: ready-for-agent
+Status: claimed
 Blocked by: 05
 
 ## What to build
