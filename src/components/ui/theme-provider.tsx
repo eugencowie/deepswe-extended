@@ -6,7 +6,7 @@ export type Theme = "dark" | "light" | "system";
 
 const themes: Theme[] = ["dark", "light", "system"];
 
-export function isTheme(value: string | null): value is Theme {
+function isTheme(value: string | null): value is Theme {
   return themes.includes(value as Theme);
 }
 

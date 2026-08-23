@@ -28,28 +28,28 @@ test("native controls follow the theme via the color-scheme property", async ({ 
   expect(await colorScheme()).toBe("light");
 });
 
-test("mode toggle shows the active selection", async ({ page }) => {
+test("mode toggle cycles system -> light -> dark -> system", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "dark" });
   await page.goto("./");
 
+  const html = page.locator("html");
+  const stored = () => page.evaluate(() => localStorage.getItem("vite-ui-theme"));
   const toggle = page.getByRole("button", { name: "Toggle theme" });
-  await toggle.click();
-  await expect(page.getByRole("menuitemradio", { name: "System" })).toHaveAttribute(
-    "aria-checked",
-    "true",
-  );
 
-  await page.getByRole("menuitemradio", { name: "Dark" }).click();
-  await expect(page.locator("html")).toHaveClass("dark");
+  // Default preference is system, which the emulated OS resolves to dark.
+  await expect(html).toHaveClass("dark");
 
   await toggle.click();
-  await expect(page.getByRole("menuitemradio", { name: "Dark" })).toHaveAttribute(
-    "aria-checked",
-    "true",
-  );
-  await expect(page.getByRole("menuitemradio", { name: "System" })).toHaveAttribute(
-    "aria-checked",
-    "false",
-  );
+  await expect(html).toHaveClass("light");
+  expect(await stored()).toBe("light");
+
+  await toggle.click();
+  await expect(html).toHaveClass("dark");
+  expect(await stored()).toBe("dark");
+
+  await toggle.click();
+  expect(await stored()).toBe("system");
+  await expect(html).toHaveClass("dark");
 });
 
 test("an explicit theme ignores OS appearance changes", async ({ page }) => {
