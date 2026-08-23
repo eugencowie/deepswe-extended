@@ -43,7 +43,10 @@ type DeepsweSnapshot = {
   benchmark_version: "v1.1";
   source_url: string;
   source_generated_at: string;      // ISO timestamp from the artifact
+  source_latest_job: { name: string; finished_at: string };
   n_tasks_in_set: number;           // 113
+  source_scope: string;
+  source_unit: string;
   raw_sha256: string;               // hash of the upstream artifact this was derived from
   cost_adjustments: { model: string; factor: number }[];
   entries: DeepsweEntry[];

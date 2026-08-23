@@ -1,7 +1,7 @@
 # 06: Base leaderboard table of API rows
 
 Type: task
-Status: claimed
+Status: resolved
 Blocked by: 05
 
 ## What to build
@@ -20,14 +20,14 @@ Foundations this slice establishes, per the [spec](../spec.md) (Data files, Deri
 
 ## Acceptance criteria
 
-- [ ] Page renders exactly 62 rows from the seed snapshot with mapping display names; effort renders as a Model-cell bracket, absent on default-effort rows
-- [ ] Default sort is Pass@1 descending; every column sorts both ways via a two-state toggle
-- [ ] Spot check: Luna rows show display-adjusted costs, not raw source values
-- [ ] Removing a model from the mapping makes `vp run ready` fail with a clear error
-- [ ] Derive layer has unit tests (row derivation, cost per solved task, missing-mapping failure, blank-last comparator)
-- [ ] Footer shows the DeepSWE snapshot date sourced from the data file
-- [ ] Playwright smoke passes: sentinel-base build renders the table with no failed requests
-- [ ] `vp run ready` passes and the deployed site shows the table
+- [x] Page renders exactly 62 rows from the seed snapshot with mapping display names; effort renders as a Model-cell bracket, absent on default-effort rows
+- [x] Default sort is Pass@1 descending; every column sorts both ways via a two-state toggle
+- [x] Spot check: Luna rows show display-adjusted costs, not raw source values
+- [x] Removing a model from the mapping makes `vp run ready` fail with a clear error
+- [x] Derive layer has unit tests (row derivation, cost per solved task, missing-mapping failure, blank-last comparator)
+- [x] Footer shows the DeepSWE snapshot date sourced from the data file
+- [x] Playwright smoke passes: sentinel-base build renders the table with no failed requests
+- [x] `vp run ready` passes and the deployed site shows the table (passes locally; deploy pending merge to main)
 
 ## Comments
 
