@@ -1,7 +1,7 @@
 # 01: System theme reactivity + dark-mode sweep
 
 Type: task
-Status: claimed
+Status: resolved
 
 ## What to build
 
@@ -21,10 +21,12 @@ Update `src/components/ui/README.md`: `theme-provider` and `mode-toggle` have di
 - [x] With theme `light` or `dark`, flipping the OS appearance changes nothing
 - [x] e2e: flip `colorScheme` mid-session and assert the `<html>` class updates; assert the toggle shows the active selection; assert `color-scheme` via `getComputedStyle`
 - [x] Junk in the `vite-ui-theme` localStorage key falls back to the default theme
-- [ ] No light flash when loading with a dark resolved theme (manual verification — note the check in a comment below when done)
+- [x] No light flash when loading with a dark resolved theme (manual verification — note the check in a comment below when done)
 - [x] README records the divergence from the vendored shadcn files
 - [x] `vp run ready` and the e2e task pass
 
 ## Comments
 
-**2026-08-23** — Implemented in `e2e/theme.test.ts` (five tests: live system reactivity, `color-scheme`, toggle state, explicit theme ignoring OS flips, localStorage fallback) plus edits to `theme-provider.tsx`, `mode-toggle.tsx` (radio group), `index.css`, and `index.html`. Ride-along: `e2e/` moved from `tsconfig.node.json` into a new `tsconfig.e2e.json` (extends it, adds the DOM lib) because the `page.evaluate` callbacks use browser globals. Status is `ready-for-human`: code review is addressed and all automated criteria pass; only the manual FOUC verification on macOS remains.
+**2026-08-23** — Implemented in `e2e/theme.test.ts` (five tests: live system reactivity, `color-scheme`, toggle state, explicit theme ignoring OS flips, localStorage fallback) plus edits to `theme-provider.tsx`, `mode-toggle.tsx` (radio group), `index.css`, and `index.html`. Ride-along: `e2e/` moved from `tsconfig.node.json` into a new `tsconfig.e2e.json` (extends it, adds the DOM lib) because the `page.evaluate` callbacks use browser globals. Status was `ready-for-human`: code review is addressed and all automated criteria pass; only the manual FOUC verification on macOS remained.
+
+**2026-08-23** — User verified the FOUC fix manually on macOS; resolved. Follow-up tweak in the same session: the toggle's trigger icon now reflects the *preference*, not the resolved appearance — Sun for light, Moon for dark, Monitor for system (previously the vendored Sun/Moon pair swapped via the `dark:` CSS variant, so `system` displayed as whichever theme the OS resolved to).
