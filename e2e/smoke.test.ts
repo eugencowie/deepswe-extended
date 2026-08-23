@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import snapshot from "../data/deepswe-v1.1.json" with { type: "json" };
 
-test("sentinel-base build renders the table with no failed requests", async ({ page }) => {
+test("e2e build renders the table with no failed requests", async ({ page }) => {
   const failures: string[] = [];
   page.on("requestfailed", (request) => {
     failures.push(`${request.url()} (${request.failure()?.errorText})`);

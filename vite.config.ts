@@ -1,4 +1,4 @@
-import { defineConfig, lazyPlugins, mergeConfig, type UserConfig } from "vite-plus";
+import { configDefaults, defineConfig, lazyPlugins, mergeConfig, type UserConfig } from "vite-plus";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "node:path";
@@ -43,10 +43,13 @@ const shadcnConfig: UserConfig = {
   },
 };
 
+const playwrightConfig: UserConfig = {
+  // `e2e/` belongs to Playwright, not Vitest - ensure `vp test` excludes it
+  test: { exclude: [...configDefaults.exclude, "e2e/**"] },
+};
+
 const projectConfig: UserConfig = {
   fmt: { ignorePatterns: ["docs/"] },
-  // e2e/ is Playwright's, not Vitest's; vp test must not pick up its specs.
-  test: { include: ["src/**/*.test.{ts,tsx}"] },
 };
 
 function defineMergedConfig(configs: UserConfig[]) {
@@ -58,5 +61,6 @@ export default defineMergedConfig([
   vitePlusConfig,
   reactConfig,
   shadcnConfig,
+  playwrightConfig,
   projectConfig,
 ]);

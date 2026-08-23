@@ -16,7 +16,7 @@ Foundations this slice establishes, per the [spec](../spec.md) (Data files, Deri
 - Sorting is a two-state toggle (ascending ↔ descending, no unsorted state). The blank-last comparator ("–" cells sort last in both directions) is built and unit-tested now, even though the seed data may never blank a cell.
 - A footer line shows the snapshot provenance — "DeepSWE v1.1 snapshot, 2026-08-20" — read from the data file's `source_generated_at`, not hardcoded. Tickets 07 and 08 add their own footer lines.
 - The UI stack replaces the template scaffold: React + TanStack Table + shadcn/ui (Base UI primitives) + Tailwind, per [ADR 0001](../../../architecture/0001-toolchain-conventions.md). Use shadcn's table markup with your own TanStack wiring; don't stack two table abstractions. shadcn footprint is minimal: init plus Table, Tooltip, and Button — later tickets `shadcn add` their own.
-- A minimal Playwright smoke: standalone `@playwright/test`, Chromium only, living in `e2e/` (excluded from Vitest's glob) — build at `/sentinel-base/`, serve with `vp preview`, assert the table renders with no failed requests. Appended to the `ready` script so CI and deploy gate on it. This is the gate for the root-absolute-URL bug class the base-at-deploy-time convention leaves open.
+- A minimal Playwright smoke: standalone `@playwright/test`, Chromium only, living in `e2e/` (excluded from Vitest's glob) — build at `/e2e/`, serve with `vp preview`, assert the table renders with no failed requests. It runs as its own `e2e` task and CI job between `ready` and deploy, so deploy still gates on it while `ready` stays fast and Chromium-free. This is the gate for the root-absolute-URL bug class the base-at-deploy-time convention leaves open.
 
 ## Acceptance criteria
 
@@ -26,7 +26,7 @@ Foundations this slice establishes, per the [spec](../spec.md) (Data files, Deri
 - [x] Removing a model from the mapping makes `vp run ready` fail with a clear error
 - [x] Derive layer has unit tests (row derivation, cost per solved task, missing-mapping failure, blank-last comparator)
 - [x] Footer shows the DeepSWE snapshot date sourced from the data file
-- [x] Playwright smoke passes: sentinel-base build renders the table with no failed requests
+- [x] Playwright smoke passes: e2e build renders the table with no failed requests
 - [x] `vp run ready` passes and the deployed site shows the table (passes locally; deploy pending merge to main)
 
 ## Comments
@@ -39,8 +39,8 @@ Foundations this slice establishes, per the [spec](../spec.md) (Data files, Deri
 - First-click sort direction follows TanStack's convention: numeric columns start descending, Model starts ascending. Single-column sort only, no shift-click multi-sort.
 - Model-sort effort tiebreak uses semantic order: default (null) first, then low, medium, high, xhigh, max. Presentation logic, not glossary material.
 - Row type gets `accessRoute: "api"` (a union of one), widened with tier ids in ticket 08. Widening satisfies "adds rows instead of reshaping the type". In the UI, API is the unmarked default, like default effort: only tier rows get a tag (ticket 08).
-- The sentinel-base build replaces the plain `vp build` in `ready`: the deploy job rebuilds with the real Pages base anyway, so building twice adds nothing. `ready` becomes check, test, `vp build --base /sentinel-base/`, `playwright test`, with Playwright's `webServer` owning the `vp preview` lifecycle.
-- Editing `ci.yml` is in scope: the CI job needs a Chromium install step or the smoke can't run. (Implemented as `vp exec playwright install chromium --with-deps` — vp wraps the package manager per AGENTS.md, and plain `pnpm` isn't guaranteed on PATH.)
+- The smoke lives in its own `e2e` script (`vp build --base /e2e/ && playwright test`), with Playwright's `webServer` owning the `vp preview` lifecycle. `ready` keeps the plain `vp build`. (Originally the sentinel-base build replaced the build inside `ready`; the user split the two so `ready` stays fast and Chromium-free, with deploy gating on both.)
+- Editing `ci.yml` is in scope: the e2e job installs Chromium via the `e2e:install` script (`playwright install chromium --with-deps`) before running the smoke, and uploads the Playwright report as an artifact.
 - The footer provenance line links to <https://deepswe.datacurve.ai> (the site, not the raw artifact URL). Date is the UTC date of `source_generated_at`.
 - The Cost/perf tooltip trigger is the header text itself with a dotted underline, no info icon. Annotated header/cell text being hoverable is the convention tickets 07 and 08 reuse for "(est)" and "(e)".
 
