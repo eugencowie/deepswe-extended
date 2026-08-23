@@ -1,6 +1,14 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-type Theme = "dark" | "light" | "system";
+// The pre-paint script in index.html duplicates the storage key and the
+// system-theme resolution below - keep the two in sync.
+export type Theme = "dark" | "light" | "system";
+
+const themes: Theme[] = ["dark", "light", "system"];
+
+export function isTheme(value: string | null): value is Theme {
+  return themes.includes(value as Theme);
+}
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -26,25 +34,29 @@ export function ThemeProvider({
   storageKey = "vite-ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme,
-  );
+  const [theme, setTheme] = useState<Theme>(() => {
+    const stored = localStorage.getItem(storageKey);
+    return isTheme(stored) ? stored : defaultTheme;
+  });
 
   useEffect(() => {
     const root = window.document.documentElement;
 
-    root.classList.remove("light", "dark");
+    const applyResolvedTheme = (resolved: "dark" | "light") => {
+      root.classList.remove("light", "dark");
+      root.classList.add(resolved);
+    };
 
     if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
+      const media = window.matchMedia("(prefers-color-scheme: dark)");
+      const applySystemTheme = () => applyResolvedTheme(media.matches ? "dark" : "light");
 
-      root.classList.add(systemTheme);
-      return;
+      applySystemTheme();
+      media.addEventListener("change", applySystemTheme);
+      return () => media.removeEventListener("change", applySystemTheme);
     }
 
-    root.classList.add(theme);
+    applyResolvedTheme(theme);
   }, [theme]);
 
   const value = {
