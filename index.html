@@ -5,6 +5,17 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>deepswe-analysis</title>
+    <script>
+      {
+        // Blocking pre-paint theme resolution to avoid a flash of light theme
+        const storage = localStorage.getItem("vite-ui-theme");
+        const stored = storage === "light" || storage === "dark" ? storage : "system";
+        const darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const current = darkMode ? "dark" : "light";
+        const resolved = stored === "system" ? current : stored;
+        document.documentElement.classList.add(resolved);
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
