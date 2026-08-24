@@ -1,9 +1,9 @@
 import { LeaderboardTable } from "@/components/leaderboard-table";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { deriveRows } from "@/data/derive";
-import { deepsweSnapshot, modelMapping } from "@/data/sources";
+import { deepsweSnapshot, modelMapping, throughputSnapshot } from "@/data/sources";
 
-const rows = deriveRows(deepsweSnapshot, modelMapping);
+const rows = deriveRows(deepsweSnapshot, modelMapping, throughputSnapshot);
 
 // The UTC date of the snapshot timestamp, robust to non-UTC offsets in a
 // future refresh (a plain slice would take the offset-local date).

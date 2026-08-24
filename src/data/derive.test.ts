@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vite-plus/test";
 
-import { deepsweSnapshot, modelMapping } from "./sources.ts";
+import { deepsweSnapshot, modelMapping, throughputSnapshot } from "./sources.ts";
 import { compareBlankLast, compareModel, costPerSolvedTask, deriveRows } from "./derive.ts";
 import type { LeaderboardRow } from "./types.ts";
 
 describe("deriveRows", () => {
-  const rows = deriveRows(deepsweSnapshot, modelMapping);
+  const rows = deriveRows(deepsweSnapshot, modelMapping, throughputSnapshot);
 
   test("emits one API row per snapshot entry", () => {
     expect(rows).toHaveLength(62);
@@ -38,7 +38,52 @@ describe("deriveRows", () => {
 
   test("throws when a leaderboard model is missing from the mapping", () => {
     const mapping = modelMapping.filter((entry) => entry.leaderboardModel !== "glm-5-3");
-    expect(() => deriveRows(deepsweSnapshot, mapping)).toThrowError(/glm-5-3/);
+    expect(() => deriveRows(deepsweSnapshot, mapping, throughputSnapshot)).toThrowError(/glm-5-3/);
+  });
+
+  test("a model's rows share one throughput figure across effort levels", () => {
+    const opus = rows.filter((row) => row.model === "claude-opus-5");
+    expect(opus.length).toBeGreaterThan(1);
+    for (const row of opus) {
+      expect(row.throughputTokPerSec).toBe(58.75);
+    }
+  });
+
+  test("average time is output tokens over the model's median throughput", () => {
+    const snapshot = {
+      ...deepsweSnapshot,
+      entries: [{ ...deepsweSnapshot.entries[0], model: "claude-fable-5", output_tokens: 8600 }],
+    };
+    const [row] = deriveRows(snapshot, modelMapping, throughputSnapshot);
+    expect(row.throughputTokPerSec).toBe(43);
+    expect(row.averageTimeSeconds).toBe(200);
+  });
+
+  test("a null OpenRouter id blanks throughput and time", () => {
+    const mapping = modelMapping.map((entry) =>
+      entry.leaderboardModel === "glm-5-3" ? { ...entry, openrouterId: null } : entry,
+    );
+    const glm = deriveRows(deepsweSnapshot, mapping, throughputSnapshot).filter(
+      (row) => row.model === "glm-5-3",
+    );
+    expect(glm.length).toBeGreaterThan(0);
+    for (const row of glm) {
+      expect(row.throughputTokPerSec).toBeNull();
+      expect(row.averageTimeSeconds).toBeNull();
+    }
+  });
+
+  test("a model absent from the throughput snapshot blanks throughput and time", () => {
+    const models = { ...throughputSnapshot.models };
+    delete models["z-ai/glm-5.3"];
+    const glm = deriveRows(deepsweSnapshot, modelMapping, { ...throughputSnapshot, models }).filter(
+      (row) => row.model === "glm-5-3",
+    );
+    expect(glm.length).toBeGreaterThan(0);
+    for (const row of glm) {
+      expect(row.throughputTokPerSec).toBeNull();
+      expect(row.averageTimeSeconds).toBeNull();
+    }
   });
 });
 
@@ -76,6 +121,8 @@ describe("compareModel", () => {
     costPerSolvedTaskUsd: 2,
     outputTokens: 100,
     steps: 10,
+    throughputTokPerSec: 50,
+    averageTimeSeconds: 2,
   });
 
   test("sorts by display name first", () => {

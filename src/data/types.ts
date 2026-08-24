@@ -1,5 +1,5 @@
-// Shared data-shape types. Refresh scripts (tickets 10/11) import these too,
-// so they describe the checked-in files completely, not just what the UI reads.
+// Shared data-shape types. Refresh scripts will import these too, so they
+// describe the checked-in files completely, not just what the UI reads.
 
 export type DeepsweSnapshot = {
   schema_version: 1;
@@ -28,6 +28,11 @@ export type DeepsweEntry = {
   cost_adjustment_factor: number;
 };
 
+export type ThroughputSnapshot = {
+  capturedAt: string;
+  models: Record<string, { medianP50: number }>; // key: OpenRouter model id
+};
+
 export type SubscriptionFamily = "claude" | "chatgpt" | "none";
 
 export type ModelMappingEntry = {
@@ -54,4 +59,6 @@ export type LeaderboardRow = {
   costPerSolvedTaskUsd: number | null; // null when passAt1 is 0
   outputTokens: number;
   steps: number;
+  throughputTokPerSec: number | null; // null when unmapped or absent from the snapshot
+  averageTimeSeconds: number | null; // null when throughput is null
 };
