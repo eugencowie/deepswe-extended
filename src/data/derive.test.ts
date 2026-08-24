@@ -109,10 +109,12 @@ describe("deriveRows", () => {
     }
   });
 
-  test("rows carry mapping display names", () => {
+  test("rows carry mapping display names and families", () => {
     const opus = rows.find((row) => row.model === "claude-opus-5" && row.effort === "max");
     expect(opus?.displayName).toBe("Claude Opus 5");
     expect(opus?.vendor).toBe("Anthropic");
+    expect(opus?.family).toBe("claude");
+    expect(rows.find((row) => row.model === "kimi-k3")?.family).toBe("none");
   });
 
   test("Luna rows use display-adjusted costs, not raw source values", () => {
@@ -225,6 +227,7 @@ describe("compareModel", () => {
     model: displayName.toLowerCase(),
     displayName,
     vendor: "Test",
+    family: "none",
     effort,
     accessRoute,
     passAt1: 0.5,

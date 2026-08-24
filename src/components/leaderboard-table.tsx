@@ -178,7 +178,7 @@ const columns = helper.columns(
   ),
 );
 
-export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
+export function LeaderboardTable({ rows, empty }: { rows: LeaderboardRow[]; empty?: ReactNode }) {
   const [sort, setSort] = useState<{ columnId: ColumnId; direction: SortDirection }>({
     columnId: "passAt1",
     direction: "desc",
@@ -258,6 +258,16 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
         ))}
       </TableHeader>
       <TableBody>
+        {rows.length === 0 && (
+          <TableRow>
+            <TableCell
+              colSpan={columnSpecs.length}
+              className="py-8 text-center text-muted-foreground"
+            >
+              {empty}
+            </TableCell>
+          </TableRow>
+        )}
         {table.getRowModel().rows.map((row) => (
           <TableRow key={row.id}>
             {row.getAllCells().map((cell, index) => (

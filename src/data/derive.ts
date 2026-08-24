@@ -30,6 +30,7 @@ export function deriveRows(
       model: entry.model,
       displayName: mapped.displayName,
       vendor: mapped.vendor,
+      family: mapped.family,
       effort: entry.effort,
       accessRoute,
       passAt1: entry.pass_at_1,
@@ -76,11 +77,11 @@ export function compareBlankLast(
   return direction === "asc" ? a - b : b - a;
 }
 
-// Semantic effort order for the Model-sort tiebreak; null (default effort)
-// sorts first, unknown efforts last.
+// Semantic effort order for the Model-sort tiebreak and the Best view; null
+// (default effort) ranks lowest, unknown efforts highest.
 const EFFORT_ORDER = ["low", "medium", "high", "xhigh", "max"];
 
-function effortRank(effort: string | null): number {
+export function effortRank(effort: string | null): number {
   if (effort === null) return -1;
   const rank = EFFORT_ORDER.indexOf(effort);
   return rank === -1 ? EFFORT_ORDER.length : rank;

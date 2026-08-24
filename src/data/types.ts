@@ -74,6 +74,7 @@ export type LeaderboardRow = {
   model: string;
   displayName: string;
   vendor: string;
+  family: SubscriptionFamily;
   effort: string | null;
   accessRoute: AccessRoute;
   passAt1: number;

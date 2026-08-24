@@ -1,7 +1,7 @@
 # 09: Filters and default view
 
 Type: task
-Status: ready-for-agent
+Status: resolved
 Blocked by: 08
 
 ## What to build
@@ -27,8 +27,20 @@ Per the [spec](../spec.md) (App section). Vocabulary: Best effort level and Subs
 
 ## Acceptance criteria
 
-- [ ] First load shows Best + API only: 25 rows, one per model, each at its highest effort (fable shows [max], grok-4-6 shows [xhigh]). Switching to All effort levels shows the 62 API rows; ticking tiers in the Subscriptions picker reveals tier rows.
-- [ ] Each Subscriptions section always keeps at least one box ticked; family-`none` models are unaffected by the picker.
-- [ ] All controls compose with each other and with sorting, and changing filters never resets the sort.
-- [ ] Unticking a model removes all its rows — every effort level and access route; clearing all models shows the DeepSWE empty-state copy.
-- [ ] `vp run ready` passes (including the updated e2e expectation) and the deployed site has working filters.
+- [x] First load shows Best + API only: 25 rows, one per model, each at its highest effort (fable shows [max], grok-4-6 shows [xhigh]). Switching to All effort levels shows the 62 API rows; ticking tiers in the Subscriptions picker reveals tier rows.
+- [x] Each Subscriptions section always keeps at least one box ticked; family-`none` models are unaffected by the picker.
+- [x] All controls compose with each other and with sorting, and changing filters never resets the sort.
+- [x] Unticking a model removes all its rows — every effort level and access route; clearing all models shows the DeepSWE empty-state copy.
+- [x] `vp run ready` passes (including the updated e2e expectation) and the deployed site has working filters.
+
+## Comments
+
+Implemented 2026-08-24. Filtering is a pure `filterRows` in `src/data/filter.ts` applied in
+`App.tsx` before the table's sort memo; `LeaderboardRow` gained a `family` field so the
+Subscriptions picker can scope routes per family without a mapping lookup. The toolbar is
+`src/components/leaderboard-toolbar.tsx` (vendored dropdown-menu's checkbox items,
+`closeOnClick={false}` so menus stay open). Min-one-per-section is a `disabled` flag on the
+last checked route. Unit tests in `src/data/filter.test.ts`; browser coverage in
+`e2e/filters.test.ts` (toggle counts, tier ticking, min-one lock, clear/select-all, empty copy);
+`e2e/smoke.test.ts` now derives its count from the default view. Deploy verification pends the
+push to `main`.
