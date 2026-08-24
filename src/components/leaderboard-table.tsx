@@ -112,15 +112,7 @@ const columnSpecs: ColumnSpec[] = [
       ) : (
         <>
           <s className="text-muted-foreground">{formatUsd(row.apiCostUsd)}</s>{" "}
-          {formatUsd(row.effectiveCostUsd)}{" "}
-          <Tooltip>
-            <TooltipTrigger render={<span />}>
-              <span className="text-muted-foreground underline decoration-dotted underline-offset-4">
-                (e)
-              </span>
-            </TooltipTrigger>
-            <TooltipContent>effective cost: API cost × subsidisation factor</TooltipContent>
-          </Tooltip>
+          {formatUsd(row.effectiveCostUsd)}
         </>
       ),
   }),

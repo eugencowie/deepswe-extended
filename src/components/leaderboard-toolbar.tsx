@@ -139,6 +139,11 @@ export function LeaderboardToolbar({
                 </DropdownMenuRadioGroup>
               </DropdownMenuGroup>
             ))}
+            <DropdownMenuSeparator />
+            <p className="px-3 py-2 text-xs text-muted-foreground">
+              Subscription costs are estimates: the struck-out API cost scaled by the tier's
+              discount.
+            </p>
           </DropdownMenuContent>
         </DropdownMenu>
         <DropdownMenu>

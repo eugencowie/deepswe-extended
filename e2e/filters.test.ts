@@ -33,6 +33,9 @@ test("the subscriptions picker swaps a family to one tier and shows discounts", 
   await expect(maxTwenty).toContainText("−97.5%");
   await expect(maxTwenty).toContainText("Fable: −95%");
 
+  // The estimate disclaimer replaced the per-cell "(e)" marker.
+  await expect(page.getByText("Subscription costs are estimates")).toBeVisible();
+
   // Picking a tier replaces the family's API rows: same count, new pricing.
   await maxTwenty.click();
   await expect(bodyRows(page)).toHaveCount(modelCount);

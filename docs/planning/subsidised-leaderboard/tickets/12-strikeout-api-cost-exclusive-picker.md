@@ -50,3 +50,8 @@ row-count invariant across all route combinations), `derive.test.ts`, `format.te
 e2e radio/strikeout/badge coverage in `e2e/filters.test.ts`. `vp run ready` and the full
 Playwright suite pass; strikeout, badges, and trigger label verified against a local
 production build. Deploy verification pends the push to `main`.
+
+Follow-up 2026-08-24: dropped the "(e)" marker and its tooltip from tier-row Avg cost —
+the estimate caveat moved to a muted disclaimer at the bottom of the Subscriptions picker
+("Subscription costs are estimates: the struck-out API cost scaled by the tier's
+discount"), asserted in the picker e2e. Spec updated to match.
