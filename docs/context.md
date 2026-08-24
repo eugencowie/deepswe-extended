@@ -47,6 +47,12 @@ _Avoid_: speed, generation rate
 **Average time**:
 Output tokens ÷ throughput. Deliberately ignores latency, prompt processing, and tool-execution time.
 
+**Source column**:
+A leaderboard column reported verbatim by the DeepSWE leaderboard (Pass@1, average cost, output tokens, steps).
+
+**Derived column**:
+A leaderboard column this project computes rather than takes from the DeepSWE leaderboard (cost per solved task, average time, throughput). The distinction is per-column, not per-cell: effective cost on tier rows is computed, but "Avg cost" is still a source column.
+
 **Model mapping**:
 The hand-curated link from a leaderboard model to its OpenRouter id, subscription family, and usage multiplier.
 

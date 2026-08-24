@@ -41,6 +41,9 @@ type ColumnSpec = {
   tooltip?: string;
   align: "left" | "right";
   firstDirection: SortDirection;
+  // Derived columns are computed by this project rather than reported by the
+  // DeepSWE leaderboard; a border separates them from the source columns.
+  derived?: boolean;
   cell: (row: LeaderboardRow) => ReactNode;
   compare: (a: LeaderboardRow, b: LeaderboardRow, direction: SortDirection) => number;
 };
@@ -49,6 +52,7 @@ function numericColumn(spec: {
   id: ColumnId;
   header: string;
   tooltip?: string;
+  derived?: boolean;
   value: (row: LeaderboardRow) => number | null;
   cell: (row: LeaderboardRow) => ReactNode;
 }): ColumnSpec {
@@ -87,13 +91,6 @@ const columnSpecs: ColumnSpec[] = [
     cell: (row) => formatUsd(row.effectiveCostUsd),
   }),
   numericColumn({
-    id: "costPerf",
-    header: "Cost/perf",
-    tooltip: "Avg cost ÷ Pass@1: what you pay per task actually solved",
-    value: (row) => row.costPerSolvedTaskUsd,
-    cell: (row) => formatUsd(row.costPerSolvedTaskUsd),
-  }),
-  numericColumn({
     id: "outTok",
     header: "Out tok",
     value: (row) => row.outputTokens,
@@ -106,10 +103,19 @@ const columnSpecs: ColumnSpec[] = [
     cell: (row) => formatInteger(row.steps),
   }),
   numericColumn({
+    id: "costPerf",
+    header: "Cost/perf",
+    tooltip: "Avg cost ÷ Pass@1: what you pay per task actually solved",
+    derived: true,
+    value: (row) => row.costPerSolvedTaskUsd,
+    cell: (row) => formatUsd(row.costPerSolvedTaskUsd),
+  }),
+  numericColumn({
     id: "avgTime",
     header: "Avg time (est)",
     tooltip:
       "Output tokens ÷ OpenRouter median throughput; excludes tool execution and gaps between the agent's calls",
+    derived: true,
     value: (row) => row.averageTimeSeconds,
     cell: (row) => formatDuration(row.averageTimeSeconds),
   }),
@@ -117,10 +123,14 @@ const columnSpecs: ColumnSpec[] = [
     id: "tokPerSec",
     header: "Tok/s (est)",
     tooltip: "Median throughput on OpenRouter, not the speed measured in the benchmark run",
+    derived: true,
     value: (row) => row.throughputTokPerSec,
     cell: (row) => formatThroughput(row.throughputTokPerSec),
   }),
 ];
+
+const derivedBoundary = (index: number) =>
+  columnSpecs[index].derived === true && columnSpecs[index - 1]?.derived !== true;
 
 const features = tableFeatures({});
 const helper = createColumnHelper<typeof features, LeaderboardRow>();
@@ -183,7 +193,10 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
                   aria-sort={
                     isSorted ? (sort.direction === "asc" ? "ascending" : "descending") : undefined
                   }
-                  className={cn(spec.align === "right" && "text-right")}
+                  className={cn(
+                    spec.align === "right" && "text-right",
+                    derivedBoundary(index) && "border-l",
+                  )}
                 >
                   <button
                     type="button"
@@ -217,7 +230,10 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
             {row.getAllCells().map((cell, index) => (
               <TableCell
                 key={cell.id}
-                className={cn(columnSpecs[index].align === "right" && "text-right tabular-nums")}
+                className={cn(
+                  columnSpecs[index].align === "right" && "text-right tabular-nums",
+                  derivedBoundary(index) && "border-l",
+                )}
               >
                 <table.FlexRender cell={cell} />
               </TableCell>
