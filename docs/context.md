@@ -11,6 +11,9 @@ _Avoid_: model row, result
 **Effort level**:
 The reasoning-effort setting a model was benchmarked at. Part of an entry's identity: the same model at two effort levels is two entries.
 
+**Best effort level**:
+The highest effort level a model was benchmarked at, with default effort ranking lowest. The Best view keeps only each model's best-effort entry — not necessarily its best Pass@1.
+
 **Access route**:
 How you would pay to run a model: direct API, or a specific subscription tier. Every table row is an entry combined with one access route.
 _Avoid_: pricing mode, plan type
@@ -22,6 +25,9 @@ _Avoid_: tier badge, plan label
 **Tier**:
 A paid ChatGPT or Claude subscription plan (e.g. claude-max-5x, chatgpt-plus).
 _Avoid_: subscription level, plan
+
+**Subscriptions picker**:
+The user-facing name of the access-route selector. "API" appears inside it even though API access is not a subscription; internal vocabulary stays "access route".
 
 **Subscription family**:
 Which vendor's tiers can run a model: ChatGPT, Claude, or none.
