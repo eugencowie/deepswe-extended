@@ -54,4 +54,6 @@ production build. Deploy verification pends the push to `main`.
 Follow-up 2026-08-24: dropped the "(e)" marker and its tooltip from tier-row Avg cost —
 the estimate caveat moved to a muted disclaimer at the bottom of the Subscriptions picker
 ("Subscription costs are estimates: the struck-out API cost scaled by the tier's
-discount"), asserted in the picker e2e. Spec updated to match.
+discount"), asserted in the picker e2e. Spec updated to match. The page container also
+widened from `max-w-4xl` to `max-w-5xl`: the struck-out costs pushed the table to ~949px,
+truncating the Tok/s column; verified the table fits in every sort state.

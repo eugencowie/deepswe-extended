@@ -58,7 +58,8 @@ function App() {
   const visibleRows = useMemo(() => filterRows(rows, filters), [filters]);
 
   return (
-    <div className="mx-auto flex min-h-svh max-w-4xl flex-col gap-4 p-6">
+    // max-w-5xl: wide enough for tier rows' struck-out API costs.
+    <div className="mx-auto flex min-h-svh max-w-5xl flex-col gap-4 p-6">
       <header className="flex items-center justify-between">
         <h1 className="text-lg font-semibold">DeepSWE Leaderboard, Extended</h1>
         <ModeToggle />
