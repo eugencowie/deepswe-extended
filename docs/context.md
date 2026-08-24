@@ -15,6 +15,10 @@ The reasoning-effort setting a model was benchmarked at. Part of an entry's iden
 How you would pay to run a model: direct API, or a specific subscription tier. Every table row is an entry combined with one access route.
 _Avoid_: pricing mode, plan type
 
+**Access tag**:
+The marker on a tier row naming its tier; API rows are untagged.
+_Avoid_: tier badge, plan label
+
 **Tier**:
 A paid ChatGPT or Claude subscription plan (e.g. claude-max-5x, chatgpt-plus).
 _Avoid_: subscription level, plan

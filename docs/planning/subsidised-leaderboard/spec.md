@@ -137,7 +137,7 @@ Family membership asserts genuine subscription access (user's best knowledge of 
 
 ## Derivation rules (`src/data/derive.ts`, pure and unit-tested)
 
-Row expansion: every entry gets an **API row**; entries whose family is claude or chatgpt also get one row per tier of that family. Current data: 62 entries → 62 API rows + (21 Claude entries + 22 ChatGPT entries) × 3 tiers = **191 rows**.
+Row expansion: every entry gets an **API row**; entries whose family is claude or chatgpt also get one row per tier of that family. Current data: 62 entries → 62 API rows + (21 Claude entries + 20 ChatGPT entries) × 3 tiers = **185 rows**. (An earlier revision said 191 via 22 ChatGPT entries — that was an arithmetic error; the checked-in data and research capture both have 20.)
 
 Per row:
 
@@ -180,7 +180,7 @@ The OpenRouter key lives only in the user's local environment (gitignored `.env`
 
 ## Acceptance criteria
 
-- The build succeeds with the seed data; the dataset derives 191 rows and the default view shows the 62 API rows. Spot-checked maths: a Fable 5 tier row uses the halved equivalent spend (claude-pro factor 0.10, not 0.05); Luna's costs are the display-adjusted values, not raw.
+- The build succeeds with the seed data; the dataset derives 185 rows and the default view shows the 62 API rows. Spot-checked maths: a Fable 5 tier row uses the halved equivalent spend (claude-pro factor 0.10, not 0.05); Luna's costs are the display-adjusted values, not raw.
 - Sorting any column places "–" cells last in both directions.
 - Unticking a model removes all its rows (all efforts, all access routes).
 - `derive.ts` has unit tests for row expansion, subsidisation (incl. multiplier), blank propagation, and cost per solved task; `vp run ready` passes and gates deploy.
