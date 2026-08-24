@@ -64,6 +64,25 @@ test("tier rows show the API cost struck out beside the effective cost", async (
   await expect(fableRow.locator("s").first()).toHaveText(/^\$/);
 });
 
+test("changing filters never resets the sort and both picks surface in the trigger", async ({
+  page,
+}) => {
+  await page.goto("./");
+  await page.getByRole("button", { name: "Avg cost", exact: true }).click();
+  const avgCost = page.getByRole("columnheader", { name: "Avg cost" });
+  await expect(avgCost).toHaveAttribute("aria-sort", "descending");
+
+  await page.getByRole("button", { name: "All effort levels" }).click();
+  await page.getByRole("button", { name: /^Subscriptions/ }).click();
+  await page.getByRole("menuitemradio", { name: /Max 5x/ }).click();
+  await page.getByRole("menuitemradio", { name: /^Plus/ }).click();
+  await page.keyboard.press("Escape");
+
+  await expect(avgCost).toHaveAttribute("aria-sort", "descending");
+  // Both non-API picks in the trigger, Claude first (section order).
+  await expect(page.getByRole("button", { name: "Subscriptions: Max 5x · Plus" })).toBeVisible();
+});
+
 test("the models picker removes a model everywhere and can clear to empty", async ({ page }) => {
   await page.goto("./");
   await page.getByRole("button", { name: /^Models/ }).click();

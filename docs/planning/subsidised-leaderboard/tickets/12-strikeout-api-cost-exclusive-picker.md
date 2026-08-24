@@ -29,10 +29,10 @@ Implementation notes:
 
 ## Acceptance criteria
 
-- [ ] Tier rows show the struck, muted API cost before the effective value in both Avg cost and Cost/perf; API rows are unchanged; "(e)" appears on Avg cost only; both columns still sort by effective values and filters never reset the sort.
-- [ ] The Subscriptions picker is one radio per family, API default; picking a tier replaces that family's API rows; All effort levels shows 62 rows in every picker state.
-- [ ] The trigger reads "Subscriptions" on defaults and appends only non-API picks.
-- [ ] Tier items show discount badges derived from the data (Pro/Max 5x −95%, Max 20x −97.5%, Plus/Pro 5x −97.1%, Pro 20x −98.6%) plus Fable badges on Claude tiers via the new optional `shortName`.
+- [x] Tier rows show the struck, muted API cost before the effective value in both Avg cost and Cost/perf; API rows are unchanged; "(e)" appears on Avg cost only; both columns still sort by effective values and filters never reset the sort.
+- [x] The Subscriptions picker is one radio per family, API default; picking a tier replaces that family's API rows; All effort levels shows 62 rows in every picker state.
+- [x] The trigger reads "Subscriptions" on defaults and appends only non-API picks.
+- [x] Tier items show discount badges derived from the data (Pro/Max 5x −95%, Max 20x −97.5%, Plus/Pro 5x −97.1%, Pro 20x −98.6%) plus Fable badges on Claude tiers via the new optional `shortName`.
 - [x] `vp run ready` passes with the updated unit and e2e tests, and the deployed site is verified.
 
 ## Comments
