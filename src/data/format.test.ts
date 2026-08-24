@@ -1,6 +1,14 @@
 import { describe, expect, test } from "vite-plus/test";
 
-import { BLANK, formatInteger, formatPassAt1, formatTokens, formatUsd } from "./format.ts";
+import {
+  BLANK,
+  formatDuration,
+  formatInteger,
+  formatPassAt1,
+  formatThroughput,
+  formatTokens,
+  formatUsd,
+} from "./format.ts";
 
 describe("formatUsd", () => {
   test("renders standard two-decimal currency", () => {
@@ -30,6 +38,41 @@ describe("formatTokens", () => {
   test("renders thousands with a k suffix", () => {
     expect(formatTokens(117565.69)).toBe("118k");
     expect(formatTokens(3128)).toBe("3k");
+  });
+});
+
+describe("formatThroughput", () => {
+  test("always renders one decimal", () => {
+    expect(formatThroughput(58.75)).toBe("58.8");
+    expect(formatThroughput(40)).toBe("40.0");
+  });
+
+  test("renders blank for null", () => {
+    expect(formatThroughput(null)).toBe(BLANK);
+  });
+});
+
+describe("formatDuration", () => {
+  test("renders minutes and seconds", () => {
+    expect(formatDuration(74)).toBe("1m 14s");
+    expect(formatDuration(3482)).toBe("58m 2s");
+  });
+
+  test("keeps minutes past the hour instead of switching units", () => {
+    expect(formatDuration(3850)).toBe("64m 10s");
+  });
+
+  test("renders sub-minute values with a zero minute", () => {
+    expect(formatDuration(45)).toBe("0m 45s");
+  });
+
+  test("rounds to the nearest second", () => {
+    expect(formatDuration(74.6)).toBe("1m 15s");
+    expect(formatDuration(119.7)).toBe("2m 0s");
+  });
+
+  test("renders blank for null", () => {
+    expect(formatDuration(null)).toBe(BLANK);
   });
 });
 

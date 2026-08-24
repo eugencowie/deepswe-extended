@@ -1,13 +1,16 @@
 import { LeaderboardTable } from "@/components/leaderboard-table";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { deriveRows } from "@/data/derive";
-import { deepsweSnapshot, modelMapping } from "@/data/sources";
+import { deepsweSnapshot, modelMapping, throughputSnapshot } from "@/data/sources";
 
-const rows = deriveRows(deepsweSnapshot, modelMapping);
+const rows = deriveRows(deepsweSnapshot, modelMapping, throughputSnapshot);
 
-// The UTC date of the snapshot timestamp, robust to non-UTC offsets in a
+// The UTC date of a snapshot timestamp, robust to non-UTC offsets in a
 // future refresh (a plain slice would take the offset-local date).
-const snapshotDate = new Date(deepsweSnapshot.source_generated_at).toISOString().slice(0, 10);
+const utcDate = (timestamp: string) => new Date(timestamp).toISOString().slice(0, 10);
+
+const snapshotDate = utcDate(deepsweSnapshot.source_generated_at);
+const throughputDate = utcDate(throughputSnapshot.capturedAt);
 
 function App() {
   return (
@@ -26,6 +29,14 @@ function App() {
             className="underline decoration-dotted underline-offset-4 hover:text-foreground"
           >
             DeepSWE v1.1 snapshot, {snapshotDate}
+          </a>
+        </p>
+        <p>
+          <a
+            href="https://openrouter.ai"
+            className="underline decoration-dotted underline-offset-4 hover:text-foreground"
+          >
+            OpenRouter throughput snapshot, {throughputDate}
           </a>
         </p>
       </footer>

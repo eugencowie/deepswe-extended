@@ -1,0 +1,30 @@
+{
+  "capturedAt": "2026-08-20T14:50:24Z",
+  "models": {
+    "anthropic/claude-opus-5": { "medianP50": 58.75 },
+    "anthropic/claude-fable-5": { "medianP50": 43 },
+    "anthropic/claude-sonnet-5": { "medianP50": 61.5 },
+    "anthropic/claude-opus-4.8": { "medianP50": 56 },
+    "anthropic/claude-sonnet-4.6": { "medianP50": 37.5 },
+    "openai/gpt-5.6-sol": { "medianP50": 40 },
+    "openai/gpt-5.6-terra": { "medianP50": 42 },
+    "openai/gpt-5.6-luna": { "medianP50": 42 },
+    "openai/gpt-5.5": { "medianP50": 46 },
+    "openai/gpt-5.4": { "medianP50": 38 },
+    "google/gemini-3.7-flash": { "medianP50": 120 },
+    "google/gemini-3.6-flash": { "medianP50": 116 },
+    "google/gemini-3.5-flash": { "medianP50": 156.5 },
+    "google/gemini-3.1-pro-preview": { "medianP50": 98.5 },
+    "deepseek/deepseek-v4-pro": { "medianP50": 48 },
+    "deepseek/deepseek-v4-flash": { "medianP50": 38 },
+    "z-ai/glm-5.3": { "medianP50": 31 },
+    "z-ai/glm-5.2": { "medianP50": 46 },
+    "moonshotai/kimi-k3": { "medianP50": 28.25 },
+    "moonshotai/kimi-k2.7-code": { "medianP50": 38 },
+    "qwen/qwen3.8-max": { "medianP50": 42 },
+    "x-ai/grok-4.6": { "medianP50": 39 },
+    "x-ai/grok-4.5": { "medianP50": 46 },
+    "meta/muse-spark-1.1": { "medianP50": 230 },
+    "meta/muse-spark-1.2": { "medianP50": 65 }
+  }
+}

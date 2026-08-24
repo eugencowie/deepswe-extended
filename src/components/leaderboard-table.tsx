@@ -13,13 +13,28 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/components/ui/utils";
 import { compareBlankLast, compareModel, type SortDirection } from "@/data/derive";
-import { formatInteger, formatPassAt1, formatTokens, formatUsd } from "@/data/format";
+import {
+  formatDuration,
+  formatInteger,
+  formatPassAt1,
+  formatThroughput,
+  formatTokens,
+  formatUsd,
+} from "@/data/format";
 import type { LeaderboardRow } from "@/data/types";
 
-type ColumnId = "model" | "passAt1" | "avgCost" | "costPerf" | "outTok" | "steps";
+type ColumnId =
+  | "model"
+  | "passAt1"
+  | "avgCost"
+  | "costPerf"
+  | "outTok"
+  | "steps"
+  | "avgTime"
+  | "tokPerSec";
 
-// Everything a column needs lives in one spec: adding a column (tickets 07/08)
-// means adding one entry here, nothing else.
+// Everything a column needs lives in one spec: adding a column means adding
+// one entry here, nothing else.
 type ColumnSpec = {
   id: ColumnId;
   header: string;
@@ -89,6 +104,21 @@ const columnSpecs: ColumnSpec[] = [
     header: "Steps",
     value: (row) => row.steps,
     cell: (row) => formatInteger(row.steps),
+  }),
+  numericColumn({
+    id: "avgTime",
+    header: "Avg time (est)",
+    tooltip:
+      "Output tokens ÷ OpenRouter median throughput; excludes tool execution and gaps between the agent's calls",
+    value: (row) => row.averageTimeSeconds,
+    cell: (row) => formatDuration(row.averageTimeSeconds),
+  }),
+  numericColumn({
+    id: "tokPerSec",
+    header: "Tok/s (est)",
+    tooltip: "Median throughput on OpenRouter, not the speed measured in the benchmark run",
+    value: (row) => row.throughputTokPerSec,
+    cell: (row) => formatThroughput(row.throughputTokPerSec),
   }),
 ];
 

@@ -75,12 +75,11 @@ type ThroughputSnapshot = {
   capturedAt: string;
   models: Record<string, {          // key: OpenRouter model id
     medianP50: number;              // tokens/sec, median across default-tier endpoints
-    endpoints: { tag: string; provider: string; p50: number }[];
   }>;
 };
 ```
 
-Seed values: the "Median" column of the [OpenRouter research snapshot](research/openrouter-throughput.md#current-model-snapshot).
+Seed values: the "Median" column of the [OpenRouter research snapshot](research/openrouter-throughput.md#current-model-snapshot). Per-model endpoint detail (`endpoints: { tag, provider, p50 }[]`) joins the type with ticket 11's refresh script: the research capture recorded only medians, so seeding the field would mean fabricating empty arrays (decided in ticket 07's grilling).
 
 ### `data/tiers.json`
 
@@ -157,10 +156,10 @@ Blank cells render as "–" and always sort last regardless of direction (custom
 React + TypeScript + TanStack Table on the Vite+ toolchain, with shadcn/ui components (Base UI primitives) and Tailwind for styling ([ADR 0001](../../architecture/0001-toolchain-conventions.md)). Single page, one table.
 
 - Columns (headers match DeepSWE's style where possible): Model (mapping `displayName`), Pass@1, Avg cost, Cost/perf, Out tok, Steps, Avg time (est), Tok/s (est). Effort and access route are **not** columns — they render inside the Model cell: effort as a DeepSWE-style bracket ("Claude Opus 5 [max]", nothing for default effort), access as a tag on tier rows (exact styling decided in ticket 08). Model sorts by display name with effort as tiebreaker, so a model's effort variants stay adjacent.
-- Header/cell annotations, each with a tooltip: Cost/perf is the cost per solved task ("Avg cost ÷ Pass@1: what you pay per task actually solved"); "(est)" on Avg time and Tok/s marks them estimates (Avg time tooltip: excludes tool execution and gaps between the agent's calls); tier-row Avg cost cells carry "(e)" ("effective cost: average cost × subsidisation factor"). API-row Avg cost is the unadjusted average cost.
+- Header/cell annotations, each with a tooltip: Cost/perf is the cost per solved task ("Avg cost ÷ Pass@1: what you pay per task actually solved"); "(est)" on Avg time and Tok/s marks them estimates (Avg time tooltip: "Output tokens ÷ OpenRouter median throughput; excludes tool execution and gaps between the agent's calls"; Tok/s tooltip: "Median throughput on OpenRouter, not the speed measured in the benchmark run" — the key message is that the figure is OpenRouter data, not the benchmark run's own speed); tier-row Avg cost cells carry "(e)" ("effective cost: average cost × subsidisation factor"). API-row Avg cost is the unadjusted average cost.
 - Sorting: every column sorts both ways via a two-state toggle (ascending ↔ descending, no unsorted state). Default sort: Pass@1 descending. Default access-route filter: **API only** (62 rows); tiers are opt-in via the filter.
 - Filters: vendor (mapping `vendor` field), access route (API / each tier), effort level, and a per-model include/exclude multi-select dropdown (all checked by default, like the DeepSWE site's models dropdown). Filtering by effort and access needs no column — they're row fields.
-- Number formatting: avg cost and cost/perf as standard two-decimal currency ($4.33, $0.61); sub-cent values collapse to $0.01 or $0.00, which is deliberate — tiny tier costs should read as "effectively free" rather than invite comparison of raw values. Pass@1 as a whole percent (no error margin, diverging from DeepSWE's "74%±4%"); output tokens in thousands with a k suffix (118k); steps as integers; throughput one decimal; avg time as `Xm Ys`. (Revised during ticket 06 from three-significant-figure costs and one-decimal percents, after a side-by-side with the DeepSWE site.)
+- Number formatting: avg cost and cost/perf as standard two-decimal currency ($4.33, $0.61); sub-cent values collapse to $0.01 or $0.00, which is deliberate — tiny tier costs should read as "effectively free" rather than invite comparison of raw values. Pass@1 as a whole percent (no error margin, diverging from DeepSWE's "74%±4%"); output tokens in thousands with a k suffix (118k); steps as integers; throughput always one decimal (40.0, not 40); avg time as `Xm Ys` with seconds rounded to nearest, minutes riding past 60 ("64m 10s", no hours unit), and a zero minute below sixty seconds ("0m 45s"). (Revised during ticket 06 from three-significant-figure costs and one-decimal percents, after a side-by-side with the DeepSWE site.)
 - Attempt counts (`n_scored_attempts`) are not displayed anywhere, matching the DeepSWE site.
 - Footer, one line per ticket that ships the data: DeepSWE v1.1 snapshot date read from `source_generated_at` (ticket 06), OpenRouter capture date (ticket 07), and "subsidised costs are rough approximations based on SemiAnalysis estimates" (ticket 08).
 

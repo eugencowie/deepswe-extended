@@ -1,8 +1,14 @@
-import type { DeepsweSnapshot, LeaderboardRow, ModelMappingEntry } from "./types.ts";
+import type {
+  DeepsweSnapshot,
+  LeaderboardRow,
+  ModelMappingEntry,
+  ThroughputSnapshot,
+} from "./types.ts";
 
 export function deriveRows(
   snapshot: DeepsweSnapshot,
   mapping: ModelMappingEntry[],
+  throughput: ThroughputSnapshot,
 ): LeaderboardRow[] {
   const byModel = new Map(mapping.map((entry) => [entry.leaderboardModel, entry]));
   return snapshot.entries.map((entry) => {
@@ -12,6 +18,10 @@ export function deriveRows(
         `Leaderboard model "${entry.model}" is missing from data/model-mapping.json; add a mapping entry for it.`,
       );
     }
+    const throughputTokPerSec =
+      mapped.openrouterId === null
+        ? null
+        : (throughput.models[mapped.openrouterId]?.medianP50 ?? null);
     return {
       model: entry.model,
       displayName: mapped.displayName,
@@ -23,6 +33,9 @@ export function deriveRows(
       costPerSolvedTaskUsd: costPerSolvedTask(entry.average_cost_usd, entry.pass_at_1),
       outputTokens: entry.output_tokens,
       steps: entry.steps,
+      throughputTokPerSec,
+      averageTimeSeconds:
+        throughputTokPerSec === null ? null : entry.output_tokens / throughputTokPerSec,
     };
   });
 }
