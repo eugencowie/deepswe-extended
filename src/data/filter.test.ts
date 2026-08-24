@@ -2,27 +2,21 @@ import { describe, expect, test } from "vite-plus/test";
 
 import { deepsweSnapshot, modelMapping, throughputSnapshot, tiers } from "./sources.ts";
 import { deriveRows } from "./derive.ts";
-import {
-  defaultFilters,
-  filterRows,
-  type LeaderboardFilters,
-  type SubscriptionSelection,
-} from "./filter.ts";
+import { defaultFilters, filterRows, type LeaderboardFilters } from "./filter.ts";
+import type { AccessRoute } from "./types.ts";
 
 const rows = deriveRows(deepsweSnapshot, modelMapping, throughputSnapshot, tiers);
 const allModels = [...new Set(rows.map((row) => row.model))];
-const familyOf = new Map(modelMapping.map((entry) => [entry.leaderboardModel, entry.family]));
 
 const filters = (overrides: Partial<LeaderboardFilters>): LeaderboardFilters => ({
   ...defaultFilters(allModels),
   ...overrides,
 });
 
-// Every access route ticked in both sections, as if the user checked all boxes.
-const allRoutes: SubscriptionSelection = {
-  claude: new Set(["api", ...tiers.filter((t) => t.family === "claude").map((t) => t.id)]),
-  chatgpt: new Set(["api", ...tiers.filter((t) => t.family === "chatgpt").map((t) => t.id)]),
-};
+const familyRoutes = (family: "claude" | "chatgpt"): AccessRoute[] => [
+  "api",
+  ...tiers.filter((tier) => tier.family === family).map((tier) => tier.id),
+];
 
 describe("defaultFilters", () => {
   test("shows one API row per model", () => {
@@ -55,74 +49,64 @@ describe("filterRows", () => {
     expect(visible.every((row) => row.accessRoute === "api")).toBe(true);
   });
 
-  test("ticking a tier adds that family's tier rows alongside API rows", () => {
+  test("picking a tier replaces that family's API rows and touches nothing else", () => {
     const visible = filterRows(
       rows,
       filters({
         effortView: "all",
-        subscriptions: {
-          claude: new Set(["api", "claude-pro"]),
-          chatgpt: new Set(["api"]),
-        },
+        subscriptions: { claude: "claude-pro", chatgpt: "api" },
       }),
     );
-    const claudeEntries = deepsweSnapshot.entries.filter(
-      (entry) => familyOf.get(entry.model) === "claude",
-    );
-    expect(visible).toHaveLength(deepsweSnapshot.entries.length + claudeEntries.length);
-    expect(visible.filter((row) => row.accessRoute === "claude-pro")).toHaveLength(
-      claudeEntries.length,
-    );
-  });
-
-  test("unticking a family's API keeps its tier rows and other families' API rows", () => {
-    const visible = filterRows(
-      rows,
-      filters({
-        effortView: "all",
-        subscriptions: {
-          claude: new Set(["claude-max-20x"]),
-          chatgpt: new Set(["api"]),
-        },
-      }),
-    );
+    expect(visible).toHaveLength(deepsweSnapshot.entries.length);
     const claudeRows = visible.filter((row) => row.family === "claude");
     expect(claudeRows.length).toBeGreaterThan(0);
-    expect(claudeRows.every((row) => row.accessRoute === "claude-max-20x")).toBe(true);
+    expect(claudeRows.every((row) => row.accessRoute === "claude-pro")).toBe(true);
     expect(visible.some((row) => row.family === "chatgpt" && row.accessRoute === "api")).toBe(true);
-    expect(visible.some((row) => row.family === "none")).toBe(true);
   });
 
-  test("family-none rows ignore the subscription selection entirely", () => {
+  test("family-none rows stay on API under any selection", () => {
     const visible = filterRows(
       rows,
       filters({
         effortView: "all",
-        subscriptions: { claude: new Set(), chatgpt: new Set() },
+        subscriptions: { claude: "claude-max-20x", chatgpt: "chatgpt-pro-20x" },
       }),
     );
-    expect(visible.length).toBeGreaterThan(0);
-    expect(visible.every((row) => row.family === "none")).toBe(true);
+    const noneRows = visible.filter((row) => row.family === "none");
+    expect(noneRows.length).toBeGreaterThan(0);
+    expect(noneRows.every((row) => row.accessRoute === "api")).toBe(true);
+  });
+
+  test("the picker changes pricing, never row count", () => {
+    // Exactly one route per family means every entry appears on exactly one
+    // row: 62 in the All view and 25 in Best, whatever the picker says.
+    for (const claude of familyRoutes("claude")) {
+      for (const chatgpt of familyRoutes("chatgpt")) {
+        const subscriptions = { claude, chatgpt };
+        expect(filterRows(rows, filters({ effortView: "all", subscriptions }))).toHaveLength(62);
+        expect(filterRows(rows, filters({ subscriptions }))).toHaveLength(25);
+      }
+    }
   });
 
   test("unticking a model removes all its rows across efforts and routes", () => {
     const models = new Set(allModels.filter((model) => model !== "claude-fable-5"));
     const visible = filterRows(
       rows,
-      filters({ effortView: "all", subscriptions: allRoutes, models }),
+      filters({
+        effortView: "all",
+        subscriptions: { claude: "claude-pro", chatgpt: "api" },
+        models,
+      }),
+    );
+    const fableEntries = deepsweSnapshot.entries.filter(
+      (entry) => entry.model === "claude-fable-5",
     );
     expect(visible.some((row) => row.model === "claude-fable-5")).toBe(false);
-    expect(visible).toHaveLength(
-      rows.length - rows.filter((row) => row.model === "claude-fable-5").length,
-    );
+    expect(visible).toHaveLength(deepsweSnapshot.entries.length - fableEntries.length);
   });
 
   test("an empty model selection shows nothing", () => {
     expect(filterRows(rows, filters({ models: new Set() }))).toHaveLength(0);
-  });
-
-  test("all routes ticked in All view shows every derived row", () => {
-    const visible = filterRows(rows, filters({ effortView: "all", subscriptions: allRoutes }));
-    expect(visible).toHaveLength(rows.length);
   });
 });

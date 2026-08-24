@@ -1,7 +1,11 @@
 import { useMemo, useState } from "react";
 
 import { LeaderboardTable } from "@/components/leaderboard-table";
-import { LeaderboardToolbar, type ModelOption } from "@/components/leaderboard-toolbar";
+import {
+  LeaderboardToolbar,
+  type ModelOption,
+  type UsageLimitNote,
+} from "@/components/leaderboard-toolbar";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { deriveRows } from "@/data/derive";
 import { defaultFilters, filterRows } from "@/data/filter";
@@ -12,6 +16,20 @@ const rows = deriveRows(deepsweSnapshot, modelMapping, throughputSnapshot, tiers
 const modelOptions: ModelOption[] = [...new Map(rows.map((row) => [row.model, row.displayName]))]
   .map(([model, displayName]) => ({ model, displayName }))
   .toSorted((a, b) => a.displayName.localeCompare(b.displayName, "en"));
+
+// Family models with non-standard usage limits get their own discount badge
+// per tier in the Subscriptions picker.
+const usageLimitNotes: UsageLimitNote[] = modelMapping.flatMap((entry) =>
+  entry.family === "none" || entry.usageMultiplier === 1
+    ? []
+    : [
+        {
+          family: entry.family,
+          name: entry.shortName ?? entry.displayName,
+          usageMultiplier: entry.usageMultiplier,
+        },
+      ],
+);
 
 // The UTC date of a snapshot timestamp, robust to non-UTC offsets in a
 // future refresh (a plain slice would take the offset-local date).
@@ -51,6 +69,7 @@ function App() {
           onChange={setFilters}
           models={modelOptions}
           tiers={tiers}
+          usageLimitNotes={usageLimitNotes}
         />
         <LeaderboardTable
           rows={visibleRows}

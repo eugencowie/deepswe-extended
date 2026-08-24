@@ -1,13 +1,12 @@
 import { effortRank } from "./derive.ts";
 import type { AccessRoute, LeaderboardRow } from "./types.ts";
 
-// The Subscriptions picker's two sections: each family's ticked access routes.
-// "api" appears in both sets independently — the picker scopes API per family,
-// so hiding Claude API rows leaves ChatGPT API rows alone. Rows whose family
-// is "none" ignore the picker entirely.
+// The Subscriptions picker: exactly one access route per family, so every
+// entry appears on exactly one row and the picker changes pricing, never row
+// count. Rows whose family is "none" ignore the picker entirely.
 export type SubscriptionSelection = {
-  claude: ReadonlySet<AccessRoute>;
-  chatgpt: ReadonlySet<AccessRoute>;
+  claude: AccessRoute;
+  chatgpt: AccessRoute;
 };
 
 export type LeaderboardFilters = {
@@ -19,7 +18,7 @@ export type LeaderboardFilters = {
 export function defaultFilters(models: Iterable<string>): LeaderboardFilters {
   return {
     effortView: "best",
-    subscriptions: { claude: new Set(["api"]), chatgpt: new Set(["api"]) },
+    subscriptions: { claude: "api", chatgpt: "api" },
     models: new Set(models),
   };
 }
@@ -38,7 +37,7 @@ export function filterRows(rows: LeaderboardRow[], filters: LeaderboardFilters):
   return rows.filter(
     (row) =>
       filters.models.has(row.model) &&
-      (row.family === "none" || filters.subscriptions[row.family].has(row.accessRoute)) &&
+      (row.family === "none" || filters.subscriptions[row.family] === row.accessRoute) &&
       (filters.effortView === "all" || effortRank(row.effort) === bestRank.get(row.model)),
   );
 }

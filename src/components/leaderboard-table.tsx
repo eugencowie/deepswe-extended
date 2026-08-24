@@ -111,6 +111,7 @@ const columnSpecs: ColumnSpec[] = [
         formatUsd(row.effectiveCostUsd)
       ) : (
         <>
+          <s className="text-muted-foreground">{formatUsd(row.apiCostUsd)}</s>{" "}
           {formatUsd(row.effectiveCostUsd)}{" "}
           <Tooltip>
             <TooltipTrigger render={<span />}>
@@ -118,7 +119,7 @@ const columnSpecs: ColumnSpec[] = [
                 (e)
               </span>
             </TooltipTrigger>
-            <TooltipContent>effective cost: average cost × subsidisation factor</TooltipContent>
+            <TooltipContent>effective cost: API cost × subsidisation factor</TooltipContent>
           </Tooltip>
         </>
       ),
@@ -141,7 +142,16 @@ const columnSpecs: ColumnSpec[] = [
     tooltip: "Avg cost ÷ Pass@1: what you pay per task actually solved",
     derived: true,
     value: (row) => row.costPerSolvedTaskUsd,
-    cell: (row) => formatUsd(row.costPerSolvedTaskUsd),
+    // Pass@1 = 0 blanks both values, rendering a single blank cell.
+    cell: (row) =>
+      row.accessRoute === "api" || row.costPerSolvedTaskUsd === null ? (
+        formatUsd(row.costPerSolvedTaskUsd)
+      ) : (
+        <>
+          <s className="text-muted-foreground">{formatUsd(row.apiCostPerSolvedTaskUsd)}</s>{" "}
+          {formatUsd(row.costPerSolvedTaskUsd)}
+        </>
+      ),
   }),
   numericColumn({
     id: "avgTime",

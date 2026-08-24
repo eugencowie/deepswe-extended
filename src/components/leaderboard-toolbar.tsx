@@ -1,5 +1,6 @@
 import { ChevronDown } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,14 +9,26 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/components/ui/utils";
+import { subsidisationFactor } from "@/data/derive";
+import { formatTierDiscount } from "@/data/format";
 import type { LeaderboardFilters } from "@/data/filter";
 import type { AccessRoute, Tier } from "@/data/types";
 
 export type ModelOption = { model: string; displayName: string };
+
+// A family model with a non-standard usage limit, badged per tier in the
+// Subscriptions picker because its discount differs from the tier-wide one.
+export type UsageLimitNote = {
+  family: "claude" | "chatgpt";
+  name: string;
+  usageMultiplier: number;
+};
 
 const effortViews = [
   { view: "best", label: "Best" },
@@ -32,21 +45,16 @@ export function LeaderboardToolbar({
   onChange,
   models,
   tiers,
+  usageLimitNotes,
 }: {
   filters: LeaderboardFilters;
   onChange: (filters: LeaderboardFilters) => void;
   models: ModelOption[];
   tiers: Tier[];
+  usageLimitNotes: UsageLimitNote[];
 }) {
-  const toggleRoute = (family: "claude" | "chatgpt", route: AccessRoute) => {
-    const routes = new Set(filters.subscriptions[family]);
-    if (routes.has(route)) {
-      routes.delete(route);
-    } else {
-      routes.add(route);
-    }
-    onChange({ ...filters, subscriptions: { ...filters.subscriptions, [family]: routes } });
-  };
+  const setRoute = (family: "claude" | "chatgpt", route: AccessRoute) =>
+    onChange({ ...filters, subscriptions: { ...filters.subscriptions, [family]: route } });
 
   const setModels = (selected: ReadonlySet<string>) => onChange({ ...filters, models: selected });
 
@@ -60,8 +68,12 @@ export function LeaderboardToolbar({
     setModels(selected);
   };
 
-  const subscriptionCount = filters.subscriptions.claude.size + filters.subscriptions.chatgpt.size;
-  const subscriptionTotal = families.length + tiers.length;
+  // The trigger surfaces only non-API picks: quiet on the default view, the
+  // chosen tiers at a glance otherwise (section order, Claude first).
+  const tierPicks = families.flatMap(({ family }) => {
+    const tier = tiers.find((t) => t.id === filters.subscriptions[family]);
+    return tier ? [tier.shortLabel] : [];
+  });
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -83,38 +95,50 @@ export function LeaderboardToolbar({
       <div className="ms-auto flex items-center gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
-            Subscriptions ({subscriptionCount}/{subscriptionTotal})
+            Subscriptions{tierPicks.length > 0 && `: ${tierPicks.join(" · ")}`}
             <ChevronDown data-icon="inline-end" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-52">
-            {families.map(({ family, label }, index) => {
-              const selection = filters.subscriptions[family];
-              const routes: { route: AccessRoute; routeLabel: string }[] = [
-                { route: "api", routeLabel: "API" },
-                ...tiers
-                  .filter((tier) => tier.family === family)
-                  .map((tier) => ({ route: tier.id, routeLabel: tier.shortLabel })),
-              ];
-              return (
-                <DropdownMenuGroup key={family}>
-                  {index > 0 && <DropdownMenuSeparator />}
-                  <DropdownMenuLabel>{label}</DropdownMenuLabel>
-                  {routes.map(({ route, routeLabel }) => (
-                    <DropdownMenuCheckboxItem
-                      key={route}
-                      checked={selection.has(route)}
-                      // The last ticked route in a section cannot be unticked,
-                      // so the picker alone never hides a whole family.
-                      disabled={selection.has(route) && selection.size === 1}
-                      closeOnClick={false}
-                      onCheckedChange={() => toggleRoute(family, route)}
-                    >
-                      {routeLabel}
-                    </DropdownMenuCheckboxItem>
-                  ))}
-                </DropdownMenuGroup>
-              );
-            })}
+          <DropdownMenuContent align="end" className="w-80">
+            {families.map(({ family, label }, index) => (
+              <DropdownMenuGroup key={family}>
+                {index > 0 && <DropdownMenuSeparator />}
+                <DropdownMenuLabel>{label}</DropdownMenuLabel>
+                <DropdownMenuRadioGroup
+                  value={filters.subscriptions[family]}
+                  onValueChange={(route) => setRoute(family, route as AccessRoute)}
+                >
+                  <DropdownMenuRadioItem value="api" closeOnClick={false}>
+                    API
+                  </DropdownMenuRadioItem>
+                  {tiers
+                    .filter((tier) => tier.family === family)
+                    .map((tier) => (
+                      <DropdownMenuRadioItem key={tier.id} value={tier.id} closeOnClick={false}>
+                        {tier.shortLabel}
+                        <span className="ms-auto flex gap-1">
+                          <Badge variant="outline" className="text-muted-foreground">
+                            {formatTierDiscount(subsidisationFactor(tier, 1))}
+                          </Badge>
+                          {usageLimitNotes
+                            .filter((note) => note.family === family)
+                            .map((note) => (
+                              <Badge
+                                key={note.name}
+                                variant="outline"
+                                className="text-muted-foreground"
+                              >
+                                {note.name}:{" "}
+                                {formatTierDiscount(
+                                  subsidisationFactor(tier, note.usageMultiplier),
+                                )}
+                              </Badge>
+                            ))}
+                        </span>
+                      </DropdownMenuRadioItem>
+                    ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuGroup>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
         <DropdownMenu>

@@ -36,6 +36,8 @@ export function deriveRows(
       passAt1: entry.pass_at_1,
       effectiveCostUsd,
       costPerSolvedTaskUsd: costPerSolvedTask(effectiveCostUsd, entry.pass_at_1),
+      apiCostUsd: entry.average_cost_usd,
+      apiCostPerSolvedTaskUsd: costPerSolvedTask(entry.average_cost_usd, entry.pass_at_1),
       outputTokens: entry.output_tokens,
       steps: entry.steps,
       throughputTokPerSec,

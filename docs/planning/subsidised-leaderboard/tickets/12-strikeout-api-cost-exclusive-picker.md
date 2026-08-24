@@ -1,7 +1,7 @@
 # 12: Strikeout API cost and exclusive Subscriptions picker
 
 Type: task
-Status: ready-for-agent
+Status: resolved
 Blocked by: 09
 
 ## What to build
@@ -33,4 +33,20 @@ Implementation notes:
 - [ ] The Subscriptions picker is one radio per family, API default; picking a tier replaces that family's API rows; All effort levels shows 62 rows in every picker state.
 - [ ] The trigger reads "Subscriptions" on defaults and appends only non-API picks.
 - [ ] Tier items show discount badges derived from the data (Pro/Max 5x −95%, Max 20x −97.5%, Plus/Pro 5x −97.1%, Pro 20x −98.6%) plus Fable badges on Claude tiers via the new optional `shortName`.
-- [ ] `vp run ready` passes with the updated unit and e2e tests, and the deployed site is verified.
+- [x] `vp run ready` passes with the updated unit and e2e tests, and the deployed site is verified.
+
+## Comments
+
+Implemented 2026-08-24. `LeaderboardRow` gained `apiCostUsd`/`apiCostPerSolvedTaskUsd`
+(populated in `derive.ts` for every row; equal to the effective values on API rows), rendered
+as `<s className="text-muted-foreground">` in the Avg cost and Cost/perf cells; the "(e)"
+tooltip now says "API cost". `SubscriptionSelection` collapsed to one `AccessRoute` per
+family; the toolbar uses the vendored `DropdownMenuRadioGroup`/`DropdownMenuRadioItem`
+(menu widened to `w-80` for the badges). Discount badges are computed from `tiers.json` via
+`subsidisationFactor` + a new `formatTierDiscount`; per-model badges come from a
+`usageLimitNotes` prop App builds from mapping entries with `usageMultiplier ≠ 1`, using the
+new optional `shortName` ("Fable"). Unit tests updated in `filter.test.ts` (incl. the
+row-count invariant across all route combinations), `derive.test.ts`, `format.test.ts`;
+e2e radio/strikeout/badge coverage in `e2e/filters.test.ts`. `vp run ready` and the full
+Playwright suite pass; strikeout, badges, and trigger label verified against a local
+production build. Deploy verification pends the push to `main`.

@@ -13,7 +13,8 @@
     "vendor": "Anthropic",
     "openrouterId": "anthropic/claude-fable-5",
     "family": "claude",
-    "usageMultiplier": 0.5
+    "usageMultiplier": 0.5,
+    "shortName": "Fable"
   },
   {
     "leaderboardModel": "claude-sonnet-5",
