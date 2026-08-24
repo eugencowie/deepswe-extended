@@ -46,9 +46,29 @@ export type ModelMappingEntry = {
   usageMultiplier: number;
 };
 
-// Ticket 08 widens this union with tier ids; widening adds rows without
-// reshaping the row type.
-export type AccessRoute = "api";
+export type TierId =
+  | "claude-pro"
+  | "claude-max-5x"
+  | "claude-max-20x"
+  | "chatgpt-plus"
+  | "chatgpt-pro-5x"
+  | "chatgpt-pro-20x";
+
+export type Tier = {
+  id: TierId;
+  family: Exclude<SubscriptionFamily, "none">;
+  label: string;
+  shortLabel: string; // UI tag text; explicit data, never derived from label
+  priceUsdPerMonth: number;
+  equivalentApiSpendUsdPerMonth: number;
+};
+
+export type TiersSnapshot = {
+  source: string;
+  tiers: Tier[];
+};
+
+export type AccessRoute = "api" | TierId;
 
 export type LeaderboardRow = {
   model: string;

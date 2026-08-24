@@ -1,0 +1,53 @@
+{
+  "source": "SemiAnalysis, transcribed by user 2026-08-20",
+  "tiers": [
+    {
+      "id": "claude-pro",
+      "family": "claude",
+      "label": "Claude Pro",
+      "shortLabel": "Pro",
+      "priceUsdPerMonth": 20,
+      "equivalentApiSpendUsdPerMonth": 400
+    },
+    {
+      "id": "claude-max-5x",
+      "family": "claude",
+      "label": "Claude Max 5x",
+      "shortLabel": "Max 5x",
+      "priceUsdPerMonth": 100,
+      "equivalentApiSpendUsdPerMonth": 2000
+    },
+    {
+      "id": "claude-max-20x",
+      "family": "claude",
+      "label": "Claude Max 20x",
+      "shortLabel": "Max 20x",
+      "priceUsdPerMonth": 200,
+      "equivalentApiSpendUsdPerMonth": 8000
+    },
+    {
+      "id": "chatgpt-plus",
+      "family": "chatgpt",
+      "label": "ChatGPT Plus",
+      "shortLabel": "Plus",
+      "priceUsdPerMonth": 20,
+      "equivalentApiSpendUsdPerMonth": 700
+    },
+    {
+      "id": "chatgpt-pro-5x",
+      "family": "chatgpt",
+      "label": "ChatGPT Pro 5x",
+      "shortLabel": "Pro 5x",
+      "priceUsdPerMonth": 100,
+      "equivalentApiSpendUsdPerMonth": 3500
+    },
+    {
+      "id": "chatgpt-pro-20x",
+      "family": "chatgpt",
+      "label": "ChatGPT Pro 20x",
+      "shortLabel": "Pro 20x",
+      "priceUsdPerMonth": 200,
+      "equivalentApiSpendUsdPerMonth": 14000
+    }
+  ]
+}

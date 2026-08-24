@@ -1,9 +1,9 @@
 import { LeaderboardTable } from "@/components/leaderboard-table";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { deriveRows } from "@/data/derive";
-import { deepsweSnapshot, modelMapping, throughputSnapshot } from "@/data/sources";
+import { deepsweSnapshot, modelMapping, throughputSnapshot, tiers } from "@/data/sources";
 
-const rows = deriveRows(deepsweSnapshot, modelMapping, throughputSnapshot);
+const rows = deriveRows(deepsweSnapshot, modelMapping, throughputSnapshot, tiers);
 
 // The UTC date of a snapshot timestamp, robust to non-UTC offsets in a
 // future refresh (a plain slice would take the offset-local date).
@@ -11,6 +11,19 @@ const utcDate = (timestamp: string) => new Date(timestamp).toISOString().slice(0
 
 const snapshotDate = utcDate(deepsweSnapshot.source_generated_at);
 const throughputDate = utcDate(throughputSnapshot.capturedAt);
+
+function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <p>
+      <a
+        href={href}
+        className="underline decoration-dotted underline-offset-4 hover:text-foreground"
+      >
+        {children}
+      </a>
+    </p>
+  );
+}
 
 function App() {
   return (
@@ -23,22 +36,15 @@ function App() {
         <LeaderboardTable rows={rows} />
       </main>
       <footer className="text-xs text-muted-foreground">
-        <p>
-          <a
-            href="https://deepswe.datacurve.ai"
-            className="underline decoration-dotted underline-offset-4 hover:text-foreground"
-          >
-            DeepSWE v1.1 snapshot, {snapshotDate}
-          </a>
-        </p>
-        <p>
-          <a
-            href="https://openrouter.ai"
-            className="underline decoration-dotted underline-offset-4 hover:text-foreground"
-          >
-            OpenRouter throughput snapshot, {throughputDate}
-          </a>
-        </p>
+        <FooterLink href="https://deepswe.datacurve.ai">
+          DeepSWE v1.1 snapshot, {snapshotDate}
+        </FooterLink>
+        <FooterLink href="https://openrouter.ai">
+          OpenRouter throughput snapshot, {throughputDate}
+        </FooterLink>
+        <FooterLink href="https://x.com/SemiAnalysis_/status/2064815044085318040">
+          Subsidised costs are rough approximations based on SemiAnalysis estimates.
+        </FooterLink>
       </footer>
     </div>
   );

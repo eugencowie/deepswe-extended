@@ -1,8 +1,16 @@
-import rawSnapshot from "../../data/deepswe-v1.1.json";
-import rawMapping from "../../data/model-mapping.json";
-import rawThroughput from "../../data/openrouter-throughput.json";
-import type { DeepsweSnapshot, ModelMappingEntry, ThroughputSnapshot } from "./types.ts";
+import rawSnapshot from "../../data/deepswe-v1.1.json" with { type: "json" };
+import rawMapping from "../../data/model-mapping.json" with { type: "json" };
+import rawThroughput from "../../data/openrouter-throughput.json" with { type: "json" };
+import rawTiers from "../../data/tiers.json" with { type: "json" };
+import type {
+  DeepsweSnapshot,
+  ModelMappingEntry,
+  ThroughputSnapshot,
+  Tier,
+  TiersSnapshot,
+} from "./types.ts";
 
 export const deepsweSnapshot: DeepsweSnapshot = rawSnapshot as DeepsweSnapshot;
 export const modelMapping: ModelMappingEntry[] = rawMapping as ModelMappingEntry[];
 export const throughputSnapshot: ThroughputSnapshot = rawThroughput as ThroughputSnapshot;
+export const tiers: Tier[] = (rawTiers as TiersSnapshot).tiers;

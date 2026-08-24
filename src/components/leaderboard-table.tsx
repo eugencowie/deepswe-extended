@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { createColumnHelper, tableFeatures, useTable } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -13,6 +14,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/components/ui/utils";
 import { compareBlankLast, compareModel, type SortDirection } from "@/data/derive";
+import { tiers } from "@/data/sources";
 import {
   formatDuration,
   formatInteger,
@@ -64,6 +66,14 @@ function numericColumn(spec: {
   };
 }
 
+const tierById = new Map(tiers.map((tier) => [tier.id, tier]));
+
+// Access tags are colour-coded by subscription family.
+const tagClassByFamily = {
+  claude: "border-amber-600 text-amber-600 dark:border-amber-400 dark:text-amber-400",
+  chatgpt: "border-teal-600 text-teal-600 dark:border-teal-400 dark:text-teal-400",
+};
+
 const columnSpecs: ColumnSpec[] = [
   {
     id: "model",
@@ -71,12 +81,20 @@ const columnSpecs: ColumnSpec[] = [
     align: "left",
     firstDirection: "asc",
     compare: (a, b, direction) => (direction === "asc" ? compareModel(a, b) : compareModel(b, a)),
-    cell: (row) => (
-      <>
-        {row.displayName}
-        {row.effort !== null && <span className="text-muted-foreground"> [{row.effort}]</span>}
-      </>
-    ),
+    cell: (row) => {
+      const tier = row.accessRoute === "api" ? undefined : tierById.get(row.accessRoute);
+      return (
+        <>
+          {row.displayName}
+          {row.effort !== null && <span className="text-muted-foreground"> [{row.effort}]</span>}
+          {tier && (
+            <Badge variant="outline" className={cn("ml-2", tagClassByFamily[tier.family])}>
+              {tier.shortLabel}
+            </Badge>
+          )}
+        </>
+      );
+    },
   },
   numericColumn({
     id: "passAt1",
@@ -88,7 +106,22 @@ const columnSpecs: ColumnSpec[] = [
     id: "avgCost",
     header: "Avg cost",
     value: (row) => row.effectiveCostUsd,
-    cell: (row) => formatUsd(row.effectiveCostUsd),
+    cell: (row) =>
+      row.accessRoute === "api" ? (
+        formatUsd(row.effectiveCostUsd)
+      ) : (
+        <>
+          {formatUsd(row.effectiveCostUsd)}{" "}
+          <Tooltip>
+            <TooltipTrigger render={<span />}>
+              <span className="text-muted-foreground underline decoration-dotted underline-offset-4">
+                (e)
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>effective cost: average cost × subsidisation factor</TooltipContent>
+          </Tooltip>
+        </>
+      ),
   }),
   numericColumn({
     id: "outTok",
