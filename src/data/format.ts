@@ -36,3 +36,10 @@ export function formatDuration(seconds: number | null): string {
 export function formatInteger(value: number): string {
   return `${Math.round(value)}`;
 }
+
+// A subsidisation factor as the tier discount it amounts to: one decimal
+// where needed ("−95%", "−97.5%"), minus sign U+2212.
+export function formatTierDiscount(factor: number): string {
+  const percent = Math.round((1 - factor) * 1000) / 10;
+  return `−${percent}%`;
+}

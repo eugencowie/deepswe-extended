@@ -11,6 +11,9 @@ _Avoid_: model row, result
 **Effort level**:
 The reasoning-effort setting a model was benchmarked at. Part of an entry's identity: the same model at two effort levels is two entries.
 
+**Best effort level**:
+The highest effort level a model was benchmarked at, with default effort ranking lowest. The Best view keeps only each model's best-effort entry — not necessarily its best Pass@1.
+
 **Access route**:
 How you would pay to run a model: direct API, or a specific subscription tier. Every table row is an entry combined with one access route.
 _Avoid_: pricing mode, plan type
@@ -22,6 +25,9 @@ _Avoid_: tier badge, plan label
 **Tier**:
 A paid ChatGPT or Claude subscription plan (e.g. claude-max-5x, chatgpt-plus).
 _Avoid_: subscription level, plan
+
+**Subscriptions picker**:
+The user-facing name of the access-route selector. Exactly one access route is selected per subscription family. "API" appears inside it even though API access is not a subscription; internal vocabulary stays "access route".
 
 **Subscription family**:
 Which vendor's tiers can run a model: ChatGPT, Claude, or none.
@@ -36,8 +42,16 @@ A per-model factor scaling equivalent API spend, capturing models with non-stand
 **Subsidisation factor**:
 Tier price ÷ (equivalent API spend × usage multiplier). What a dollar of API cost becomes on that tier.
 
+**Tier discount**:
+A subsidisation factor expressed as a percentage discount: 1 − factor. Shown in the Subscriptions picker per tier, at usage multiplier 1.0 unless labelled with a specific model.
+_Avoid_: discount multiplier
+
+**API cost**:
+The entry's average cost at direct API pricing. On tier rows it appears struck out beside the effective cost.
+_Avoid_: API price, list price
+
 **Effective cost**:
-The cost shown on a row: the entry's average cost as-is on API rows, multiplied by the subsidisation factor on tier rows.
+The cost a row is ranked by: the API cost as-is on API rows, multiplied by the subsidisation factor on tier rows.
 _Avoid_: subsidised cost, adjusted cost
 
 **Cost per solved task**:
@@ -58,7 +72,7 @@ A leaderboard column reported verbatim by the DeepSWE leaderboard (Pass@1, avera
 A leaderboard column this project computes rather than takes from the DeepSWE leaderboard (cost per solved task, average time, throughput). The distinction is per-column, not per-cell: effective cost on tier rows is computed, but "Avg cost" is still a source column.
 
 **Model mapping**:
-The hand-curated link from a leaderboard model to its OpenRouter id, subscription family, and usage multiplier.
+The hand-curated link from a leaderboard model to its OpenRouter id, subscription family, usage multiplier, and optional short name (falling back to the display name).
 
 **Snapshot**:
 A checked-in, point-in-time capture of a source, refreshed manually.

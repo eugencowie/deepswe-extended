@@ -92,6 +92,33 @@ describe("deriveRows", () => {
     expect(row?.effectiveCostUsd).toBeCloseTo(entry!.average_cost_usd * (20 / 700), 10);
   });
 
+  test("tier rows carry the entry's API cost beside the effective cost", () => {
+    const tierRows = rows.filter((row) => row.accessRoute !== "api");
+    expect(tierRows.length).toBeGreaterThan(0);
+    for (const row of tierRows) {
+      expect(row.apiCostUsd).toBe(sourceEntry(row).average_cost_usd);
+    }
+  });
+
+  test("API rows' API cost equals their effective cost", () => {
+    const apiRows = rows.filter((row) => row.accessRoute === "api");
+    expect(apiRows.length).toBeGreaterThan(0);
+    for (const row of apiRows) {
+      expect(row.apiCostUsd).toBe(row.effectiveCostUsd);
+      expect(row.apiCostPerSolvedTaskUsd).toBe(row.costPerSolvedTaskUsd);
+    }
+  });
+
+  test("a tier row's API cost per solved task matches its model's API row", () => {
+    const tier = rows.find(
+      (r) => r.model === "claude-opus-5" && r.effort === "max" && r.accessRoute === "claude-pro",
+    );
+    const api = rows.find(
+      (r) => r.model === "claude-opus-5" && r.effort === "max" && r.accessRoute === "api",
+    );
+    expect(tier?.apiCostPerSolvedTaskUsd).toBe(api?.costPerSolvedTaskUsd);
+  });
+
   test("cost per solved task recomputes from the row's effective cost", () => {
     const api = rows.find((r) => r.model === "claude-opus-5" && r.accessRoute === "api");
     const tier = rows.find(
@@ -109,10 +136,12 @@ describe("deriveRows", () => {
     }
   });
 
-  test("rows carry mapping display names", () => {
+  test("rows carry mapping display names and families", () => {
     const opus = rows.find((row) => row.model === "claude-opus-5" && row.effort === "max");
     expect(opus?.displayName).toBe("Claude Opus 5");
     expect(opus?.vendor).toBe("Anthropic");
+    expect(opus?.family).toBe("claude");
+    expect(rows.find((row) => row.model === "kimi-k3")?.family).toBe("none");
   });
 
   test("Luna rows use display-adjusted costs, not raw source values", () => {
@@ -225,11 +254,14 @@ describe("compareModel", () => {
     model: displayName.toLowerCase(),
     displayName,
     vendor: "Test",
+    family: "none",
     effort,
     accessRoute,
     passAt1: 0.5,
     effectiveCostUsd: 1,
     costPerSolvedTaskUsd: 2,
+    apiCostUsd: 1,
+    apiCostPerSolvedTaskUsd: 2,
     outputTokens: 100,
     steps: 10,
     throughputTokPerSec: 50,

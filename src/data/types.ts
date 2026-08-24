@@ -44,6 +44,7 @@ export type ModelMappingEntry = {
   openrouterId: string | null; // null yields blank throughput/time (ticket 07)
   family: SubscriptionFamily;
   usageMultiplier: number;
+  shortName?: string; // UI short label, falling back to displayName (ticket 12)
 };
 
 export type TierId =
@@ -74,11 +75,14 @@ export type LeaderboardRow = {
   model: string;
   displayName: string;
   vendor: string;
+  family: SubscriptionFamily;
   effort: string | null;
   accessRoute: AccessRoute;
   passAt1: number;
   effectiveCostUsd: number;
   costPerSolvedTaskUsd: number | null; // null when passAt1 is 0
+  apiCostUsd: number; // the entry's average cost at API pricing; equals effectiveCostUsd on API rows
+  apiCostPerSolvedTaskUsd: number | null; // apiCostUsd ÷ passAt1; null when passAt1 is 0
   outputTokens: number;
   steps: number;
   throughputTokPerSec: number | null; // null when unmapped or absent from the snapshot

@@ -111,15 +111,8 @@ const columnSpecs: ColumnSpec[] = [
         formatUsd(row.effectiveCostUsd)
       ) : (
         <>
-          {formatUsd(row.effectiveCostUsd)}{" "}
-          <Tooltip>
-            <TooltipTrigger render={<span />}>
-              <span className="text-muted-foreground underline decoration-dotted underline-offset-4">
-                (e)
-              </span>
-            </TooltipTrigger>
-            <TooltipContent>effective cost: average cost × subsidisation factor</TooltipContent>
-          </Tooltip>
+          <s className="text-muted-foreground">{formatUsd(row.apiCostUsd)}</s>{" "}
+          {formatUsd(row.effectiveCostUsd)}
         </>
       ),
   }),
@@ -141,7 +134,16 @@ const columnSpecs: ColumnSpec[] = [
     tooltip: "Avg cost ÷ Pass@1: what you pay per task actually solved",
     derived: true,
     value: (row) => row.costPerSolvedTaskUsd,
-    cell: (row) => formatUsd(row.costPerSolvedTaskUsd),
+    // Pass@1 = 0 blanks both values, rendering a single blank cell.
+    cell: (row) =>
+      row.accessRoute === "api" || row.costPerSolvedTaskUsd === null ? (
+        formatUsd(row.costPerSolvedTaskUsd)
+      ) : (
+        <>
+          <s className="text-muted-foreground">{formatUsd(row.apiCostPerSolvedTaskUsd)}</s>{" "}
+          {formatUsd(row.costPerSolvedTaskUsd)}
+        </>
+      ),
   }),
   numericColumn({
     id: "avgTime",
@@ -178,7 +180,7 @@ const columns = helper.columns(
   ),
 );
 
-export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
+export function LeaderboardTable({ rows, empty }: { rows: LeaderboardRow[]; empty?: ReactNode }) {
   const [sort, setSort] = useState<{ columnId: ColumnId; direction: SortDirection }>({
     columnId: "passAt1",
     direction: "desc",
@@ -258,6 +260,16 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
         ))}
       </TableHeader>
       <TableBody>
+        {rows.length === 0 && (
+          <TableRow>
+            <TableCell
+              colSpan={columnSpecs.length}
+              className="py-8 text-center text-muted-foreground"
+            >
+              {empty}
+            </TableCell>
+          </TableRow>
+        )}
         {table.getRowModel().rows.map((row) => (
           <TableRow key={row.id}>
             {row.getAllCells().map((cell, index) => (

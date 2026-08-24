@@ -6,6 +6,7 @@ import {
   formatInteger,
   formatPassAt1,
   formatThroughput,
+  formatTierDiscount,
   formatTokens,
   formatUsd,
 } from "./format.ts";
@@ -73,6 +74,19 @@ describe("formatDuration", () => {
 
   test("renders blank for null", () => {
     expect(formatDuration(null)).toBe(BLANK);
+  });
+});
+
+describe("formatTierDiscount", () => {
+  test("renders the factor as a percentage discount", () => {
+    expect(formatTierDiscount(0.05)).toBe("−95%");
+    expect(formatTierDiscount(0.1)).toBe("−90%");
+  });
+
+  test("keeps one decimal where rounding needs it", () => {
+    expect(formatTierDiscount(0.025)).toBe("−97.5%");
+    expect(formatTierDiscount(20 / 700)).toBe("−97.1%");
+    expect(formatTierDiscount(200 / 14000)).toBe("−98.6%");
   });
 });
 
