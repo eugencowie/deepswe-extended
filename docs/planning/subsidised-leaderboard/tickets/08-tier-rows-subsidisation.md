@@ -1,7 +1,7 @@
 # 08: Tier rows and subsidisation
 
 Type: task
-Status: ready-for-agent
+Status: resolved
 Blocked by: 06
 
 ## What to build
@@ -12,14 +12,14 @@ Per the [spec](../spec.md) (Derivation rules, tiers data): subsidisation factor 
 
 ## Acceptance criteria
 
-- [ ] Derive layer emits 185 rows: 62 API + 63 Claude-tier + 60 ChatGPT-tier
-- [ ] Family "none" models never get tier rows
-- [ ] Spot check: Claude Fable 5 claude-pro rows use factor 0.10 (usage multiplier 0.5), other Claude models 0.05
-- [ ] Tier rows show an access tag in the Model cell; API rows show none
-- [ ] Tier-row Avg cost cells carry the "(e)" annotation with its tooltip; Avg cost and Cost/perf render as two-decimal currency on tier rows (sub-cent values as $0.01/$0.00)
-- [ ] Approximation disclaimer visible in the footer
-- [ ] Unit tests cover row expansion, subsidisation factor (incl. multiplier), and per-row cost per solved task
-- [ ] `vp run ready` passes and the deployed site shows tier rows
+- [x] Derive layer emits 185 rows: 62 API + 63 Claude-tier + 60 ChatGPT-tier
+- [x] Family "none" models never get tier rows
+- [x] Spot check: Claude Fable 5 claude-pro rows use factor 0.10 (usage multiplier 0.5), other Claude models 0.05
+- [x] Tier rows show an access tag in the Model cell; API rows show none
+- [x] Tier-row Avg cost cells carry the "(e)" annotation with its tooltip; Avg cost and Cost/perf render as two-decimal currency on tier rows (sub-cent values as $0.01/$0.00)
+- [x] Approximation disclaimer visible in the footer
+- [x] Unit tests cover row expansion, subsidisation factor (incl. multiplier), and per-row cost per solved task
+- [x] `vp run ready` passes and the deployed site shows tier rows (passes locally; deploy pending merge to main)
 
 ## Comments
 

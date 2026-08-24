@@ -1,6 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-import snapshot from "../data/deepswe-v1.1.json" with { type: "json" };
+import { deriveRows } from "../src/data/derive.ts";
+import { deepsweSnapshot, modelMapping, throughputSnapshot, tiers } from "../src/data/sources.ts";
+
+const rowCount = deriveRows(deepsweSnapshot, modelMapping, throughputSnapshot, tiers).length;
 
 test("e2e build renders the table with no failed requests", async ({ page }) => {
   const failures: string[] = [];
@@ -17,10 +20,10 @@ test("e2e build renders the table with no failed requests", async ({ page }) => 
 
   const table = page.getByRole("table");
   await expect(table).toBeVisible();
-  // Count against the snapshot, not a literal, so a data refresh that changes
-  // the entry count or ranking cannot fail the deploy gate for a reason that
-  // has nothing to do with the base path.
-  await expect(table.locator("tbody tr")).toHaveCount(snapshot.entries.length);
+  // Count against the derived rows, not a literal, so a data refresh that
+  // changes the entry count or ranking cannot fail the deploy gate for a
+  // reason that has nothing to do with the base path.
+  await expect(table.locator("tbody tr")).toHaveCount(rowCount);
 
   expect(failures).toEqual([]);
 });
