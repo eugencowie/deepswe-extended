@@ -33,8 +33,8 @@ type ColumnId =
   | "avgTime"
   | "tokPerSec";
 
-// Everything a column needs lives in one spec: adding a column (tickets 07/08)
-// means adding one entry here, nothing else.
+// Everything a column needs lives in one spec: adding a column means adding
+// one entry here, nothing else.
 type ColumnSpec = {
   id: ColumnId;
   header: string;

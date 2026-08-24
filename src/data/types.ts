@@ -30,7 +30,9 @@ export type DeepsweEntry = {
 
 export type ThroughputSnapshot = {
   capturedAt: string;
-  models: Record<string, { medianP50: number }>; // key: OpenRouter model id
+  // Keyed by OpenRouter model id; medianP50 is tokens/sec, the median across
+  // default-tier endpoints' p50 throughput.
+  models: Record<string, { medianP50: number }>;
 };
 
 export type SubscriptionFamily = "claude" | "chatgpt" | "none";
