@@ -29,7 +29,7 @@ function App() {
   return (
     <div className="mx-auto flex min-h-svh max-w-4xl flex-col gap-4 p-6">
       <header className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">DeepSWE v1.1 leaderboard</h1>
+        <h1 className="text-lg font-semibold">DeepSWE Leaderboard, Extended</h1>
         <ModeToggle />
       </header>
       <main>
