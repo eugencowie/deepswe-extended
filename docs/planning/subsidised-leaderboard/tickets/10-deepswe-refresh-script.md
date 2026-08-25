@@ -10,6 +10,17 @@ Running the DeepSWE refresh script updates the checked-in leaderboard snapshot f
 
 Guard rails: warn without switching when the manifest's `latest` moves past v1.1; fail when a fetched model is missing from the model mapping, so new leaderboard models force a mapping decision.
 
+## Decisions (grilled 2026-08-25)
+
+- Invocation: `package.json` script `refresh:deepswe` running `node scripts/refresh-deepswe.ts` (Node 26 type-stripping; the script imports only types from `src/data/types.ts`). Ticket 11 mirrors this as `refresh:openrouter`.
+- Raw artifact bytes are hashed in memory for `raw_sha256` and discarded; no raw file is written. The research folder keeps the one historical raw capture.
+- Entries preserve the artifact's row order (matches the committed seed; refresh diffs mirror what the site publishes).
+- A mapping entry whose model no longer appears in the fetched rows warns; only a fetched model missing from the mapping fails. A cost-factor model absent from the fetched rows also warns.
+- The cost adjustment factor table is an inline constant in the script (it is what a human edits in the version-bump workflow). The snapshot's `cost_adjustments` records the table verbatim, matching the seed.
+- Structure: pure `normalize(manifest, artifact, mapping)` plus a thin fetch/write shell. Zod schemas live in `scripts/` (zod as devDependency; the app bundle never sees it). Unit tests in `scripts/` cover the guard rails: duplicate config throws, missing mapping throws naming the model, factor application, latest-moved warning.
+- Failure is all-or-nothing: nothing is written on error. The `latest` ≠ v1.1 warning goes to stderr and the run exits 0. Manifest-vs-artifact task-count mismatch and a null `latest_job` are hard errors (the snapshot type requires it). Written JSON must match oxfmt output so `vp check` produces no reformat diff.
+- Glossary: "Cost adjustment factor" added to [docs/context.md](../../../context.md).
+
 ## Acceptance criteria
 
 - [ ] Script fetches live source, validates, and writes the snapshot in the checked-in shape
