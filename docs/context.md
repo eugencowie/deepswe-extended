@@ -59,8 +59,12 @@ Effective cost ÷ Pass@1. The bang-for-buck number; lower is better.
 _Avoid_: bang for buck, value score
 
 **Throughput**:
-A model's tokens-per-second figure, sourced from OpenRouter. One number per model, shared across effort levels.
+The p50 tokens-per-second of a model's consumer endpoint, as measured by OpenRouter. One number per model, shared across effort levels; blank when the model has no consumer endpoint.
 _Avoid_: speed, generation rate
+
+**Consumer endpoint**:
+The vendor-run API endpoint a typical non-enterprise user would hit (e.g. Anthropic direct rather than Claude on AWS, Google AI Studio rather than Vertex), selected by a per-vendor rule. Enterprise platforms, premium-speed products, and resellers are not consumer endpoints.
+_Avoid_: official endpoint, default provider
 
 **Average time**:
 Output tokens ÷ throughput. Deliberately ignores latency, prompt processing, and tool-execution time.
