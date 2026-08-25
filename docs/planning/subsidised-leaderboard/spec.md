@@ -179,9 +179,9 @@ The OpenRouter key lives only in the user's local environment (gitignored `.env`
 
 ## Repo and deploy
 
-1. ~~Scaffold and repo creation~~ — done in ticket [05](tickets/05-scaffold-and-deploy-foundation.md): scaffold, public repo, and Pages deploy are live (<https://eugencowie.github.io/deepswe-analysis/>).
+1. ~~Scaffold and repo creation~~ — done in ticket [05](tickets/05-scaffold-and-deploy-foundation.md): scaffold, public repo, and Pages deploy are live (<https://eugencowie.github.io/deepswe-extended/>).
 2. `.github/workflows/ci.yml`: `vp run ready` (the template's CI checks) runs on pull requests and on push to `main`. Pushes to `main` additionally build and deploy via `actions/upload-pages-artifact` and `actions/deploy-pages`, gated by the ready job. Pages uses "GitHub Actions" as the source.
-3. The deploy job derives the base path from `actions/configure-pages` and passes it to `vp build --base`. Nothing hardcodes `/deepswe-analysis/`; local builds use `/`. The Playwright e2e smoke (ticket 06, [ADR 0001](../../architecture/0001-toolchain-conventions.md)) guards the root-absolute-URL gap this leaves.
+3. The deploy job derives the base path from `actions/configure-pages` and passes it to `vp build --base`. Nothing hardcodes `/deepswe-extended/`; local builds use `/`. The Playwright e2e smoke (ticket 06, [ADR 0001](../../architecture/0001-toolchain-conventions.md)) guards the root-absolute-URL gap this leaves.
 
 ## Acceptance criteria
 
