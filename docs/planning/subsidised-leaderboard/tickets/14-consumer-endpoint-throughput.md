@@ -22,7 +22,7 @@ Diagnosis that led here: the site showed DeepSeek V4 Flash at 38 tok/s while Dee
 
 **Grilling decisions (2026-08-25):**
 
-- Tok/s answers "how fast is the model on the vendor's own consumer API": V4 Flash shows ~80, not the 51 median or OpenRouter's 128 fastest-provider headline.
+- Tok/s answers "how fast is the model on the vendor's consumer endpoint": V4 Flash shows ~80, not the 51 median or OpenRouter's 128 fastest-provider headline. ("Consumer API" is the user-facing phrasing; the glossary term stays "consumer endpoint".)
 - Consumer endpoint per vendor: Anthropic direct (not Claude-on-AWS), Google AI Studio (not Vertex), Moonshot standard (not Highspeed, 2× price), xAI standard (not ZDR). Mechanical rule: provider slug equals the vendor's base slug, or base + "/" + quantization (a serving format, e.g. `moonshotai/int4`, unlike product variants such as `moonshotai/highspeed`).
 - No consumer endpoint → blank, never a substitute statistic; refresh warns.
 - Revision-pinned OpenRouter ids policy; UI names stay revision-free, mapped id in the Model tooltip.
