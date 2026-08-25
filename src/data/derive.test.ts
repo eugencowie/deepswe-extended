@@ -9,7 +9,18 @@ import {
   deriveRows,
   subsidisationFactor,
 } from "./derive.ts";
-import type { LeaderboardRow } from "./types.ts";
+import type { LeaderboardRow, ThroughputSnapshot } from "./types.ts";
+
+// Value-asserting throughput tests use this fixture rather than the live
+// snapshot, so a data refresh never re-touches them; live-data tests below
+// assert structure only.
+const throughputFixture: ThroughputSnapshot = {
+  capturedAt: "2026-01-01T00:00:00Z",
+  models: {
+    "anthropic/claude-opus-5": { consumerP50: 50 },
+    "anthropic/claude-fable-5": { consumerP50: 42 },
+  },
+};
 
 describe("deriveRows", () => {
   const rows = deriveRows(deepsweSnapshot, modelMapping, throughputSnapshot, tiers);
@@ -163,20 +174,22 @@ describe("deriveRows", () => {
   });
 
   test("a model's rows share one throughput figure across effort levels", () => {
-    const opus = rows.filter((row) => row.model === "claude-opus-5");
+    const opus = deriveRows(deepsweSnapshot, modelMapping, throughputFixture, tiers).filter(
+      (row) => row.model === "claude-opus-5",
+    );
     expect(opus.length).toBeGreaterThan(1);
     for (const row of opus) {
-      expect(row.throughputTokPerSec).toBe(58.75);
+      expect(row.throughputTokPerSec).toBe(50);
     }
   });
 
-  test("average time is output tokens over the model's median throughput", () => {
+  test("average time is output tokens over the model's consumer-endpoint throughput", () => {
     const snapshot = {
       ...deepsweSnapshot,
-      entries: [{ ...deepsweSnapshot.entries[0], model: "claude-fable-5", output_tokens: 8600 }],
+      entries: [{ ...deepsweSnapshot.entries[0], model: "claude-fable-5", output_tokens: 8400 }],
     };
-    const [row] = deriveRows(snapshot, modelMapping, throughputSnapshot, tiers);
-    expect(row.throughputTokPerSec).toBe(43);
+    const [row] = deriveRows(snapshot, modelMapping, throughputFixture, tiers);
+    expect(row.throughputTokPerSec).toBe(42);
     expect(row.averageTimeSeconds).toBe(200);
   });
 
@@ -264,6 +277,7 @@ describe("compareModel", () => {
     apiCostPerSolvedTaskUsd: 2,
     outputTokens: 100,
     steps: 10,
+    openrouterId: "test/model",
     throughputTokPerSec: 50,
     averageTimeSeconds: 2,
   });

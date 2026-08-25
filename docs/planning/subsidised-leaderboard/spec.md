@@ -73,13 +73,13 @@ One snapshot object; all models fetched in one run, one `capturedAt`:
 ```ts
 type ThroughputSnapshot = {
   capturedAt: string;
-  models: Record<string, {          // key: OpenRouter model id
-    medianP50: number;              // tokens/sec, median across default-tier endpoints
+  models: Record<string, {          // key: OpenRouter model id (revision-pinned, ADR 0002)
+    consumerP50: number;            // tokens/sec, p50 of the vendor's consumer endpoint
   }>;
 };
 ```
 
-Seed values: the "Median" column of the [OpenRouter research snapshot](research/openrouter-throughput.md#current-model-snapshot). Per-model endpoint detail (`endpoints: { tag, provider, p50 }[]`) joins the type with ticket 11's refresh script: the research capture recorded only medians, so seeding the field would mean fabricating empty arrays (decided in ticket 07's grilling).
+Semantics revised 2026-08-25 (ADR 0002): the original seed stored `medianP50`, the median across all default-tier endpoints; the field is now the vendor's consumer-endpoint p50, and models whose vendor runs no consumer endpoint are omitted (blank in the UI). Per-model endpoint detail (`endpoints: { tag, provider, p50 }[]`) joins the type with ticket 11's refresh script — checked-in data shouldn't contain fabricated empties (decided in ticket 07's grilling).
 
 ### `data/tiers.json`
 
@@ -119,8 +119,8 @@ Hand-curated; one entry per leaderboard model (effort levels share it). `display
 | gemini-3-6-flash | Gemini 3.6 Flash | Google | google/gemini-3.6-flash | none | 1.0 |
 | gemini-3-5-flash | Gemini 3.5 Flash | Google | google/gemini-3.5-flash | none | 1.0 |
 | gemini-3-1-pro-preview | Gemini 3.1 Pro Preview | Google | google/gemini-3.1-pro-preview | none | 1.0 |
-| deepseek-v4-pro | DeepSeek V4 Pro | DeepSeek | deepseek/deepseek-v4-pro | none | 1.0 |
-| deepseek-v4-flash | DeepSeek V4 Flash | DeepSeek | deepseek/deepseek-v4-flash | none | 1.0 |
+| deepseek-v4-pro | DeepSeek V4 Pro | DeepSeek | deepseek/deepseek-v4-pro-0813 | none | 1.0 |
+| deepseek-v4-flash | DeepSeek V4 Flash | DeepSeek | deepseek/deepseek-v4-flash-0731 | none | 1.0 |
 | glm-5-3 | GLM-5.3 | Z.ai | z-ai/glm-5.3 | none | 1.0 |
 | glm-5-2 | GLM-5.2 | Z.ai | z-ai/glm-5.2 | none | 1.0 |
 | kimi-k3 | Kimi K3 | Moonshot | moonshotai/kimi-k3 | none | 1.0 |
@@ -143,7 +143,7 @@ Per row:
 
 - `subsidisationFactor` = `tier.priceUsdPerMonth / (tier.equivalentApiSpendUsdPerMonth × usageMultiplier)` (tier rows only). E.g. claude-pro = 0.05; for Fable 5, 20 / (400 × 0.5) = 0.10.
 - `effectiveCost` = `average_cost_usd` (API rows) or `average_cost_usd × subsidisationFactor` (tier rows).
-- `throughput` = the mapping's OpenRouter model's `medianP50`, shared across effort levels; blank if unmapped or absent from the snapshot.
+- `throughput` = the mapping's OpenRouter model's `consumerP50` (ADR 0002), shared across effort levels; blank if unmapped or absent from the snapshot.
 - `averageTimeSeconds` = `output_tokens / throughput`; blank when throughput is blank. Display as `Xm Ys`.
 - `costPerSolvedTask` = `effectiveCost / pass_at_1` (dollars per solved task; e.g. $4 at 75% → $5.33). Blank if `pass_at_1` is 0.
 
@@ -156,7 +156,7 @@ Blank cells render as "–" and always sort last regardless of direction (custom
 React + TypeScript + TanStack Table on the Vite+ toolchain, with shadcn/ui components (Base UI primitives) and Tailwind for styling ([ADR 0001](../../architecture/0001-toolchain-conventions.md)). Single page, one table, titled "DeepSWE Leaderboard, Extended" (page title and h1).
 
 - Columns (headers match DeepSWE's style where possible): Model (mapping `displayName`), Pass@1, Avg cost, Cost/perf, Out tok, Steps, Avg time (est), Tok/s (est). Effort and access route are **not** columns — they render inside the Model cell: effort as a DeepSWE-style bracket ("Claude Opus 5 [max]", nothing for default effort), access as a tag on tier rows (exact styling decided in ticket 08). Model sorts by display name with effort as tiebreaker, so a model's effort variants stay adjacent.
-- Header/cell annotations, each with a tooltip: Cost/perf is the cost per solved task ("Avg cost ÷ Pass@1: what you pay per task actually solved"); "(est)" on Avg time and Tok/s marks them estimates (Avg time tooltip: "Output tokens ÷ OpenRouter median throughput; excludes tool execution and gaps between the agent's calls"; Tok/s tooltip: "Median throughput on OpenRouter, not the speed measured in the benchmark run" — the key message is that the figure is OpenRouter data, not the benchmark run's own speed). Tier-row Avg cost and Cost/perf cells show the API cost first, struck through and muted, then the effective value in normal weight (the Cost/perf struck value is API cost ÷ Pass@1; Pass@1 = 0 renders one blank cell, no struck blank). No per-cell "(e)" marker — the estimate caveat lives in the Subscriptions picker's disclaimer instead. Both columns sort by effective values. API-row Avg cost is the unadjusted average cost. (Strikeout added in ticket 12's grilling; the "(e)" removed in the same ticket's follow-up.)
+- Header/cell annotations, each with a tooltip: Cost/perf is the cost per solved task ("Avg cost ÷ Pass@1: what you pay per task actually solved"); "(est)" on Avg time and Tok/s marks them estimates (Avg time tooltip: "Output tokens ÷ vendor API throughput; excludes tool execution and gaps between the agent's calls"; Tok/s tooltip: "p50 throughput of the vendor's own consumer API (via OpenRouter stats). Not the speed measured in the benchmark run" — the key message is that the figure describes the vendor's consumer API measured by OpenRouter, not the benchmark run's own speed; ADR 0002). The Model cell carries a tooltip with the mapped OpenRouter id, since display names omit revisions. Tier-row Avg cost and Cost/perf cells show the API cost first, struck through and muted, then the effective value in normal weight (the Cost/perf struck value is API cost ÷ Pass@1; Pass@1 = 0 renders one blank cell, no struck blank). No per-cell "(e)" marker — the estimate caveat lives in the Subscriptions picker's disclaimer instead. Both columns sort by effective values. API-row Avg cost is the unadjusted average cost. (Strikeout added in ticket 12's grilling; the "(e)" removed in the same ticket's follow-up.)
 - Sorting: every column sorts both ways via a two-state toggle (ascending ↔ descending, no unsorted state). Default sort: Pass@1 descending. Default view: **Best** effort levels, **API only** — 25 rows, one per model; other effort levels and tiers are opt-in via the toolbar.
 - Toolbar (mirrors the DeepSWE site's chrome — toggles left, dropdowns right; revised in ticket 09's grilling, replacing the earlier vendor and effort-level filters):
   - A static **v1.1** chip styled like an active toggle. The benchmark version is fixed; no disabled v1 control.
@@ -171,7 +171,7 @@ React + TypeScript + TanStack Table on the Vite+ toolchain, with shadcn/ui compo
 ## Refresh scripts (refreshes land only as human-reviewed commits)
 
 - `scripts/refresh-deepswe.ts`: implement per the [research's refresh strategy](research/deepswe-leaderboard-data.md#recommended-typescript-refresh-strategy) — fetch `/artifacts/versions.json` and the pinned `v1.1` artifact, validate with zod, reject duplicate configs, apply the checked-in display-cost-factor table (`gpt-5-6-luna` 0.2, `gpt-5-6-terra` 0.8, `gemini-3-6-flash` 0.5), keep raw values beside adjusted ones, warn (don't switch) when the manifest's `latest` ≠ v1.1. Also fail the run when a fetched model is missing from `model-mapping.json`, so new leaderboard models force a mapping decision.
-- `scripts/refresh-openrouter.ts`: implement per the [research's reproducible fetch](research/openrouter-throughput.md#reproducible-fetch) — documented `/api/v1/models/{author}/{slug}/endpoints` with `OPENROUTER_API_KEY` (required; all-null throughput = hard error), default-tier endpoints only, median of p50s, all models in one run with one `capturedAt`, handle 429/`Retry-After`.
+- `scripts/refresh-openrouter.ts`: implement per the [research's reproducible fetch](research/openrouter-throughput.md#reproducible-fetch) — documented `/api/v1/models/{author}/{slug}/endpoints` with `OPENROUTER_API_KEY` (required; all-null throughput = hard error), consumer-endpoint selection per ADR 0002 (vendor's base provider slug, or base + "/" + quantization; default tier only; median if several remain), all models in one run with one `capturedAt`, handle 429/`Retry-After`. A mapped model id missing from OpenRouter is a hard error; a model whose vendor runs no consumer endpoint is a warning and is omitted from the snapshot (blank in the UI).
 
 The DeepSWE refresh runs on a weekly schedule (ticket 13): `.github/workflows/refresh.yml` runs the script and opens a pull request on a stable branch when the snapshot changed, using a fine-grained PAT so the PR triggers CI; the human review moves from the local diff to the PR. The script itself skips writing when only `raw_sha256`/`source_generated_at` would change, so no-op upstream churn produces no PR. The OpenRouter refresh stays manual and local: its key lives only in the user's environment (gitignored `.env`), never in repo secrets or CI. Note: the seed throughput snapshot came from the unauthenticated frontend feed, so the documented API path is unverified until the first keyed run.
 

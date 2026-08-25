@@ -1,14 +1,5 @@
 # 0001: Toolchain conventions for the scaffold
 
-Status: accepted
-Date: 2026-08-21
-
-## Context
-
-Code review of the `template-site` branch (ticket 05) flagged several scaffold choices as code smells or spec deviations. Each was walked through with the user and kept on purpose. This ADR records them so later reviews don't reopen settled ground.
-
-## Decisions
-
 **Tailnet scripts stay duplicated, until there are three.** `dev:tailnet` and `preview:tailnet` in `package.json` repeat the same `concurrently` + `tailscale serve` incantation with different ports. Development happens over the tailnet, so the scripts are necessary, and two near-identical scripts are cheaper to read than one parameterised one. The trigger to extract a shared script is a third `:tailnet` variant appearing.
 
 **Vite config merges layered objects via `defineMergedConfig`.** The array-merge helper in `vite.config.ts` keeps template-generated defaults (`baseConfig`, `vitePlusConfig`) separate from project overrides (`projectConfig`). Three static objects don't need it yet; it earns its keep when `reactConfig` and the Tailwind config join in ticket 06.

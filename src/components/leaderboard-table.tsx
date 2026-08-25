@@ -83,9 +83,19 @@ const columnSpecs: ColumnSpec[] = [
     compare: (a, b, direction) => (direction === "asc" ? compareModel(a, b) : compareModel(b, a)),
     cell: (row) => {
       const tier = row.accessRoute === "api" ? undefined : tierById.get(row.accessRoute);
+      // The display name mirrors DeepSWE and omits the model revision; the
+      // tooltip exposes the pinned OpenRouter id for readers cross-checking
+      // model cards (ADR 0002).
       return (
         <>
-          {row.displayName}
+          {row.openrouterId === null ? (
+            row.displayName
+          ) : (
+            <Tooltip>
+              <TooltipTrigger render={<span />}>{row.displayName}</TooltipTrigger>
+              <TooltipContent>{row.openrouterId}</TooltipContent>
+            </Tooltip>
+          )}
           {row.effort !== null && <span className="text-muted-foreground"> [{row.effort}]</span>}
           {tier && (
             <Badge variant="outline" className={cn("ml-2", tagClassByFamily[tier.family])}>
@@ -149,7 +159,7 @@ const columnSpecs: ColumnSpec[] = [
     id: "avgTime",
     header: "Avg time (est)",
     tooltip:
-      "Output tokens ÷ OpenRouter median throughput; excludes tool execution and gaps between the agent's calls",
+      "Output tokens ÷ vendor API throughput; excludes tool execution and gaps between the agent's calls",
     derived: true,
     value: (row) => row.averageTimeSeconds,
     cell: (row) => formatDuration(row.averageTimeSeconds),
@@ -157,7 +167,8 @@ const columnSpecs: ColumnSpec[] = [
   numericColumn({
     id: "tokPerSec",
     header: "Tok/s (est)",
-    tooltip: "Median throughput on OpenRouter, not the speed measured in the benchmark run",
+    tooltip:
+      "p50 throughput of the vendor's own consumer API (via OpenRouter stats). Not the speed measured in the benchmark run",
     derived: true,
     value: (row) => row.throughputTokPerSec,
     cell: (row) => formatThroughput(row.throughputTokPerSec),
