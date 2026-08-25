@@ -24,7 +24,7 @@ export function deriveRows(
     const throughputTokPerSec =
       mapped.openrouterId === null
         ? null
-        : (throughput.models[mapped.openrouterId]?.medianP50 ?? null);
+        : (throughput.models[mapped.openrouterId]?.consumerP50 ?? null);
     const familyTiers = tiers.filter((tier) => tier.family === mapped.family);
     const row = (accessRoute: AccessRoute, effectiveCostUsd: number): LeaderboardRow => ({
       model: entry.model,
@@ -40,6 +40,7 @@ export function deriveRows(
       apiCostPerSolvedTaskUsd: costPerSolvedTask(entry.average_cost_usd, entry.pass_at_1),
       outputTokens: entry.output_tokens,
       steps: entry.steps,
+      openrouterId: mapped.openrouterId,
       throughputTokPerSec,
       averageTimeSeconds:
         throughputTokPerSec === null ? null : entry.output_tokens / throughputTokPerSec,

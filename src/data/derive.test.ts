@@ -166,17 +166,17 @@ describe("deriveRows", () => {
     const opus = rows.filter((row) => row.model === "claude-opus-5");
     expect(opus.length).toBeGreaterThan(1);
     for (const row of opus) {
-      expect(row.throughputTokPerSec).toBe(58.75);
+      expect(row.throughputTokPerSec).toBe(53);
     }
   });
 
-  test("average time is output tokens over the model's median throughput", () => {
+  test("average time is output tokens over the model's consumer-endpoint throughput", () => {
     const snapshot = {
       ...deepsweSnapshot,
-      entries: [{ ...deepsweSnapshot.entries[0], model: "claude-fable-5", output_tokens: 8600 }],
+      entries: [{ ...deepsweSnapshot.entries[0], model: "claude-fable-5", output_tokens: 8400 }],
     };
     const [row] = deriveRows(snapshot, modelMapping, throughputSnapshot, tiers);
-    expect(row.throughputTokPerSec).toBe(43);
+    expect(row.throughputTokPerSec).toBe(42);
     expect(row.averageTimeSeconds).toBe(200);
   });
 
@@ -264,6 +264,7 @@ describe("compareModel", () => {
     apiCostPerSolvedTaskUsd: 2,
     outputTokens: 100,
     steps: 10,
+    openrouterId: "test/model",
     throughputTokPerSec: 50,
     averageTimeSeconds: 2,
   });

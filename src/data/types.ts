@@ -30,9 +30,10 @@ export type DeepsweEntry = {
 
 export type ThroughputSnapshot = {
   capturedAt: string;
-  // Keyed by OpenRouter model id; medianP50 is tokens/sec, the median across
-  // default-tier endpoints' p50 throughput.
-  models: Record<string, { medianP50: number }>;
+  // Keyed by OpenRouter model id; consumerP50 is tokens/sec, the p50 of the
+  // vendor's consumer endpoint (ADR 0002). Models whose vendor runs no
+  // consumer endpoint are absent, yielding blank throughput/time.
+  models: Record<string, { consumerP50: number }>;
 };
 
 export type SubscriptionFamily = "claude" | "chatgpt" | "none";
@@ -41,7 +42,9 @@ export type ModelMappingEntry = {
   leaderboardModel: string;
   displayName: string;
   vendor: string;
-  openrouterId: string | null; // null yields blank throughput/time (ticket 07)
+  // Revision-pinned wherever OpenRouter has a pinned listing (ADR 0002);
+  // null yields blank throughput/time (ticket 07).
+  openrouterId: string | null;
   family: SubscriptionFamily;
   usageMultiplier: number;
   shortName?: string; // UI short label, falling back to displayName (ticket 12)
@@ -85,6 +88,7 @@ export type LeaderboardRow = {
   apiCostPerSolvedTaskUsd: number | null; // apiCostUsd ÷ passAt1; null when passAt1 is 0
   outputTokens: number;
   steps: number;
+  openrouterId: string | null; // shown in the model-name tooltip
   throughputTokPerSec: number | null; // null when unmapped or absent from the snapshot
   averageTimeSeconds: number | null; // null when throughput is null
 };
