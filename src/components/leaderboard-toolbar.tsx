@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { cn } from "@/components/ui/utils";
 import { subsidisationFactor } from "@/data/derive";
 import { formatTierDiscount } from "@/data/format";
@@ -79,19 +80,19 @@ export function LeaderboardToolbar({
     <div className="flex flex-wrap items-center gap-2">
       {/* The benchmark version is fixed; a static chip, not a dead toggle. */}
       <span className={cn(buttonVariants({ size: "sm" }), "pointer-events-none")}>v1.1</span>
-      <div role="group" aria-label="Effort levels" className="flex items-center gap-1">
+      <ButtonGroup aria-label="Effort levels">
         {effortViews.map(({ view, label }) => (
           <Button
             key={view}
             size="sm"
-            variant={filters.effortView === view ? "default" : "ghost"}
+            variant={filters.effortView === view ? "default" : "outline"}
             aria-pressed={filters.effortView === view}
             onClick={() => onChange({ ...filters, effortView: view })}
           >
             {label}
           </Button>
         ))}
-      </div>
+      </ButtonGroup>
       <div className="ms-auto flex items-center gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
