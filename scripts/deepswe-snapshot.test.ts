@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vite-plus/test";
 import type { ModelMappingEntry } from "../src/data/types.ts";
-import { type LeaderboardArtifact, type VersionManifest, normalize } from "./deepswe-snapshot.ts";
+import {
+  type LeaderboardArtifact,
+  type VersionManifest,
+  hasMeaningfulChange,
+  normalize,
+} from "./deepswe-snapshot.ts";
 
 const manifest: VersionManifest = {
   latest: "v1.1",
@@ -150,5 +155,35 @@ describe("normalize", () => {
     expect(() => normalize(manifest, disagreeing, mappingFor(allModels), "abc123")).toThrow(
       /113.*99/,
     );
+  });
+});
+
+describe("hasMeaningfulChange", () => {
+  const snapshotFrom = (rows: LeaderboardArtifact["rows"], sha: string, generatedAt?: string) => {
+    const source = artifact(rows);
+    if (generatedAt) source.generated_at = generatedAt;
+    return normalize(manifest, source, mappingFor(allModels), sha).snapshot;
+  };
+  const rows = allModels.map((model) => row(model));
+
+  it("ignores raw_sha256 and source_generated_at churn", () => {
+    const existing = snapshotFrom(rows, "abc123");
+    const next = snapshotFrom(rows, "def456", "2026-08-21T00:00:00.000000+00:00");
+    expect(hasMeaningfulChange(existing, next)).toBe(false);
+  });
+
+  it("reports identical snapshots as unchanged", () => {
+    expect(hasMeaningfulChange(snapshotFrom(rows, "abc123"), snapshotFrom(rows, "abc123"))).toBe(
+      false,
+    );
+  });
+
+  it("detects an entry change even when hash and timestamp also moved", () => {
+    const existing = snapshotFrom(rows, "abc123");
+    const changed = allModels.map((model) =>
+      row(model, model === "claude-opus-5" ? { pass_at_1: 0.6 } : {}),
+    );
+    const next = snapshotFrom(changed, "def456", "2026-08-21T00:00:00.000000+00:00");
+    expect(hasMeaningfulChange(existing, next)).toBe(true);
   });
 });

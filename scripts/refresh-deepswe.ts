@@ -1,12 +1,14 @@
-// Refreshes data/deepswe-v1.1.json from the live DeepSWE source. Manual
-// cadence: run via `vp run refresh:deepswe`, review the diff, commit. Fails
-// without writing anything when a guard rail trips.
+// Refreshes data/deepswe-v1.1.json from the live DeepSWE source. Run via
+// `vp run refresh:deepswe`, locally or from the scheduled workflow; changes
+// land only through human-reviewed commits. Fails without writing anything
+// when a guard rail trips.
 
 import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
-import type { ModelMappingEntry } from "../src/data/types.ts";
+import type { DeepsweSnapshot, ModelMappingEntry } from "../src/data/types.ts";
 import {
   artifactUrl,
+  hasMeaningfulChange,
   leaderboardArtifactSchema,
   normalize,
   origin,
@@ -37,8 +39,19 @@ for (const warning of warnings) {
 }
 
 const snapshotPath = new URL("../data/deepswe-v1.1.json", import.meta.url);
-await writeFile(snapshotPath, `${JSON.stringify(snapshot, null, 2)}\n`);
-console.log(
-  `Wrote data/deepswe-v1.1.json: ${snapshot.entries.length} entries, ` +
-    `source generated at ${snapshot.source_generated_at}.`,
+const existing = await readFile(snapshotPath, "utf8").then(
+  (text) => JSON.parse(text) as DeepsweSnapshot,
+  () => null,
 );
+if (existing && !hasMeaningfulChange(existing, snapshot)) {
+  console.log(
+    "No content change; leaving data/deepswe-v1.1.json untouched " +
+      `(upstream raw_sha256 ${rawSha256}, generated at ${snapshot.source_generated_at}).`,
+  );
+} else {
+  await writeFile(snapshotPath, `${JSON.stringify(snapshot, null, 2)}\n`);
+  console.log(
+    `Wrote data/deepswe-v1.1.json: ${snapshot.entries.length} entries, ` +
+      `source generated at ${snapshot.source_generated_at}.`,
+  );
+}

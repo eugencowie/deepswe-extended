@@ -10,7 +10,7 @@
   "n_tasks_in_set": 113,
   "source_scope": "Every DeepSWE rollout across imported Pier jobs, grouped by configuration (harness + model + reasoning effort)",
   "source_unit": "pass@1 is attempt pass rate over scored rollout attempts. pass@4 is tasks with at least one passing rollout divided by tasks attempted. Context-window failures and agent timeouts are scored failures; provider/verifier/network errors are excluded. Efficiency aggregates are over every scored attempt.",
-  "raw_sha256": "512aa32b3f917cc31f60895524526bed0db23d998362a2aeafda63122c5c8c04",
+  "raw_sha256": "41940b22593f98d41d098ad6cad350932b26a65fa0384bb6d9ec5e34c2c7374c",
   "cost_adjustments": [
     {
       "model": "gpt-5-6-luna",
@@ -80,7 +80,7 @@
       "pass_at_1": 0.7073170731707317,
       "average_cost_usd": 4.703663860310422,
       "output_tokens": 40744.59201773836,
-      "steps": 44,
+      "steps": 44.0,
       "source_config": "mini_swe_agent_gpt_5_6_sol_xhigh",
       "n_scored_attempts": 451,
       "raw_average_cost_usd": 4.703663860310422,
@@ -344,7 +344,7 @@
       "pass_at_1": 0.5897435897435898,
       "average_cost_usd": 13.222583593240094,
       "output_tokens": 135031.67132867133,
-      "steps": 120,
+      "steps": 120.0,
       "source_config": "mini_swe_agent_claude_opus_4_8_max",
       "n_scored_attempts": 429,
       "raw_average_cost_usd": 13.222583593240094,

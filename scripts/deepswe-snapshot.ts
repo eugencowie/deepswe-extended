@@ -65,6 +65,14 @@ export function artifactUrl(manifest: VersionManifest): string {
   return `${origin}/artifacts/${pinnedVersion(manifest).data_path}/leaderboard-live.json`;
 }
 
+// Decides whether a fresh snapshot is worth writing. raw_sha256 and
+// source_generated_at churn upstream without content changes, so they only
+// ride along when something else changed.
+export function hasMeaningfulChange(existing: DeepsweSnapshot, next: DeepsweSnapshot): boolean {
+  const strip = ({ raw_sha256: _sha, source_generated_at: _at, ...rest }: DeepsweSnapshot) => rest;
+  return JSON.stringify(strip(existing)) !== JSON.stringify(strip(next));
+}
+
 export function normalize(
   manifest: VersionManifest,
   artifact: LeaderboardArtifact,
