@@ -1,7 +1,7 @@
 # 10: DeepSWE refresh script
 
 Type: task
-Status: ready-for-agent
+Status: resolved
 Blocked by: 06
 
 ## What to build
@@ -23,9 +23,15 @@ Guard rails: warn without switching when the manifest's `latest` moves past v1.1
 
 ## Acceptance criteria
 
-- [ ] Script fetches live source, validates, and writes the snapshot in the checked-in shape
-- [ ] Display-cost factors (Luna 0.2, Terra 0.8, Gemini 3.6 Flash 0.5) applied; raw values and factors retained
-- [ ] Rerun immediately after committing a snapshot produces no diff (modulo the source timestamp)
-- [ ] A fetched model absent from the mapping fails the run with a clear message
-- [ ] A manifest `latest` ≠ v1.1 warns but stays pinned
-- [ ] `vp run ready` passes
+- [x] Script fetches live source, validates, and writes the snapshot in the checked-in shape
+- [x] Display-cost factors (Luna 0.2, Terra 0.8, Gemini 3.6 Flash 0.5) applied; raw values and factors retained
+- [x] Rerun immediately after committing a snapshot produces no diff (modulo the source timestamp)
+- [x] A fetched model absent from the mapping fails the run with a clear message
+- [x] A manifest `latest` ≠ v1.1 warns but stays pinned
+- [x] `vp run ready` passes
+
+## Comments
+
+**2026-08-25** — Implemented as `scripts/deepswe-snapshot.ts` (schemas, factor table, pure `normalize` returning `{ snapshot, warnings }`) plus the `scripts/refresh-deepswe.ts` shell, run via `vp run refresh:deepswe`. Eight guard-rail tests in `scripts/deepswe-snapshot.test.ts`; `scripts/` added to `tsconfig.node.json`; zod 4 as a devDependency.
+
+Live-run findings: the upstream artifact gained a per-row `mean_cache_tokens` field *without* bumping `generated_at`, so `raw_sha256` changed (`41940b…` → `512aa3…`) while every consumed field stayed identical — confirming the research's warning that the version pin alone doesn't make the artifact reproducible. The refreshed snapshot also normalizes the Python-seeded `44.0` floats to `44` (two entries' `steps`); values are unchanged. Two consecutive fetches were byte-identical, and rerunning the script after a run produces a byte-identical snapshot.
