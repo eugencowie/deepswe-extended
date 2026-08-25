@@ -15,7 +15,7 @@ The spec must cover:
 - **Derivation rules**: row expansion (API row + tier rows per subscription family), subsidisation factor, effective cost, average time, cost per solved task, blank-sorts-last handling — as decided in [01-charting-grilling.md](01-charting-grilling.md).
 - **Refresh scripts**: TypeScript (`tsx`) fetchers for the leaderboard and OpenRouter per tickets 02/03's findings, or the manual-refresh procedure where no machine-readable source exists.
 - **App**: Vite + React + TS + TanStack Table; columns, filters, per-model include/exclude, default sort Pass@1 descending; data imported at build time.
-- **Repo and deploy**: creating the public `deepswe-analysis` GitHub repo (no remote exists yet) and the Actions workflow deploying to GitHub Pages.
+- **Repo and deploy**: creating the public `deepswe-extended` GitHub repo (no remote exists yet) and the Actions workflow deploying to GitHub Pages.
 
 Resolve any token-semantics mismatch surfaced by 02/03 (e.g. reasoning tokens counted in output tokens but not in throughput) by picking the least-wrong convention and stating it in the spec — the tool is explicitly a rough approximation.
 

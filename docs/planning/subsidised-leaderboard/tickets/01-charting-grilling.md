@@ -58,4 +58,4 @@ Hand-curated mapping file: leaderboard model → OpenRouter id, subscription fam
 
 - **Vite + React + TypeScript + TanStack Table.** User's suggestion, confirmed after weighing alternatives: the feature set (custom sort comparators, faceted filters, row include/exclude) is exactly what TanStack Table provides, the user already works in this ecosystem, and lighter options save nothing that matters at this scale. Data is checked-in JSON **imported at build time** (typed, no runtime fetch).
 - Refresh scripts in **TypeScript** (run with `tsx`), sharing data-shape types with the app.
-- Hosting: **GitHub Pages** via a GitHub Actions workflow. Public repo `deepswe-analysis` (no remote exists yet; creation is build-phase work for the spec to cover).
+- Hosting: **GitHub Pages** via a GitHub Actions workflow. Public repo `deepswe-extended` (no remote exists yet; creation is build-phase work for the spec to cover).
