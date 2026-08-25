@@ -1,0 +1,30 @@
+permissions:
+  contents: read
+
+on:
+  schedule:
+    - cron: "0 16 * * 5"
+  workflow_dispatch:
+
+jobs:
+  refresh-deepswe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with: { persist-credentials: false }
+      - uses: voidzero-dev/setup-vp@v1.17.0
+        with: { cache: true }
+      - run: vp run refresh:deepswe
+      - uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.REFRESH_PR_TOKEN }}
+          branch: refresh/deepswe
+          add-paths: data/deepswe-v1.1.json
+          commit-message: "Refresh DeepSWE snapshot"
+          title: "chore: Refresh DeepSWE snapshot"
+          body: |
+            Automated weekly refresh of `data/deepswe-v1.1.json` from the live
+            DeepSWE source. Review the diff against the
+            [changelog](https://deepswe.datacurve.ai/changelog) before merging;
+            if costs shifted, re-check the site bundle's cost adjustment
+            factors per the spec's version-bump workflow.

@@ -64,3 +64,7 @@ run = "vp preview"
 [tasks."preview:tailnet"]
 description = "Preview production build on tailnet"
 run = "vp run preview:tailnet"
+
+[tasks."refresh:deepswe"]
+description = "Refresh DeepSWE data"
+run = "vp run refresh:deepswe"

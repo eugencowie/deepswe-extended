@@ -75,5 +75,9 @@ A leaderboard column this project computes rather than takes from the DeepSWE le
 The hand-curated link from a leaderboard model to its OpenRouter id, subscription family, usage multiplier, and optional short name (falling back to the display name).
 
 **Snapshot**:
-A checked-in, point-in-time capture of a source, refreshed manually.
+A checked-in, point-in-time capture of a source, refreshed only through human-reviewed commits, never at build or run time.
 _Avoid_: live data, cache
+
+**Cost adjustment factor**:
+The DeepSWE site's retroactive repricing multiplier for a model's costs. The snapshot keeps raw values beside adjusted ones.
+_Avoid_: display factor, repricing factor, display-cost factor
