@@ -82,6 +82,10 @@ The hand-curated link from a leaderboard model to its OpenRouter id, subscriptio
 The company that makes and serves a model (Anthropic, Google, Moonshot, …), as named in the model mapping. Distinct from subscription family: family says whose tiers can run a model, vendor says who makes it.
 _Avoid_: provider (OpenRouter's word for an endpoint operator), lab
 
+**Vendor mark**:
+The brand mark shown beside a model to identify its vendor — not always the vendor's corporate logo (Moonshot's mark is Kimi, Alibaba's is Qwen).
+_Avoid_: provider icon, vendor logo
+
 **Vendor mapping**:
 The hand-curated link from a vendor to its consumer provider slug. Every vendor in the model mapping appears here; a vendor that runs no consumer endpoint is recorded explicitly rather than omitted.
 
