@@ -1,12 +1,12 @@
-# Provider icon sources
+# Vendor mark sources
 
-Researched on 2026-08-26 against the nine providers in
+Researched on 2026-08-26 against the nine vendors in
 [`data/model-mapping.json`](../../../../data/model-mapping.json).
 
 ## Recommendation
 
 Use `@lobehub/icons-static-svg@1.94.0`. It is the only checked package that
-covers every provider with the model-facing marks shown in the reference UI.
+covers every vendor with the model-facing marks shown in the reference UI.
 The package contains plain SVG files, declares no runtime dependencies or peer
 dependencies, and is 2.3 MB unpacked across 905 files. The selected nine files
 total only 14.7 KB before build-time compression. Pin the package version so an
@@ -104,7 +104,7 @@ for this use case.
 
 ## License and trademark limits
 
-The package license is not permission to use every provider's trademark.
+The package license is not permission to use every vendor's trademark.
 Lobe's code and generated files are MIT licensed, but its repository does not
 publish per-icon provenance or trademark permissions. Simple Icons is CC0,
 yet its own disclaimer says that CC0 does not imply every included icon is
@@ -140,9 +140,9 @@ The first-party terms are not uniform:
 
 No public Anthropic logo-use guide or download page was found in Anthropic's
 official site during this research. Treat its logo as a trademark and use it
-only as a neutral provider identifier pending legal review, rather than
+only as a neutral vendor identifier pending legal review, rather than
 assuming Lobe's MIT license grants brand rights.
 
 For implementation, keep the icons small and secondary to the model names,
-add accessible provider text independently of the SVG `<title>`, do not alter
+add accessible vendor text independently of the SVG `<title>`, do not alter
 logo geometry, and avoid any surrounding copy that suggests sponsorship.

@@ -1,12 +1,12 @@
 # 16: Vendor marks in the Model cell
 
 Type: task
-Status: ready-for-agent
+Status: resolved
 
 ## What to build
 
 Render each vendor's mark before the model name in the Model cell, per the
-2026-08-26 grilling and [provider icon research](../research/provider-icons.md).
+2026-08-26 grilling and [vendor mark research](../research/vendor-marks.md).
 Vocabulary: a **vendor mark** (see `docs/context.md`) is the brand mark shown
 beside a model — not always the vendor's corporate logo (Moonshot's mark is
 Kimi, Alibaba's is Qwen).
@@ -61,12 +61,21 @@ describing the mark in the Model cell.
 
 ## Acceptance criteria
 
-- [ ] The Model cell shows the correct mark for all nine vendors; tier and
+- [x] The Model cell shows the correct mark for all nine vendors; tier and
       effort variants of a model share it
-- [ ] Monochrome marks follow the theme (`currentColor`) in light and dark
+- [x] Monochrome marks follow the theme (`currentColor`) in light and dark
       mode; color marks render with their fixed brand colors
-- [ ] Each mark exposes `role="img"` with the vendor name as `aria-label`
-- [ ] A unit test fails when a vendor in `model-mapping.json` has no mark
-- [ ] Research doc renamed to vendor-mark vocabulary; spec App section
+- [x] Each mark exposes `role="img"` with the vendor name as `aria-label`
+- [x] A unit test fails when a vendor in `model-mapping.json` has no mark
+- [x] Research doc renamed to vendor-mark vocabulary; spec App section
       mentions the mark
-- [ ] `vp run ready` passes
+- [x] `vp run ready` passes
+
+## Comments
+
+**2026-08-26** — Implemented. The map lives in `src/components/vendor-mark-svgs.ts`,
+separate from the `VendorMark` component, to satisfy the fast-refresh lint rule
+(component files may only export components). The research doc file itself was
+renamed to `research/vendor-marks.md` alongside the prose cleanup. Dark-mode
+rendering is verified by mechanism (root `fill="currentColor"` on the inlined
+monochrome SVGs) rather than by screenshot; no preview host was available.

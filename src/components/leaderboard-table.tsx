@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/components/ui/utils";
+import { VendorMark } from "@/components/vendor-mark";
 import { compareBlankLast, compareModel, type SortDirection } from "@/data/derive";
 import { tiers } from "@/data/sources";
 import {
@@ -88,6 +89,7 @@ const columnSpecs: ColumnSpec[] = [
       // model cards (ADR 0002).
       return (
         <>
+          <VendorMark vendor={row.vendor} className="mr-1.5" />
           {row.openrouterId === null ? (
             row.displayName
           ) : (
