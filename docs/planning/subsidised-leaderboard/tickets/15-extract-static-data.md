@@ -1,7 +1,7 @@
 # 15: Extract static data to data/
 
 Type: task
-Status: ready-for-agent
+Status: resolved
 
 ## What to build
 
@@ -34,8 +34,17 @@ The DeepSWE origin URL used by the refresh script to fetch stays a script consta
 
 ## Acceptance criteria
 
-- [ ] `data/cost-adjustments.json` exists with provenance fields; `scripts/deepswe-snapshot.ts` reads it; written snapshot output unchanged
-- [ ] Factor values asserted in exactly one place across the test suite
-- [ ] All three data files carry `source` + `sourceUrl`; the footer renders provenance from data imports, no citation URLs in JSX
-- [ ] Ticket 10's decision log notes the reversal
-- [ ] `vp run ready` passes
+- [x] `data/cost-adjustments.json` exists with provenance fields; the refresh shell loads it (zod-validated) and passes factors into the pure `normalize`
+- [x] Factor values asserted in exactly one place across the test suite
+- [x] All three data files carry `source` + `sourceUrl`; the footer renders provenance from data imports, no citation URLs in JSX
+- [x] Ticket 10's decision log notes the reversal
+- [x] `vp run ready` passes
+
+## Comments
+
+**2026-08-26** — Implemented. Two departures from the letter of the ticket, caught in review and worth recording:
+
+- The first acceptance criterion originally read "written snapshot output unchanged", which conflicted with "What to build" (the refresh script now writes `source`/`sourceUrl` into the snapshot). Resolved in favour of the body: factor application is byte-identical, the snapshot shape gained the two provenance fields, and the criterion text was updated to match.
+- `openrouter-throughput.json`'s provenance pair is hand-seeded here; the throughput refresh script that will write it does not exist yet (ticket 11).
+
+The de-triplication landed as: factor values live only in `data/cost-adjustments.json`; `scripts/deepswe-snapshot.test.ts` guards drift by comparing the snapshot's recorded `cost_adjustments` against that file, and the normalize mechanism tests use a clearly-marked fixture table.

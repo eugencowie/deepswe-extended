@@ -13,4 +13,5 @@ import type {
 export const deepsweSnapshot: DeepsweSnapshot = rawSnapshot as DeepsweSnapshot;
 export const modelMapping: ModelMappingEntry[] = rawMapping as ModelMappingEntry[];
 export const throughputSnapshot: ThroughputSnapshot = rawThroughput as ThroughputSnapshot;
-export const tiers: Tier[] = (rawTiers as TiersSnapshot).tiers;
+export const tiersSnapshot: TiersSnapshot = rawTiers as TiersSnapshot;
+export const tiers: Tier[] = tiersSnapshot.tiers;

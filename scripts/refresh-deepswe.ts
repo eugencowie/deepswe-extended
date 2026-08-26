@@ -8,6 +8,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import type { DeepsweSnapshot, ModelMappingEntry } from "../src/data/types.ts";
 import {
   artifactUrl,
+  costAdjustmentsSchema,
   hasMeaningfulChange,
   leaderboardArtifactSchema,
   normalize,
@@ -33,7 +34,12 @@ const rawSha256 = createHash("sha256").update(artifactBytes).digest("hex");
 const mappingPath = new URL("../data/model-mapping.json", import.meta.url);
 const mapping = JSON.parse(await readFile(mappingPath, "utf8")) as ModelMappingEntry[];
 
-const { snapshot, warnings } = normalize(manifest, artifact, mapping, rawSha256);
+const costAdjustmentsPath = new URL("../data/cost-adjustments.json", import.meta.url);
+const { factors } = costAdjustmentsSchema.parse(
+  JSON.parse(await readFile(costAdjustmentsPath, "utf8")),
+);
+
+const { snapshot, warnings } = normalize(manifest, artifact, mapping, factors, rawSha256);
 for (const warning of warnings) {
   console.warn(`warning: ${warning}`);
 }

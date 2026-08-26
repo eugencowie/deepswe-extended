@@ -1,6 +1,8 @@
 {
   "schema_version": 1,
   "benchmark_version": "v1.1",
+  "source": "DeepSWE leaderboard",
+  "sourceUrl": "https://deepswe.datacurve.ai",
   "source_url": "https://deepswe.datacurve.ai/artifacts/v1.1/leaderboard-live.json",
   "source_generated_at": "2026-08-20T07:48:24.252395+00:00",
   "source_latest_job": {

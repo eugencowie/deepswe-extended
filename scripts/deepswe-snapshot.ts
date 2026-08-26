@@ -8,13 +8,15 @@ export const origin = "https://deepswe.datacurve.ai";
 export const benchmarkVersion = "v1.1";
 
 // The site's retroactive repricing multipliers (docs/context.md: cost
-// adjustment factor). No first-party JSON exposes these; a human re-checks the
-// deployed bundle and edits this table during the version-bump workflow.
-export const costAdjustmentFactors: Readonly<Record<string, number>> = {
-  "gpt-5-6-luna": 0.2,
-  "gpt-5-6-terra": 0.8,
-  "gemini-3-6-flash": 0.5,
-};
+// adjustment factor) live in data/cost-adjustments.json; no first-party JSON
+// exposes them, so a human re-checks the deployed bundle and edits that file
+// during the version-bump workflow (ticket 15 reversed ticket 10's inline
+// constant). The shell loads it with this schema and passes factors in.
+export const costAdjustmentsSchema = z.object({
+  source: z.string().min(1),
+  sourceUrl: z.url(),
+  factors: z.record(z.string().min(1), z.number().positive()),
+});
 
 export const versionManifestSchema = z.object({
   latest: z.string(),
@@ -77,6 +79,7 @@ export function normalize(
   manifest: VersionManifest,
   artifact: LeaderboardArtifact,
   mapping: ModelMappingEntry[],
+  costAdjustmentFactors: Readonly<Record<string, number>>,
   rawSha256: string,
 ): { snapshot: DeepsweSnapshot; warnings: string[] } {
   const warnings: string[] = [];
@@ -143,6 +146,8 @@ export function normalize(
     snapshot: {
       schema_version: 1,
       benchmark_version: benchmarkVersion,
+      source: "DeepSWE leaderboard",
+      sourceUrl: origin,
       source_url: artifactUrl(manifest),
       source_generated_at: artifact.generated_at,
       source_latest_job: artifact.latest_job,
