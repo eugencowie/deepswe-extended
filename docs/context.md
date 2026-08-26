@@ -78,6 +78,17 @@ A leaderboard column this project computes rather than takes from the DeepSWE le
 **Model mapping**:
 The hand-curated link from a leaderboard model to its OpenRouter id, subscription family, usage multiplier, and optional short name (falling back to the display name).
 
+**Vendor**:
+The company that makes and serves a model (Anthropic, Google, Moonshot, …), as named in the model mapping. Distinct from subscription family: family says whose tiers can run a model, vendor says who makes it.
+_Avoid_: provider (OpenRouter's word for an endpoint operator), lab
+
+**Vendor mapping**:
+The hand-curated link from a vendor to its consumer provider slug. Every vendor in the model mapping appears here; a vendor that runs no consumer endpoint is recorded explicitly rather than omitted.
+
+**Consumer provider slug**:
+The OpenRouter provider slug identifying a vendor's consumer endpoint (e.g. Google → google-ai-studio, not google).
+_Avoid_: base slug, vendor base slug
+
 **Snapshot**:
 A checked-in, point-in-time capture of a source, refreshed only through human-reviewed commits, never at build or run time.
 _Avoid_: live data, cache
