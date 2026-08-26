@@ -36,7 +36,10 @@ The [release asset directory](https://github.com/lobehub/lobe-icons/tree/fbd2d56
 contains every path above.
 
 The unqualified SVGs are monochrome and use `currentColor`; the `-color` files
-contain fixed brand colors or gradients. An SVG loaded through an `<img>` does
+contain fixed brand colors or gradients. Correction (2026-08-26, found in
+implementation): `kimi-color.svg` draws its main glyph in white for colored
+backgrounds and is invisible on a plain page — the implementation uses the
+monochrome `kimi.svg` instead of the table's `kimi-color.svg`. An SVG loaded through an `<img>` does
 not inherit the surrounding element's CSS `color`, so the monochrome files
 need a dark-mode strategy such as a CSS mask, an invert filter, or inline SVG.
 Do not use an unversioned CDN `latest` URL. An installed, pinned package lets

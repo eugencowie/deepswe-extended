@@ -81,3 +81,8 @@ separate from the `VendorMark` component, to satisfy the fast-refresh lint rule
 renamed to `research/vendor-marks.md` alongside the prose cleanup. Dark-mode
 rendering is verified by mechanism (root `fill="currentColor"` on the inlined
 monochrome SVGs) rather than by screenshot; no preview host was available.
+
+**2026-08-26 (follow-up)** — In-browser check found `kimi-color.svg` invisible:
+its glyph is white, drawn for colored backgrounds. Moonshot now uses the
+monochrome `kimi.svg` (`currentColor`), deviating from the research doc's
+asset table; correction noted there.
