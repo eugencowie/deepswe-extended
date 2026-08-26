@@ -9,7 +9,13 @@ import {
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { deriveRows } from "@/data/derive";
 import { defaultFilters, filterRows } from "@/data/filter";
-import { deepsweSnapshot, modelMapping, throughputSnapshot, tiers } from "@/data/sources";
+import {
+  deepsweSnapshot,
+  modelMapping,
+  throughputSnapshot,
+  tiers,
+  tiersSnapshot,
+} from "@/data/sources";
 
 const rows = deriveRows(deepsweSnapshot, modelMapping, throughputSnapshot, tiers);
 
@@ -78,13 +84,13 @@ function App() {
         />
       </main>
       <footer className="text-xs text-muted-foreground">
-        <FooterLink href="https://deepswe.datacurve.ai">
+        <FooterLink href={deepsweSnapshot.sourceUrl}>
           DeepSWE v1.1 snapshot, {snapshotDate}
         </FooterLink>
-        <FooterLink href="https://openrouter.ai">
+        <FooterLink href={throughputSnapshot.sourceUrl}>
           OpenRouter throughput snapshot, {throughputDate}
         </FooterLink>
-        <FooterLink href="https://x.com/SemiAnalysis_/status/2064815044085318040">
+        <FooterLink href={tiersSnapshot.sourceUrl}>
           Subsidised costs are rough approximations based on SemiAnalysis estimates.
         </FooterLink>
       </footer>

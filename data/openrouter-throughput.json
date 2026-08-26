@@ -1,4 +1,6 @@
 {
+  "source": "OpenRouter",
+  "sourceUrl": "https://openrouter.ai",
   "capturedAt": "2026-08-25T18:21:26Z",
   "models": {
     "anthropic/claude-opus-5": { "consumerP50": 53 },

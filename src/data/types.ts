@@ -1,7 +1,15 @@
 // Shared data-shape types. Refresh scripts will import these too, so they
 // describe the checked-in files completely, not just what the UI reads.
 
-export type DeepsweSnapshot = {
+// Every data file carries this provenance pair: the human-facing citation
+// whose URL the footer links (ticket 15). Distinct from the DeepSWE
+// snapshot's `source_url`, which is the fetched artifact itself.
+export type Provenance = {
+  source: string;
+  sourceUrl: string;
+};
+
+export type DeepsweSnapshot = Provenance & {
   schema_version: 1;
   benchmark_version: "v1.1";
   source_url: string;
@@ -28,7 +36,7 @@ export type DeepsweEntry = {
   cost_adjustment_factor: number;
 };
 
-export type ThroughputSnapshot = {
+export type ThroughputSnapshot = Provenance & {
   capturedAt: string;
   // Keyed by OpenRouter model id; consumerP50 is tokens/sec, the p50 of the
   // vendor's consumer endpoint (ADR 0002). Models whose vendor runs no
@@ -67,8 +75,7 @@ export type Tier = {
   equivalentApiSpendUsdPerMonth: number;
 };
 
-export type TiersSnapshot = {
-  source: string;
+export type TiersSnapshot = Provenance & {
   tiers: Tier[];
 };
 

@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vite-plus/test";
 
+import costAdjustments from "../../data/cost-adjustments.json" with { type: "json" };
 import { deepsweSnapshot, modelMapping, throughputSnapshot, tiers } from "./sources.ts";
 import {
   ACCESS_ROUTE_ORDER,
@@ -15,6 +16,8 @@ import type { LeaderboardRow, ThroughputSnapshot } from "./types.ts";
 // snapshot, so a data refresh never re-touches them; live-data tests below
 // assert structure only.
 const throughputFixture: ThroughputSnapshot = {
+  source: "OpenRouter",
+  sourceUrl: "https://openrouter.ai",
   capturedAt: "2026-01-01T00:00:00Z",
   models: {
     "anthropic/claude-opus-5": { consumerP50: 50 },
@@ -156,12 +159,14 @@ describe("deriveRows", () => {
   });
 
   test("Luna rows use display-adjusted costs, not raw source values", () => {
+    const lunaFactor = costAdjustments.factors["gpt-5-6-luna"];
+    expect(lunaFactor).toBeLessThan(1);
     const luna = deepsweSnapshot.entries.filter((entry) => entry.model === "gpt-5-6-luna");
     expect(luna.length).toBeGreaterThan(0);
     for (const entry of luna) {
       const row = rows.find((r) => r.model === entry.model && r.effort === entry.effort);
       expect(row?.effectiveCostUsd).toBe(entry.average_cost_usd);
-      expect(row?.effectiveCostUsd).toBeCloseTo(entry.raw_average_cost_usd * 0.2, 10);
+      expect(row?.effectiveCostUsd).toBeCloseTo(entry.raw_average_cost_usd * lunaFactor, 10);
       expect(row?.effectiveCostUsd).not.toBe(entry.raw_average_cost_usd);
     }
   });

@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vite-plus/test";
+import rawCostAdjustments from "../data/cost-adjustments.json" with { type: "json" };
+import rawSnapshot from "../data/deepswe-v1.1.json" with { type: "json" };
 import type { ModelMappingEntry } from "../src/data/types.ts";
 import {
   type LeaderboardArtifact,
   type VersionManifest,
+  costAdjustmentsSchema,
   hasMeaningfulChange,
   normalize,
 } from "./deepswe-snapshot.ts";
@@ -14,6 +17,10 @@ const manifest: VersionManifest = {
     { id: "v1", data_path: "v1", n_tasks: 113, status: "frozen" },
   ],
 };
+
+// Fixture table, not the real one: the checked-in factors live in
+// data/cost-adjustments.json and only their shape is asserted here.
+const factors: Readonly<Record<string, number>> = { "gpt-5-6-luna": 0.25 };
 
 function row(model: string, overrides: Partial<LeaderboardArtifact["rows"][number]> = {}) {
   return {
@@ -51,9 +58,9 @@ function mappingFor(models: string[]): ModelMappingEntry[] {
   }));
 }
 
-// Includes every cost-adjustment-factor model so the happy path has no
-// stale-factor warnings.
-const allModels = ["claude-opus-5", "gpt-5-6-luna", "gpt-5-6-terra", "gemini-3-6-flash"];
+// Includes the fixture factor's model so the happy path has no stale-factor
+// warnings.
+const allModels = ["claude-opus-5", "gpt-5-6-luna"];
 
 describe("normalize", () => {
   it("produces a pinned, warning-free snapshot from a clean artifact", () => {
@@ -61,40 +68,40 @@ describe("normalize", () => {
       manifest,
       artifact(allModels.map((model) => row(model))),
       mappingFor(allModels),
+      factors,
       "abc123",
     );
     expect(warnings).toEqual([]);
     expect(snapshot.benchmark_version).toBe("v1.1");
+    expect(snapshot.source).toBe("DeepSWE leaderboard");
+    expect(snapshot.sourceUrl).toBe("https://deepswe.datacurve.ai");
     expect(snapshot.source_url).toBe(
       "https://deepswe.datacurve.ai/artifacts/v1.1/leaderboard-live.json",
     );
     expect(snapshot.raw_sha256).toBe("abc123");
-    expect(snapshot.entries).toHaveLength(4);
+    expect(snapshot.entries).toHaveLength(2);
   });
 
-  it("applies cost adjustment factors and keeps raw values beside adjusted ones", () => {
+  it("applies the given cost adjustment factors and keeps raw values beside adjusted ones", () => {
     const { snapshot } = normalize(
       manifest,
       artifact(allModels.map((model) => row(model, { mean_cost_usd: 2 }))),
       mappingFor(allModels),
+      factors,
       "abc123",
     );
     const byModel = new Map(snapshot.entries.map((entry) => [entry.model, entry]));
     expect(byModel.get("gpt-5-6-luna")).toMatchObject({
-      average_cost_usd: 0.4,
+      average_cost_usd: 0.5,
       raw_average_cost_usd: 2,
-      cost_adjustment_factor: 0.2,
+      cost_adjustment_factor: 0.25,
     });
     expect(byModel.get("claude-opus-5")).toMatchObject({
       average_cost_usd: 2,
       raw_average_cost_usd: 2,
       cost_adjustment_factor: 1,
     });
-    expect(snapshot.cost_adjustments).toEqual([
-      { model: "gpt-5-6-luna", factor: 0.2 },
-      { model: "gpt-5-6-terra", factor: 0.8 },
-      { model: "gemini-3-6-flash", factor: 0.5 },
-    ]);
+    expect(snapshot.cost_adjustments).toEqual([{ model: "gpt-5-6-luna", factor: 0.25 }]);
   });
 
   it("warns without switching when the manifest's latest moves past the pin", () => {
@@ -102,6 +109,7 @@ describe("normalize", () => {
       { ...manifest, latest: "v1.2" },
       artifact(allModels.map((model) => row(model))),
       mappingFor(allModels),
+      factors,
       "abc123",
     );
     expect(warnings).toEqual([expect.stringContaining("New DeepSWE version available: v1.2")]);
@@ -115,6 +123,7 @@ describe("normalize", () => {
         manifest,
         artifact([...allModels.map((model) => row(model)), row("new-model")]),
         mappingFor(allModels),
+        factors,
         "abc123",
       ),
     ).toThrow(/new-model.*model-mapping\.json|model-mapping\.json.*new-model/);
@@ -125,36 +134,54 @@ describe("normalize", () => {
       manifest,
       artifact(allModels.map((model) => row(model))),
       mappingFor([...allModels, "retired-model"]),
+      factors,
       "abc123",
     );
     expect(warnings).toEqual([expect.stringContaining("retired-model")]);
   });
 
   it("warns when a cost adjustment factor has no leaderboard rows", () => {
-    const models = ["claude-opus-5", "gpt-5-6-luna", "gpt-5-6-terra"];
     const { warnings } = normalize(
       manifest,
-      artifact(models.map((model) => row(model))),
-      mappingFor(models),
+      artifact([row("claude-opus-5")]),
+      mappingFor(["claude-opus-5"]),
+      factors,
       "abc123",
     );
     expect(warnings).toEqual([
-      expect.stringContaining("Cost adjustment factors with no leaderboard rows: gemini-3-6-flash"),
+      expect.stringContaining("Cost adjustment factors with no leaderboard rows: gpt-5-6-luna"),
     ]);
   });
 
   it("rejects duplicate configurations", () => {
     const duplicated = [row("claude-opus-5"), row("claude-opus-5", { pass_at_1: 0.6 })];
     expect(() =>
-      normalize(manifest, artifact(duplicated), mappingFor(allModels), "abc123"),
+      normalize(manifest, artifact(duplicated), mappingFor(allModels), factors, "abc123"),
     ).toThrow(/Duplicate configuration "mini_swe_agent_claude-opus-5"/);
   });
 
   it("rejects a task-count disagreement between manifest and artifact", () => {
     const disagreeing = { ...artifact(allModels.map((model) => row(model))), n_tasks_in_set: 99 };
-    expect(() => normalize(manifest, disagreeing, mappingFor(allModels), "abc123")).toThrow(
-      /113.*99/,
+    expect(() =>
+      normalize(manifest, disagreeing, mappingFor(allModels), factors, "abc123"),
+    ).toThrow(/113.*99/);
+  });
+});
+
+describe("cost adjustments file", () => {
+  it("matches the schema the refresh script loads it with", () => {
+    const parsed = costAdjustmentsSchema.parse(rawCostAdjustments);
+    expect(Object.keys(parsed.factors).length).toBeGreaterThan(0);
+  });
+
+  // Drift guard: the checked-in snapshot records the factor table it was
+  // built with; if a factor edit isn't followed by a refresh (or vice versa),
+  // the two files disagree and this catches it.
+  it("agrees with the checked-in snapshot's recorded table", () => {
+    const expected = Object.entries(costAdjustmentsSchema.parse(rawCostAdjustments).factors).map(
+      ([model, factor]) => ({ model, factor }),
     );
+    expect(rawSnapshot.cost_adjustments).toEqual(expected);
   });
 });
 
@@ -162,7 +189,7 @@ describe("hasMeaningfulChange", () => {
   const snapshotFrom = (rows: LeaderboardArtifact["rows"], sha: string, generatedAt?: string) => {
     const source = artifact(rows);
     if (generatedAt) source.generated_at = generatedAt;
-    return normalize(manifest, source, mappingFor(allModels), sha).snapshot;
+    return normalize(manifest, source, mappingFor(allModels), factors, sha).snapshot;
   };
   const rows = allModels.map((model) => row(model));
 
