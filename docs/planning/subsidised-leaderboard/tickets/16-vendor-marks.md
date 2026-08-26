@@ -30,7 +30,9 @@ One component covering all nine marks:
   Inlining lets the four monochrome marks (Anthropic, OpenAI, Z.ai, xAI)
   inherit `currentColor` across light/dark themes. The five `-color` marks
   were checked: all mid-bright blues/gradients, legible on both themes as-is.
-  Gradient `id`s are namespaced per icon, so repeated inlining doesn't collide.
+  Gradient `id`s are namespaced per icon; repeated inlining duplicates them
+  across rows, but every duplicate carries identical defs, so references
+  resolve correctly.
 - Sized `size-4`, leading the `displayName`, Model cell only — not the Models
   picker, footer, or anywhere else.
 - Accessibility: `role="img"` + `aria-label` of the **vendor** name
