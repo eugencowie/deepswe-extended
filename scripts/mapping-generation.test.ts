@@ -98,7 +98,7 @@ describe("generateMappingEntries", () => {
     ];
     const { generated, warnings } = generateMappingEntries(["glm-5-3-air"], mapping, ambiguous);
     expect(generated).toEqual([
-      expect.objectContaining({ vendor: "Z.ai", openrouterId: null, displayName: "Glm 5 3 Air" }),
+      expect.objectContaining({ vendor: "Z.ai", openrouterId: null, displayName: "GLM 5.3 Air" }),
     ]);
     expect(warnings).toEqual([expect.stringContaining("Ambiguous")]);
   });

@@ -37,15 +37,6 @@ function displayNameFrom(listing: OpenrouterListing, revisioned: boolean): strin
   return revisioned ? stripped.replace(/ \d{4}$/, "") : stripped;
 }
 
-// Last-resort label when no listing supplies a name; flagged for the reviewer
-// by the warning that accompanies it.
-function fallbackDisplayName(leaderboardModel: string): string {
-  return leaderboardModel
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
 type VendorInfo = Pick<ModelMappingEntry, "vendor" | "family">;
 
 function knownVendorsBySlug(mapping: ModelMappingEntry[]): Map<string, VendorInfo> {
@@ -87,13 +78,15 @@ export function generateMappingEntries(
     const vendorInfo = bySlug.get(orgSlug(match.id));
     if (!vendorInfo) continue;
 
+    // Ambiguous listings are the same model under dot/dash-variant ids, so
+    // either name serves; only the id needs a human to pin one.
     if (candidates.length > 1) {
       warnings.push(
         `Ambiguous OpenRouter match for "${model}" ` +
           `(${candidates.map((listing) => listing.id).join(", ")}); generated with a null ` +
           `OpenRouter id — pin one by hand.`,
       );
-      generated.push(entryFor(model, vendorInfo, null, fallbackDisplayName(model)));
+      generated.push(entryFor(model, vendorInfo, null, displayNameFrom(match, false)));
       continue;
     }
 
