@@ -15,6 +15,7 @@ jobs:
       - uses: voidzero-dev/setup-vp@v1.17.0
         with: { cache: true }
       - run: vp run refresh:deepswe
+        id: refresh
       - uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.REFRESH_PR_TOKEN }}
@@ -31,3 +32,6 @@ jobs:
             [changelog](https://deepswe.datacurve.ai/changelog) before merging;
             if costs shifted, re-check the site bundle's cost adjustment
             factors per the spec's version-bump workflow.
+
+
+            ${{ steps.refresh.outputs.summary }}

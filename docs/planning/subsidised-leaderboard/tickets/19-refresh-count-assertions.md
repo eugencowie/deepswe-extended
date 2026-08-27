@@ -1,7 +1,7 @@
 # 19: Keep refresh snapshot counts in sync
 
 Type: task
-Status: ready-for-agent
+Status: resolved
 Blocked by: none
 
 ## Incident
@@ -66,3 +66,7 @@ Manually re-run the refresh workflow so PR 18's branch is regenerated on top of 
 ## Investigation notes
 
 No production code or data files changed during diagnosis. The temporary worktrees and test-output files were removed.
+
+## Comments
+
+2026-08-27: Implemented. ADR 0004 (`docs/architecture/0004-load-time-invariants-replace-count-literals.md`); load-time schema in `src/data/schema.ts` parsed by `src/data/sources.ts`, with rejection tests in `src/data/schema.test.ts`; all snapshot-count literals removed from `derive.test.ts` and `filter.test.ts` (tier-split test is now structural); refresh PR body gains a before/after count table via a `summary` step output. `vp run ready` passes (87 tests). Remaining human step: re-run the refresh workflow after merge so PR 18 goes green.
