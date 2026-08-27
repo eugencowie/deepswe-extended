@@ -100,7 +100,7 @@ const leaderboardSchema = z.object({
   generated_at: z.string().datetime({ offset: true }),
   latest_job: z.object({
     name: z.string(),
-    finished_at: z.string(),
+    finished_at: z.string().nullable(),
   }).nullable(),
   n_tasks_in_set: z.number().int().positive(),
   rows: z.array(z.object({

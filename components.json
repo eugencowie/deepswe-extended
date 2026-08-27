@@ -16,7 +16,7 @@
     "components": "@/components",
     "utils": "@/components/ui/utils",
     "ui": "@/components/ui",
-    "lib": "@/components",
+    "lib": "@/components/ui",
     "hooks": "@/hooks"
   },
   "menuColor": "default",
