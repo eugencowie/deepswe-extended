@@ -1,7 +1,7 @@
 # 11: OpenRouter refresh script
 
 Type: task
-Status: ready-for-agent
+Status: resolved
 Blocked by: 07
 
 ## What to build
@@ -35,7 +35,7 @@ Key handling: `OPENROUTER_API_KEY` is never committed — a gitignored local `.e
 - [x] Missing key and all-null throughput each fail with a clear message
 - [x] Flex/priority service-tier endpoints excluded from selection
 - [x] 429 responses respected via `Retry-After`
-- [ ] First keyed run's shape matches the documented API per the research, or discrepancies are reported
+- [x] First keyed run's shape matches the documented API per the research, or discrepancies are reported
 - [x] `vp run ready` passes
 
 ## Comments
@@ -49,3 +49,5 @@ Key handling: `OPENROUTER_API_KEY` is never committed — a gitignored local `.e
 One decided rule fell to live data: **exact slug matching cannot cover Moonshot.** Seeding `vendor-mapping.json` from the live frontend feed showed Kimi K3's vendor endpoint is `moonshotai/mxfp4` while Kimi K2.7 Code's is `moonshotai/int4` (and Z.ai's is always `z-ai/fp8`) — one exact slug per vendor can't match both Kimis. Selection therefore uses ticket 14's mechanical rule minus its median fallback: an endpoint matches when its tag equals the consumer provider slug, or the slug + `/` + that endpoint's own `quantization` field (which excludes product variants like `moonshotai/highspeed`); several survivors remain a hard error. The spec's selection bullet was amended. Also of note: the April-preview permaslug for DeepSeek V4 Pro lists no `deepseek` endpoint at all while the pinned 0813 revision does — the revision-pinning decision (ADR 0002) is what makes DeepSeek's consumer endpoint findable.
 
 Verified: `vp run ready` passes (103 tests); a keyless run fails with the clear `OPENROUTER_API_KEY is required` message and writes nothing. Remaining: the first keyed run (needs the user's key in `.env`), which verifies the seeds and the documented API's field names — the zod schema hard-fails on any discrepancy by design.
+
+**2026-08-27 (first keyed run):** Success, no discrepancies: the documented API's field names (`tag`, `status`, `quantization`, `throughput_last_30m`) match the research, and every vendor slug seed matched exactly one endpoint — all 26 mapped models captured, zero warnings, zero omissions. The refreshed snapshot also picks up `z-ai/glm-5.3-flash`, which the ticket-18-era mapping had but the 08-25 seed predated. Value moves against the seed sit within rolling-30-minute jitter (largest: kimi-k2.7-code 31.5 → 20, muse-spark-1.1 228 → 174); DeepSeek V4 Flash still reads its consumer endpoint (~76), confirming the selection didn't regress to the median-era bug. `vp run ready` passes against the refreshed data. Ticket resolved.
