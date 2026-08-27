@@ -83,6 +83,13 @@ export function hasMeaningfulChange(existing: DeepsweSnapshot, next: DeepsweSnap
   return JSON.stringify(strip(existing)) !== JSON.stringify(strip(next));
 }
 
+// The set difference the mapping guard and the entry generator both need:
+// models the artifact reports that the mapping doesn't cover.
+export function unmappedModels(rows: { model: string }[], mapping: ModelMappingEntry[]): string[] {
+  const mapped = new Set(mapping.map((entry) => entry.leaderboardModel));
+  return [...new Set(rows.map((row) => row.model))].filter((model) => !mapped.has(model));
+}
+
 export function normalize(
   manifest: VersionManifest,
   artifact: LeaderboardArtifact,
@@ -109,7 +116,7 @@ export function normalize(
   const fetchedModels = new Set(artifact.rows.map((row) => row.model));
   const mappedModels = new Set(mapping.map((entry) => entry.leaderboardModel));
 
-  const unmapped = [...fetchedModels].filter((model) => !mappedModels.has(model));
+  const unmapped = unmappedModels(artifact.rows, mapping);
   if (unmapped.length > 0) {
     throw new Error(
       `Leaderboard model(s) missing from data/model-mapping.json: ${unmapped.join(", ")}. ` +

@@ -13,6 +13,7 @@ import {
   leaderboardArtifactSchema,
   normalize,
   origin,
+  unmappedModels,
   versionManifestSchema,
 } from "./deepswe-snapshot.ts";
 import {
@@ -46,10 +47,7 @@ const { factors } = costAdjustmentsSchema.parse(
 
 // New models from known vendors get generated mapping entries (ADR 0003);
 // anything still unmapped afterwards fails normalize's guard as before.
-const mappedModels = new Set(mapping.map((entry) => entry.leaderboardModel));
-const unmapped = [...new Set(artifact.rows.map((row) => row.model))].filter(
-  (model) => !mappedModels.has(model),
-);
+const unmapped = unmappedModels(artifact.rows, mapping);
 const generated: ModelMappingEntry[] = [];
 if (unmapped.length > 0) {
   // An unreachable models API fails the run like any other fetch error; the

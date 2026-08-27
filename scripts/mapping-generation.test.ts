@@ -76,6 +76,18 @@ describe("generateMappingEntries", () => {
     expect(warnings).toEqual([expect.stringContaining("deepseek/deepseek-v5-0901")]);
   });
 
+  it("ignores dated listings from other vendors when checking for siblings", () => {
+    const otherOrgDated: OpenrouterListing[] = [
+      { id: "z-ai/glm-6", name: "Z.ai: GLM 6" },
+      { id: "x-ai/glm-6-0901", name: "SpaceXAI: GLM 6 0901" },
+    ];
+    const { generated, warnings } = generateMappingEntries(["glm-6"], mapping, otherOrgDated);
+    expect(generated).toEqual([
+      expect.objectContaining({ openrouterId: "z-ai/glm-6", displayName: "GLM 6" }),
+    ]);
+    expect(warnings).toEqual([]);
+  });
+
   it("ignores variant and rolling-alias listings", () => {
     const variantOnly: OpenrouterListing[] = [
       { id: "z-ai/glm-9:free", name: "Z.ai: GLM 9 (free)" },

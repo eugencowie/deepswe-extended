@@ -98,6 +98,10 @@ The hand-curated link from a vendor to its consumer provider slug. Every vendor 
 The OpenRouter provider slug identifying a vendor's consumer endpoint (e.g. Google → google-ai-studio, not google).
 _Avoid_: base slug, vendor base slug
 
+**Org slug**:
+The organisation segment of an OpenRouter model id (z-ai in z-ai/glm-5.3), used to recognise a known vendor when generating mapping entries. Not the consumer provider slug: the org slug names who publishes a model, the consumer provider slug names the endpoint that serves it.
+_Avoid_: author, owner
+
 **Snapshot**:
 A checked-in, point-in-time capture of a source, refreshed only through human-reviewed commits, never at build or run time.
 _Avoid_: live data, cache

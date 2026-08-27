@@ -5,7 +5,7 @@
     "vendor": "Anthropic",
     "openrouterId": "anthropic/claude-opus-5",
     "family": "claude",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "claude-fable-5",
@@ -22,7 +22,7 @@
     "vendor": "Anthropic",
     "openrouterId": "anthropic/claude-sonnet-5",
     "family": "claude",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "claude-opus-4-8",
@@ -30,7 +30,7 @@
     "vendor": "Anthropic",
     "openrouterId": "anthropic/claude-opus-4.8",
     "family": "claude",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "claude-sonnet-4-6",
@@ -38,7 +38,7 @@
     "vendor": "Anthropic",
     "openrouterId": "anthropic/claude-sonnet-4.6",
     "family": "claude",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "gpt-5-6-sol",
@@ -46,7 +46,7 @@
     "vendor": "OpenAI",
     "openrouterId": "openai/gpt-5.6-sol",
     "family": "chatgpt",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "gpt-5-6-terra",
@@ -54,7 +54,7 @@
     "vendor": "OpenAI",
     "openrouterId": "openai/gpt-5.6-terra",
     "family": "chatgpt",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "gpt-5-6-luna",
@@ -62,7 +62,7 @@
     "vendor": "OpenAI",
     "openrouterId": "openai/gpt-5.6-luna",
     "family": "chatgpt",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "gpt-5-5",
@@ -70,7 +70,7 @@
     "vendor": "OpenAI",
     "openrouterId": "openai/gpt-5.5",
     "family": "chatgpt",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "gpt-5-4",
@@ -78,7 +78,7 @@
     "vendor": "OpenAI",
     "openrouterId": "openai/gpt-5.4",
     "family": "chatgpt",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "gemini-3-7-flash",
@@ -86,7 +86,7 @@
     "vendor": "Google",
     "openrouterId": "google/gemini-3.7-flash",
     "family": "none",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "gemini-3-6-flash",
@@ -94,7 +94,7 @@
     "vendor": "Google",
     "openrouterId": "google/gemini-3.6-flash",
     "family": "none",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "gemini-3-5-flash",
@@ -102,7 +102,7 @@
     "vendor": "Google",
     "openrouterId": "google/gemini-3.5-flash",
     "family": "none",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "gemini-3-1-pro-preview",
@@ -110,7 +110,7 @@
     "vendor": "Google",
     "openrouterId": "google/gemini-3.1-pro-preview",
     "family": "none",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "deepseek-v4-pro",
@@ -118,7 +118,7 @@
     "vendor": "DeepSeek",
     "openrouterId": "deepseek/deepseek-v4-pro-0813",
     "family": "none",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "deepseek-v4-flash",
@@ -126,7 +126,7 @@
     "vendor": "DeepSeek",
     "openrouterId": "deepseek/deepseek-v4-flash-0731",
     "family": "none",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "glm-5-3",
@@ -134,7 +134,7 @@
     "vendor": "Z.ai",
     "openrouterId": "z-ai/glm-5.3",
     "family": "none",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "glm-5-2",
@@ -142,7 +142,7 @@
     "vendor": "Z.ai",
     "openrouterId": "z-ai/glm-5.2",
     "family": "none",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "kimi-k3",
@@ -150,7 +150,7 @@
     "vendor": "Moonshot",
     "openrouterId": "moonshotai/kimi-k3",
     "family": "none",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "kimi-k2-7-code",
@@ -158,7 +158,7 @@
     "vendor": "Moonshot",
     "openrouterId": "moonshotai/kimi-k2.7-code",
     "family": "none",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "qwen3-8-max",
@@ -166,7 +166,7 @@
     "vendor": "Alibaba",
     "openrouterId": "qwen/qwen3.8-max",
     "family": "none",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "grok-4-6",
@@ -174,7 +174,7 @@
     "vendor": "xAI",
     "openrouterId": "x-ai/grok-4.6",
     "family": "none",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "grok-4-5",
@@ -182,7 +182,7 @@
     "vendor": "xAI",
     "openrouterId": "x-ai/grok-4.5",
     "family": "none",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "muse-spark-1-1",
@@ -190,7 +190,7 @@
     "vendor": "Meta",
     "openrouterId": "meta/muse-spark-1.1",
     "family": "none",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   },
   {
     "leaderboardModel": "muse-spark-1-2",
@@ -198,6 +198,6 @@
     "vendor": "Meta",
     "openrouterId": "meta/muse-spark-1.2",
     "family": "none",
-    "usageMultiplier": 1.0
+    "usageMultiplier": 1
   }
 ]

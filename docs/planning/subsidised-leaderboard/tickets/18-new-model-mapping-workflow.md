@@ -1,7 +1,7 @@
 # 18: New-model mapping workflow
 
 Type: task
-Status: ready-for-agent
+Status: resolved
 Blocked by: none
 
 ## Problem
@@ -40,7 +40,7 @@ A new model from a known vendor requires no human work beyond merging the Friday
 ## Completion criteria
 
 - The refresh generates mapping entries per the decision above; the new-vendor case still fails with the existing actionable error.
-- Tests cover the derivation rules: known-vendor match, dated-siblings → `null`, ambiguous match → `null`, new vendor → hard failure. An unreachable OpenRouter API fails the run.
+- Tests cover the derivation rules: known-vendor match, dated-siblings → `null`, ambiguous match → `null`, new vendor → hard failure. An unreachable OpenRouter API fails the run — shell behaviour (the fetch throws), deliberately untested like the artifact fetch itself.
 - `.github/workflows/refresh.yml` includes `data/model-mapping.json` in `add-paths`.
 - `GLM-5.3` and `GLM-5.2` display names become `GLM 5.3` and `GLM 5.2` in `data/model-mapping.json` and the spec's mapping table.
 - No hand-written `glm-5-3-flash` entry. Post-merge verification: a `workflow_dispatch` run opens a PR whose mapping entry is `glm-5-3-flash` / `GLM 5.3 Flash` / `Z.ai` / `z-ai/glm-5.3-flash` / `none` / `1.0` (id verified live on OpenRouter) and whose snapshot has 63 rows including `mini_swe_agent_glm_5_3_flash_max`.
@@ -53,3 +53,5 @@ A new model from a known vendor requires no human work beyond merging the Friday
 One point the grilling under-specified: "OpenRouter unreachable → null id with a warning" assumed generation could proceed, but the vendor also comes from the OpenRouter match. A sibling-id fallback was implemented, then stripped on review: the case (new model the same Friday OpenRouter is down) is too rare to carry ~40 lines, and its output needed hand-fixing anyway. An unreachable models API now fails the run like any other fetch error; the failure email is the alert and a manual `workflow_dispatch` the retry.
 
 Verified end-to-end against the live artifact: the refresh generated exactly the expected `glm-5-3-flash` entry (`GLM 5.3 Flash` / `Z.ai` / `z-ai/glm-5.3-flash` / `none` / `1.0`) and wrote a 63-row snapshot including `mini_swe_agent_glm_5_3_flash_max`. Both data outputs were then reverted so the post-merge `workflow_dispatch` run produces them in the acceptance PR.
+
+**2026-08-27** — Code-review fixes (grilled): ambiguous same-vendor matches now take the display name from the matched listing (the candidates are the same model, so either name serves; the title-case fallback is deleted); the dated-sibling scan is restricted to the match's own org; `unmappedModels` is extracted into `deepswe-snapshot.ts` and shared by the guard and the generator; `data/model-mapping.json` is deliberately canonicalised to the refresh writer's serialization (`1.0` → `1`) so generated-entry diffs stay minimal; variant/alias exclusion documented in ADR 0003; "org slug" added to the glossary. The unreachable-API criterion is reworded: the failure is shell behaviour (the fetch throws) and deliberately untested, like the artifact fetch.

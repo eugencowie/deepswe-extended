@@ -90,11 +90,18 @@ export function generateMappingEntries(
       continue;
     }
 
-    // Dated siblings mean the undated id is an alias that silently drifts
-    // between revisions (ADR 0002); which revision to pin is a human call.
-    const datedSiblings = mappable.filter((listing) =>
-      new RegExp(`^${normalizedSuffix(match.id)}-\\d{4}$`).test(normalizedSuffix(listing.id)),
-    );
+    // Same-org dated siblings mean the undated id is an alias that silently
+    // drifts between revisions (ADR 0002); which revision to pin is a human
+    // call.
+    const matchSuffix = normalizedSuffix(match.id);
+    const datedSiblings = mappable.filter((listing) => {
+      const suffix = normalizedSuffix(listing.id);
+      return (
+        orgSlug(listing.id) === orgSlug(match.id) &&
+        suffix.startsWith(`${matchSuffix}-`) &&
+        /^\d{4}$/.test(suffix.slice(matchSuffix.length + 1))
+      );
+    });
     if (datedSiblings.length > 0) {
       warnings.push(
         `"${model}" has date-pinned OpenRouter listings ` +
