@@ -36,3 +36,5 @@ The PAT was provisioned with a one-off wizard script (run once and discarded, no
 **2026-08-25** — Ticket closed complete at the user's direction; the post-merge test drive happens outside this ticket, with any failure tracked as a new ticket.
 
 **2026-08-27** — The post-merge test drive failed because the live artifact returned a null `latest_job.finished_at`; findings and the follow-up decision are recorded in [ticket 17](17-handle-null-latest-job-finished-at.md).
+
+**2026-08-27** — The "OpenRouter refresh stays manual" scope decision was reversed in ticket 11's grilling: [ticket 20](20-scheduled-openrouter-refresh.md) schedules it in this workflow with `OPENROUTER_API_KEY` as a repo secret.
