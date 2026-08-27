@@ -1,0 +1,11 @@
+[
+  { "vendor": "Anthropic", "consumerProviderSlug": "anthropic" },
+  { "vendor": "OpenAI", "consumerProviderSlug": "openai" },
+  { "vendor": "Google", "consumerProviderSlug": "google-ai-studio" },
+  { "vendor": "DeepSeek", "consumerProviderSlug": "deepseek" },
+  { "vendor": "Z.ai", "consumerProviderSlug": "z-ai" },
+  { "vendor": "Moonshot", "consumerProviderSlug": "moonshotai" },
+  { "vendor": "Alibaba", "consumerProviderSlug": "alibaba" },
+  { "vendor": "xAI", "consumerProviderSlug": "xai" },
+  { "vendor": "Meta", "consumerProviderSlug": "meta" }
+]

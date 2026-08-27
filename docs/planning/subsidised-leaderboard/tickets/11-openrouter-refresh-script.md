@@ -30,16 +30,22 @@ Key handling: `OPENROUTER_API_KEY` is never committed — a gitignored local `.e
 
 ## Acceptance criteria
 
-- [ ] `data/vendor-mapping.json` covers every vendor in `model-mapping.json`, seeded from the research; refresh hard-fails on a missing vendor or an ambiguous slug match
-- [ ] Script writes the snapshot in the checked-in shape: per-model consumer endpoint p50, one `capturedAt`
-- [ ] Missing key and all-null throughput each fail with a clear message
-- [ ] Flex/priority service-tier endpoints excluded from selection
-- [ ] 429 responses respected via `Retry-After`
+- [x] `data/vendor-mapping.json` covers every vendor in `model-mapping.json`, seeded from the research; refresh hard-fails on a missing vendor or an ambiguous slug match
+- [x] Script writes the snapshot in the checked-in shape: per-model consumer endpoint p50, one `capturedAt`
+- [x] Missing key and all-null throughput each fail with a clear message
+- [x] Flex/priority service-tier endpoints excluded from selection
+- [x] 429 responses respected via `Retry-After`
 - [ ] First keyed run's shape matches the documented API per the research, or discrepancies are reported
-- [ ] `vp run ready` passes
+- [x] `vp run ready` passes
 
 ## Comments
 
 **2026-08-26 (static-data grilling):** The ADR 0002 slug table now lives in `data/vendor-mapping.json` rather than a script constant, following the decided criterion "transcribed upstream facts live in data/". This supersedes the earlier selection wording "base slug or base + '/' + quantization; median of the p50s if several remain": matching is now exact against standard-variant endpoints, and an ambiguous match is a hard error instead of a median. Glossary gained "Vendor", "Vendor mapping", and "Consumer provider slug" (`docs/context.md`). Related extractions (cost adjustment factors, provenance URLs) are ticket 15, deliberately out of this ticket's scope. Snapshot shape, null handling, write policy, 429 details, key loading, and schema strictness from the earlier grilling remain open.
 
 **2026-08-27 (grilling):** The open items above are settled in the Decisions section. AC 2's "per-model median plus raw endpoint values" was stale on both counts (the median died with ADR 0002; raw values were rejected following ticket 10's precedent) and now reads "consumer endpoint p50". The spec's snapshot-shape and refresh-scripts sections were amended to match, including its "never in repo secrets or CI" rule, reversed in favour of [ticket 20](20-scheduled-openrouter-refresh.md).
+
+**2026-08-27 (implementation):** Built as `scripts/openrouter-snapshot.ts` (schemas, `buildSnapshot`, `retryAfterMs`) plus the `scripts/refresh-openrouter.ts` shell, run via `vp run refresh:openrouter`; 15 guard-rail tests in `scripts/openrouter-snapshot.test.ts`, `VendorMappingEntry` added to `src/data/types.ts`.
+
+One decided rule fell to live data: **exact slug matching cannot cover Moonshot.** Seeding `vendor-mapping.json` from the live frontend feed showed Kimi K3's vendor endpoint is `moonshotai/mxfp4` while Kimi K2.7 Code's is `moonshotai/int4` (and Z.ai's is always `z-ai/fp8`) — one exact slug per vendor can't match both Kimis. Selection therefore uses ticket 14's mechanical rule minus its median fallback: an endpoint matches when its tag equals the consumer provider slug, or the slug + `/` + that endpoint's own `quantization` field (which excludes product variants like `moonshotai/highspeed`); several survivors remain a hard error. The spec's selection bullet was amended. Also of note: the April-preview permaslug for DeepSeek V4 Pro lists no `deepseek` endpoint at all while the pinned 0813 revision does — the revision-pinning decision (ADR 0002) is what makes DeepSeek's consumer endpoint findable.
+
+Verified: `vp run ready` passes (103 tests); a keyless run fails with the clear `OPENROUTER_API_KEY is required` message and writes nothing. Remaining: the first keyed run (needs the user's key in `.env`), which verifies the seeds and the documented API's field names — the zod schema hard-fails on any discrepancy by design.

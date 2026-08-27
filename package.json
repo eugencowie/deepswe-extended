@@ -10,7 +10,8 @@
     "e2e": "playwright test",
     "dev:tailnet": "concurrently --passthrough-arguments --kill-others --success first --names tailscale,vp 'tailscale serve 5173' '__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=.ts.net vp dev --host 127.0.0.1 --port 5173 --strictPort {@}' --",
     "preview:tailnet": "concurrently --passthrough-arguments --kill-others --success first --names tailscale,vp 'tailscale serve 4173' '__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS=.ts.net vp preview --host 127.0.0.1 --port 4173 --strictPort {@}' --",
-    "refresh:deepswe": "node scripts/refresh-deepswe.ts"
+    "refresh:deepswe": "node scripts/refresh-deepswe.ts",
+    "refresh:openrouter": "node scripts/refresh-openrouter.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
