@@ -199,5 +199,13 @@
     "openrouterId": "meta/muse-spark-1.2",
     "family": "none",
     "usageMultiplier": 1
+  },
+  {
+    "leaderboardModel": "glm-5-3-flash",
+    "displayName": "GLM 5.3 Flash",
+    "vendor": "Z.ai",
+    "openrouterId": "z-ai/glm-5.3-flash",
+    "family": "none",
+    "usageMultiplier": 1
   }
 ]
