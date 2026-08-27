@@ -109,6 +109,22 @@ describe("consumer endpoint selection", () => {
     ]);
   });
 
+  it("excludes service tiers case-insensitively", () => {
+    const { snapshot } = buildSnapshot(
+      [mappingEntry("m", "Vendor", "vendor/m")],
+      vendors,
+      new Map([
+        [
+          "vendor/m",
+          [endpoint("Vendor/Flex", 90, { quantization: "Flex" }), endpoint("vendor", 30)],
+        ],
+      ]),
+      null,
+      capturedAt,
+    );
+    expect(snapshot.models).toEqual({ "vendor/m": { consumerP50: 30 } });
+  });
+
   it("excludes inactive endpoints", () => {
     const { snapshot, warnings } = buildSnapshot(
       [mappingEntry("m", "Vendor", "vendor/m")],

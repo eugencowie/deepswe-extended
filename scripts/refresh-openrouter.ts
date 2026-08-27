@@ -4,6 +4,7 @@
 // environment; changes land only through human-reviewed commits. Fails
 // without writing anything when a guard rail trips.
 
+import { randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import { appendFile, readFile, writeFile } from "node:fs/promises";
 import { setTimeout as sleep } from "node:timers/promises";
@@ -72,10 +73,24 @@ for (const entry of mapping) {
   endpointsByModel.set(entry.openrouterId, await fetchEndpoints(entry.openrouterId));
 }
 
+// A missing snapshot is a legitimate first run; a corrupt one is a repo
+// problem that would silently disable the disappearance audit (ADR 0002), so
+// it hard-errors like any other mismatch.
 const snapshotPath = new URL("../data/openrouter-throughput.json", import.meta.url);
 const existing = await readFile(snapshotPath, "utf8").then(
-  (text) => JSON.parse(text) as ThroughputSnapshot,
-  () => null,
+  (text): ThroughputSnapshot | null => {
+    try {
+      return JSON.parse(text) as ThroughputSnapshot;
+    } catch (error) {
+      throw new Error(
+        `data/openrouter-throughput.json is not valid JSON — fix or delete it. (${String(error)})`,
+      );
+    }
+  },
+  (error: NodeJS.ErrnoException) => {
+    if (error.code === "ENOENT") return null;
+    throw error;
+  },
 );
 
 const { snapshot, warnings } = buildSnapshot(
@@ -111,8 +126,11 @@ if (warnings.length > 0) {
   summary.push("", "Warnings:", ...warnings.map((warning) => `- ${warning}`));
 }
 if (process.env.GITHUB_OUTPUT) {
+  // Unique delimiter per GitHub's guidance: the summary splices in
+  // upstream-derived text, which must not be able to terminate the heredoc.
+  const delimiter = `SUMMARY_${randomUUID()}`;
   await appendFile(
     process.env.GITHUB_OUTPUT,
-    `summary<<SUMMARY_EOF\n${summary.join("\n")}\nSUMMARY_EOF\n`,
+    `summary<<${delimiter}\n${summary.join("\n")}\n${delimiter}\n`,
   );
 }

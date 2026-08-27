@@ -190,4 +190,4 @@ The DeepSWE refresh runs on a weekly schedule (ticket 13): `.github/workflows/re
 - Unticking a model removes all its rows (all efforts, all access routes).
 - `derive.ts` has unit tests for row expansion, subsidisation (incl. multiplier), blank propagation, and cost per solved task; `vp run ready` passes and gates deploy.
 - The Playwright e2e smoke passes: a build at a non-root base renders the table with no failed requests.
-- Both refresh scripts run clean against live sources and produce no diff immediately after a snapshot is committed (modulo `capturedAt`/`source_generated_at`).
+- Both refresh scripts run clean against live sources. The DeepSWE refresh produces no diff immediately after a snapshot is committed (modulo `raw_sha256`/`source_generated_at`); the OpenRouter refresh always rewrites — its rolling 30-minute statistic changes every run (ticket 11's write policy).

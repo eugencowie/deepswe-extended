@@ -3,7 +3,7 @@
 // land only through human-reviewed commits. Fails without writing anything
 // when a guard rail trips.
 
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { appendFile, readFile, writeFile } from "node:fs/promises";
 import type { DeepsweSnapshot, ModelMappingEntry } from "../src/data/types.ts";
 import {
@@ -119,8 +119,11 @@ if (generated.length > 0) {
   );
 }
 if (process.env.GITHUB_OUTPUT) {
+  // Unique delimiter per GitHub's guidance: the summary splices in
+  // upstream-derived text, which must not be able to terminate the heredoc.
+  const delimiter = `SUMMARY_${randomUUID()}`;
   await appendFile(
     process.env.GITHUB_OUTPUT,
-    `summary<<SUMMARY_EOF\n${summary.join("\n")}\nSUMMARY_EOF\n`,
+    `summary<<${delimiter}\n${summary.join("\n")}\n${delimiter}\n`,
   );
 }

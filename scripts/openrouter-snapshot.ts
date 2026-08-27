@@ -73,7 +73,7 @@ function isConsumerTag(endpoint: OpenrouterEndpoint, slug: string): boolean {
   return quantization != null && tag === `${base}/${quantization}`;
 }
 
-const serviceTierPattern = /\/(?:flex|priority)$/;
+const serviceTierPattern = /\/(?:flex|priority)$/i;
 
 export function buildSnapshot(
   mapping: ModelMappingEntry[],
