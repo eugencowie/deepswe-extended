@@ -58,6 +58,14 @@ export type ModelMappingEntry = {
   shortName?: string; // UI short label, falling back to displayName (ticket 12)
 };
 
+export type VendorMappingEntry = {
+  vendor: string; // exact `vendor` string from model-mapping.json
+  // OpenRouter provider slug of the vendor's consumer endpoint (ADR 0002);
+  // null records that the vendor deliberately runs no consumer endpoint,
+  // distinct from a vendor someone forgot to map.
+  consumerProviderSlug: string | null;
+};
+
 export type TierId =
   | "claude-pro"
   | "claude-max-5x"

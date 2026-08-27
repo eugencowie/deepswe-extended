@@ -11,6 +11,6 @@ The test suite pinned snapshot sizes as literals: 185 derived rows and a 63/60 C
 ## Consequences
 
 - A healthy refresh PR is green whatever the leaderboard's size; red CI on a refresh now signals malformed output, not growth.
-- Malformed committed data fails at module load in production too, with a schema error naming the field, not only in tests. The hand-maintained files (`tiers.json`, `openrouter-throughput.json`) stay plain casts.
+- Malformed committed data fails at module load in production too, with a schema error naming the field, not only in tests. `tiers.json` (hand-maintained) and `openrouter-throughput.json` (script-refreshed since ticket 20) stay plain casts.
 - The reviewer's count acknowledgement lives in the PR body table; nothing forces them to read it.
 - Value-asserting tests use fixtures per `derive.test.ts`'s existing convention; live-data tests assert structure only, now without exceptions.
