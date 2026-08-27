@@ -76,7 +76,12 @@ A leaderboard column reported verbatim by the DeepSWE leaderboard (Pass@1, avera
 A leaderboard column this project computes rather than takes from the DeepSWE leaderboard (cost per solved task, average time, throughput). The distinction is per-column, not per-cell: effective cost on tier rows is computed, but "Avg cost" is still a source column.
 
 **Model mapping**:
-The hand-curated link from a leaderboard model to its OpenRouter id, subscription family, usage multiplier, and optional short name (falling back to the display name).
+The reviewed link from a leaderboard model to its OpenRouter id, subscription family, usage multiplier, and optional short name (falling back to the display name). Entries are written by hand or generated, always landing through human review.
+_Avoid_: hand-curated (entries for known vendors are generated)
+
+**Generated mapping entry**:
+A model-mapping entry the refresh derives itself for a new model from a known vendor — one whose other models already appear in the mapping. Reviewed in the refresh PR rather than written by hand; a new model from an unknown vendor still demands a hand-written entry.
+_Avoid_: stub, auto-mapping
 
 **Vendor**:
 The company that makes and serves a model (Anthropic, Google, Moonshot, …), as named in the model mapping. Distinct from subscription family: family says whose tiers can run a model, vendor says who makes it.
@@ -92,6 +97,10 @@ The hand-curated link from a vendor to its consumer provider slug. Every vendor 
 **Consumer provider slug**:
 The OpenRouter provider slug identifying a vendor's consumer endpoint (e.g. Google → google-ai-studio, not google).
 _Avoid_: base slug, vendor base slug
+
+**Org slug**:
+The organisation segment of an OpenRouter model id (z-ai in z-ai/glm-5.3), used to recognise a known vendor when generating mapping entries. Not the consumer provider slug: the org slug names who publishes a model, the consumer provider slug names the endpoint that serves it.
+_Avoid_: author, owner
 
 **Snapshot**:
 A checked-in, point-in-time capture of a source, refreshed only through human-reviewed commits, never at build or run time.
