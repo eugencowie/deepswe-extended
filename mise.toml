@@ -68,3 +68,7 @@ run = "vp run preview:tailnet"
 [tasks."refresh:deepswe"]
 description = "Refresh DeepSWE data"
 run = "vp run refresh:deepswe"
+
+[tasks."refresh:openrouter"]
+description = "Refresh OpenRouter throughput data"
+run = "vp run refresh:openrouter"

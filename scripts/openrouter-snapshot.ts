@@ -62,11 +62,15 @@ export function retryAfterMs(headerValue: string | null, now: () => number = Dat
 // slug). Product variants (moonshotai/highspeed), regions (azure/us), and
 // speed tiers (openai/fast) never equal their quantization, so they can't
 // match. Ticket 11 deviation from "exact match only", forced by that live
-// data; ambiguity stays a hard error.
+// data; ambiguity stays a hard error. Case-insensitive on both sides: slug
+// casing carries no meaning, and an upstream case shuffle shouldn't flip the
+// match.
 function isConsumerTag(endpoint: OpenrouterEndpoint, slug: string): boolean {
-  if (endpoint.tag === slug) return true;
+  const tag = endpoint.tag.toLowerCase();
+  const base = slug.toLowerCase();
+  if (tag === base) return true;
   const quantization = endpoint.quantization?.toLowerCase();
-  return quantization != null && endpoint.tag === `${slug}/${quantization}`;
+  return quantization != null && tag === `${base}/${quantization}`;
 }
 
 const serviceTierPattern = /\/(?:flex|priority)$/;
@@ -168,6 +172,20 @@ export function buildSnapshot(
     }
 
     models[modelId] = { consumerP50: p50 };
+  }
+
+  // Catch-all for ADR 0002's disappearance consequence: the per-entry
+  // warnings above only reach models still in the mapping, so a model removed
+  // from the mapping while present in the old snapshot would vanish silently.
+  if (existing) {
+    const mappedIds = new Set(mapping.map((entry) => entry.openrouterId));
+    for (const [modelId, prior] of Object.entries(existing.models)) {
+      if (modelId in models || mappedIds.has(modelId)) continue;
+      warnings.push(
+        `"${modelId}" is no longer in the mapping; dropped from the snapshot ` +
+          `(was ${prior.consumerP50} tok/s at the last capture, ${existing.capturedAt}).`,
+      );
+    }
   }
 
   return {

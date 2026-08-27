@@ -79,6 +79,17 @@ describe("consumer endpoint selection", () => {
     expect(snapshot.models).toEqual({ "vendor/m": { consumerP50: 40 } });
   });
 
+  it("matches case-insensitively on both sides", () => {
+    const { snapshot } = buildSnapshot(
+      [mappingEntry("m", "Vendor", "vendor/m")],
+      vendors,
+      new Map([["vendor/m", [endpoint("Vendor/FP8", 40, { quantization: "FP8" })]]]),
+      null,
+      capturedAt,
+    );
+    expect(snapshot.models).toEqual({ "vendor/m": { consumerP50: 40 } });
+  });
+
   it("excludes flex/priority service tiers even when the suffix parrots the quantization", () => {
     const { snapshot, warnings } = buildSnapshot(
       [mappingEntry("m", "Vendor", "vendor/m")],
@@ -229,6 +240,29 @@ describe("guard rails", () => {
     );
     expect(warnings).toEqual([
       expect.stringContaining("Was 37 tok/s at the last capture (2026-08-20T00:00:00Z)"),
+    ]);
+  });
+
+  it("warns when a model removed from the mapping disappears from the snapshot", () => {
+    const existing: ThroughputSnapshot = {
+      source: "OpenRouter",
+      sourceUrl: "https://openrouter.ai",
+      capturedAt: "2026-08-20T00:00:00Z",
+      models: { "gone/model": { consumerP50: 62 }, "vendor/n": { consumerP50: 50 } },
+    };
+    const { snapshot, warnings } = buildSnapshot(
+      [mappingEntry("n", "Vendor", "vendor/n")],
+      vendors,
+      new Map([["vendor/n", [endpoint("vendor", 50)]]]),
+      existing,
+      capturedAt,
+    );
+    expect(snapshot.models).toEqual({ "vendor/n": { consumerP50: 50 } });
+    expect(warnings).toEqual([
+      expect.stringContaining(
+        '"gone/model" is no longer in the mapping; dropped from the snapshot ' +
+          "(was 62 tok/s at the last capture, 2026-08-20T00:00:00Z)",
+      ),
     ]);
   });
 });
