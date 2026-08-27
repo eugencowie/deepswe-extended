@@ -25,6 +25,7 @@ jobs:
             data/model-mapping.json
           commit-message: "Refresh DeepSWE snapshot"
           title: "chore: Refresh DeepSWE snapshot"
+          labels: chore
           body: >
             Automated weekly refresh of `data/deepswe-v1.1.json` from the live
             DeepSWE source, plus generated `data/model-mapping.json` entries
