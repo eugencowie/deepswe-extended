@@ -76,7 +76,12 @@ A leaderboard column reported verbatim by the DeepSWE leaderboard (Pass@1, avera
 A leaderboard column this project computes rather than takes from the DeepSWE leaderboard (cost per solved task, average time, throughput). The distinction is per-column, not per-cell: effective cost on tier rows is computed, but "Avg cost" is still a source column.
 
 **Model mapping**:
-The hand-curated link from a leaderboard model to its OpenRouter id, subscription family, usage multiplier, and optional short name (falling back to the display name).
+The reviewed link from a leaderboard model to its OpenRouter id, subscription family, usage multiplier, and optional short name (falling back to the display name). Entries are written by hand or generated, always landing through human review.
+_Avoid_: hand-curated (entries for known vendors are generated)
+
+**Generated mapping entry**:
+A model-mapping entry the refresh derives itself for a new model from a known vendor — one whose other models already appear in the mapping. Reviewed in the refresh PR rather than written by hand; a new model from an unknown vendor still demands a hand-written entry.
+_Avoid_: stub, auto-mapping
 
 **Vendor**:
 The company that makes and serves a model (Anthropic, Google, Moonshot, …), as named in the model mapping. Distinct from subscription family: family says whose tiers can run a model, vendor says who makes it.
