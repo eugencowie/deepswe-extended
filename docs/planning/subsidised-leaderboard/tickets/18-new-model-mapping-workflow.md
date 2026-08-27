@@ -29,7 +29,7 @@ A new model from a known vendor requires no human work beyond merging the Friday
 - On an unmapped leaderboard model, the refresh looks it up on the OpenRouter models API, considering only org slugs already present in the mapping. A match means a known vendor: the refresh generates the mapping entry, writes it to `data/model-mapping.json`, and continues. No match means a new vendor: the run fails as today (vendor string, mark, and family are judgment calls).
 - Derivation rules:
   - `leaderboardModel`: the artifact row's `model` field, never parsed from `config` (ambiguous: `glm_5_3_max` vs `glm_5_3_flash_max`).
-  - `openrouterId`: the OpenRouter id whose suffix, dots normalised to dashes, equals the leaderboard model id (validated against 23/25 existing entries). `null` when the matched listing has dated siblings (revision pinning is a judgment call, ADR 0002 — the undated `deepseek/deepseek-v4-pro` alias points at 0423 while we pin 0813), when the match is absent or ambiguous, or when OpenRouter is unreachable (warn, don't fail). `null` degrades to blank throughput — the reviewer's cue to pin by hand.
+  - `openrouterId`: the OpenRouter id whose suffix, dots normalised to dashes, equals the leaderboard model id (validated against 23/25 existing entries). `null` when the matched listing has dated siblings (revision pinning is a judgment call, ADR 0002 — the undated `deepseek/deepseek-v4-pro` alias points at 0423 while we pin 0813) or when the match is ambiguous. `null` degrades to blank throughput — the reviewer's cue to pin by hand. An unreachable models API fails the run like any other fetch error; retry via `workflow_dispatch` (revised post-grilling: generating without the lookup can't determine the vendor, and the case is too rare to carry a fallback).
   - `displayName`: OpenRouter's `name` minus the `"Vendor: "` prefix, minus a trailing revision token on date-pinned ids (keeps ADR 0002's "no revisions in the UI"). Fallback when there's no match: title-cased leaderboard id.
   - `vendor`, `family`: copied from existing entries with the same org slug — never from OpenRouter's vendor prefix (it says "SpaceXAI" for xAI).
   - `usageMultiplier`: 1.0; no `shortName`. A future half-rate model merging at 1.0 is the reviewer's catch.
@@ -40,8 +40,16 @@ A new model from a known vendor requires no human work beyond merging the Friday
 ## Completion criteria
 
 - The refresh generates mapping entries per the decision above; the new-vendor case still fails with the existing actionable error.
-- Tests cover the derivation rules: known-vendor match, dated-siblings → `null`, ambiguous/absent match → `null`, OpenRouter unreachable → `null` with warning, new vendor → hard failure.
+- Tests cover the derivation rules: known-vendor match, dated-siblings → `null`, ambiguous match → `null`, new vendor → hard failure. An unreachable OpenRouter API fails the run.
 - `.github/workflows/refresh.yml` includes `data/model-mapping.json` in `add-paths`.
 - `GLM-5.3` and `GLM-5.2` display names become `GLM 5.3` and `GLM 5.2` in `data/model-mapping.json` and the spec's mapping table.
 - No hand-written `glm-5-3-flash` entry. Post-merge verification: a `workflow_dispatch` run opens a PR whose mapping entry is `glm-5-3-flash` / `GLM 5.3 Flash` / `Z.ai` / `z-ai/glm-5.3-flash` / `none` / `1.0` (id verified live on OpenRouter) and whose snapshot has 63 rows including `mini_swe_agent_glm_5_3_flash_max`.
 - `mise exec -- vp check` and `mise exec -- vp test` pass.
+
+## Comments
+
+**2026-08-27** — Implemented: `scripts/mapping-generation.ts` (pure derivation, ADR 0003 rules) wired into `scripts/refresh-deepswe.ts`; the mapping file is written only after normalize succeeds, preserving "a tripped guard rail writes nothing". Workflow `add-paths` now includes `data/model-mapping.json`. GLM display names renamed in mapping and spec table; spec's model-mapping intro updated ("hand-curated" no longer holds). Tests cover all derivation branches (83 pass; `vp check` clean).
+
+One point the grilling under-specified: "OpenRouter unreachable → null id with a warning" assumed generation could proceed, but the vendor also comes from the OpenRouter match. A sibling-id fallback was implemented, then stripped on review: the case (new model the same Friday OpenRouter is down) is too rare to carry ~40 lines, and its output needed hand-fixing anyway. An unreachable models API now fails the run like any other fetch error; the failure email is the alert and a manual `workflow_dispatch` the retry.
+
+Verified end-to-end against the live artifact: the refresh generated exactly the expected `glm-5-3-flash` entry (`GLM 5.3 Flash` / `Z.ai` / `z-ai/glm-5.3-flash` / `none` / `1.0`) and wrote a 63-row snapshot including `mini_swe_agent_glm_5_3_flash_max`. Both data outputs were then reverted so the post-merge `workflow_dispatch` run produces them in the acceptance PR.
