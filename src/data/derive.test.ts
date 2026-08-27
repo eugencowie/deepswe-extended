@@ -43,11 +43,15 @@ describe("deriveRows", () => {
     );
   });
 
-  test("every tier row uses one of its own family's tiers", () => {
+  test("every tier row uses one of its own mapping family's tiers", () => {
+    const familyOf = new Map(modelMapping.map((entry) => [entry.leaderboardModel, entry.family]));
     const tierFamily = new Map<string, string>(tiers.map((tier) => [tier.id, tier.family]));
     const tierRows = rows.filter((row) => row.accessRoute !== "api");
     expect(tierRows.length).toBeGreaterThan(0);
     for (const row of tierRows) {
+      // Cross-checked against the mapping, not just the row's own family, so
+      // a derive bug assigning the wrong family cannot self-confirm.
+      expect(row.family).toBe(familyOf.get(row.model));
       expect(tierFamily.get(row.accessRoute)).toBe(row.family);
     }
   });

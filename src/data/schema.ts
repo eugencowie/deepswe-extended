@@ -78,13 +78,14 @@ export function assertMappingCoverage(
   const mapped = new Set(mapping.map((entry) => entry.leaderboardModel));
   const missing = [...models].filter((model) => !mapped.has(model));
   const orphaned = [...mapped].filter((model) => !models.has(model));
-  if (missing.length > 0 || orphaned.length > 0) {
-    const parts = [
-      missing.length > 0 ? `snapshot models missing from the mapping: ${missing.join(", ")}` : [],
-      orphaned.length > 0
-        ? `mapping entries matching no snapshot model: ${orphaned.join(", ")}`
-        : [],
-    ].flat();
+  const parts: string[] = [];
+  if (missing.length > 0) {
+    parts.push(`snapshot models missing from the mapping: ${missing.join(", ")}`);
+  }
+  if (orphaned.length > 0) {
+    parts.push(`mapping entries matching no snapshot model: ${orphaned.join(", ")}`);
+  }
+  if (parts.length > 0) {
     throw new Error(parts.join("; "));
   }
 }

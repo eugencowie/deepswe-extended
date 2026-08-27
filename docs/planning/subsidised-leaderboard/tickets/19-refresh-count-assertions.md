@@ -48,12 +48,12 @@ ADR 0003 already decided that routine leaderboard growth must not produce a red 
 3. **Enforce the invariants at load, not only in tests.** A Zod schema with uniqueness refinements parses both JSON files in `src/data/sources.ts`, replacing the plain casts. Tests exercise the load and keep the relationship checks. Zod 4 is already a dependency (`scripts/deepswe-snapshot.ts`, `scripts/mapping-generation.ts`).
 4. **The tier-split test becomes structural**: each tier row's family matches its mapping entry, per the file's own stated philosophy that live-data tests assert structure only (`src/data/derive.test.ts:15-17`).
 5. **The refresh PR body gains an old→new count summary** (entries, models, generated mappings) via the inline body in `refresh.yml:24-31`. This moves the human-acknowledgement role of the literals to review, where ADR 0003 put it. No test step is added to the refresh job; CI already runs the identical suite on the PR.
-6. **Record the rationale as ADR 0004** ("snapshot-size literals removed in favor of load-time invariants" or similar), with a pointer comment at the former assertion sites.
+6. **Record the rationale as ADR 0004** ("snapshot-size literals removed in favor of load-time invariants" or similar), with a pointer comment in each affected test file (one per file; repeating it at every former assertion site is comment noise).
 7. **PR 18 is left untouched.** After this ticket merges, a human re-runs the refresh workflow, which updates the existing PR branch and goes green.
 
 ## Completion criteria
 
-- ADR 0004 records why fixed snapshot-size checks were removed and what replaced them; former assertion sites carry a pointer comment.
+- ADR 0004 records why fixed snapshot-size checks were removed and what replaced them; each affected test file carries a pointer comment.
 - No test asserts a literal snapshot count; the tier-split test asserts structure.
 - `src/data/sources.ts` parses both data files with a Zod schema that rejects duplicate `(model, effort)` identities, duplicate mapping keys, and models missing from the mapping in either direction.
 - The generated refresh PR body summarizes old→new entry, model, and mapping counts.
@@ -70,3 +70,5 @@ No production code or data files changed during diagnosis. The temporary worktre
 ## Comments
 
 2026-08-27: Implemented. ADR 0004 (`docs/architecture/0004-load-time-invariants-replace-count-literals.md`); load-time schema in `src/data/schema.ts` parsed by `src/data/sources.ts`, with rejection tests in `src/data/schema.test.ts`; all snapshot-count literals removed from `derive.test.ts` and `filter.test.ts` (tier-split test is now structural); refresh PR body gains a before/after count table via a `summary` step output. `vp run ready` passes (87 tests). Remaining human step: re-run the refresh workflow after merge so PR 18 goes green.
+
+2026-08-27: Code review (standards + spec). Fixed: the tier-row test now cross-checks family against the mapping instead of restating derive's construction rule, and `assertMappingCoverage`'s message assembly was tidied. Accepted with rationale: field-level schema validation stays (unchecked casts were the gap this ticket closed); decision 6 relaxed to one pointer comment per affected test file. Remaining smells (duplicate-refinement helper, shared model-count) accepted per the rule of three.
