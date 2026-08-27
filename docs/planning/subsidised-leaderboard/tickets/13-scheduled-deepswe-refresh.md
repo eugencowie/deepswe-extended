@@ -34,3 +34,5 @@ A scheduled GitHub Actions workflow that runs the DeepSWE refresh script and ope
 The PAT was provisioned with a one-off wizard script (run once and discarded, not committed): fine-grained, this repo only, contents + pull-requests write, no expiry, stored as the `REFRESH_PR_TOKEN` secret. Remaining human step: merge to `main`, then optionally test-drive with `gh workflow run refresh.yml`. Note GitHub disables cron workflows after 60 days of repo inactivity.
 
 **2026-08-25** — Ticket closed complete at the user's direction; the post-merge test drive happens outside this ticket, with any failure tracked as a new ticket.
+
+**2026-08-27** — The post-merge test drive failed because the live artifact returned a null `latest_job.finished_at`; findings and the follow-up decision are recorded in [ticket 17](17-handle-null-latest-job-finished-at.md).
