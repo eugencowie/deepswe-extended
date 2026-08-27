@@ -37,8 +37,10 @@ export const leaderboardArtifactSchema = z.object({
   unit: z.string(),
   generated_at: z.iso.datetime({ offset: true }),
   n_tasks_in_set: z.number().int().positive(),
-  // The checked-in snapshot requires a job reference, so null is a hard error.
-  latest_job: z.object({ name: z.string(), finished_at: z.string() }),
+  // finished_at is null while the upstream job is still running; DeepSWE shows
+  // those rows anyway, so we snapshot them too (ticket 17). An absent job
+  // object stays a hard error: that state has never been observed.
+  latest_job: z.object({ name: z.string(), finished_at: z.string().nullable() }),
   rows: z.array(
     z.object({
       model: z.string().min(1),
@@ -67,11 +69,17 @@ export function artifactUrl(manifest: VersionManifest): string {
   return `${origin}/artifacts/${pinnedVersion(manifest).data_path}/leaderboard-live.json`;
 }
 
-// Decides whether a fresh snapshot is worth writing. raw_sha256 and
-// source_generated_at churn upstream without content changes, so they only
-// ride along when something else changed.
+// Decides whether a fresh snapshot is worth writing. raw_sha256,
+// source_generated_at, and source_latest_job churn upstream without content
+// changes (nothing the app consumes reads them), so they only ride along when
+// something else changed.
 export function hasMeaningfulChange(existing: DeepsweSnapshot, next: DeepsweSnapshot): boolean {
-  const strip = ({ raw_sha256: _sha, source_generated_at: _at, ...rest }: DeepsweSnapshot) => rest;
+  const strip = ({
+    raw_sha256: _sha,
+    source_generated_at: _at,
+    source_latest_job: _job,
+    ...rest
+  }: DeepsweSnapshot) => rest;
   return JSON.stringify(strip(existing)) !== JSON.stringify(strip(next));
 }
 

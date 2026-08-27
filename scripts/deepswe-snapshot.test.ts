@@ -7,6 +7,7 @@ import {
   type VersionManifest,
   costAdjustmentsSchema,
   hasMeaningfulChange,
+  leaderboardArtifactSchema,
   normalize,
 } from "./deepswe-snapshot.ts";
 
@@ -160,6 +161,24 @@ describe("normalize", () => {
     ).toThrow(/Duplicate configuration "mini_swe_agent_claude-opus-5"/);
   });
 
+  // DeepSWE shows rows while the latest job is still running (finished_at
+  // null), so the snapshot accepts them too (ticket 17).
+  it("accepts a null latest_job finish time", () => {
+    const source = {
+      ...artifact([row("claude-opus-5")]),
+      latest_job: { name: "job", finished_at: null },
+    };
+    expect(leaderboardArtifactSchema.parse(source).latest_job.finished_at).toBeNull();
+    const { snapshot } = normalize(manifest, source, mappingFor(allModels), factors, "abc123");
+    expect(snapshot.source_latest_job).toEqual({ name: "job", finished_at: null });
+  });
+
+  it("rejects an absent latest_job", () => {
+    const { latest_job: _job, ...source } = artifact([row("claude-opus-5")]);
+    expect(() => leaderboardArtifactSchema.parse(source)).toThrow();
+    expect(() => leaderboardArtifactSchema.parse({ ...source, latest_job: null })).toThrow();
+  });
+
   it("rejects a task-count disagreement between manifest and artifact", () => {
     const disagreeing = { ...artifact(allModels.map((model) => row(model))), n_tasks_in_set: 99 };
     expect(() =>
@@ -203,6 +222,14 @@ describe("hasMeaningfulChange", () => {
     expect(hasMeaningfulChange(snapshotFrom(rows, "abc123"), snapshotFrom(rows, "abc123"))).toBe(
       false,
     );
+  });
+
+  it("ignores a job-only change (name or finish time)", () => {
+    const existing = snapshotFrom(rows, "abc123");
+    const source = artifact(rows);
+    source.latest_job = { name: "newer-job", finished_at: null };
+    const next = normalize(manifest, source, mappingFor(allModels), factors, "def456").snapshot;
+    expect(hasMeaningfulChange(existing, next)).toBe(false);
   });
 
   it("detects an entry change even when hash and timestamp also moved", () => {

@@ -43,7 +43,7 @@ type DeepsweSnapshot = {
   benchmark_version: "v1.1";
   source_url: string;
   source_generated_at: string;      // ISO timestamp from the artifact
-  source_latest_job: { name: string; finished_at: string };
+  source_latest_job: { name: string; finished_at: string | null };  // null while the job runs; DeepSWE shows the rows anyway, so we do too
   n_tasks_in_set: number;           // 113
   source_scope: string;
   source_unit: string;

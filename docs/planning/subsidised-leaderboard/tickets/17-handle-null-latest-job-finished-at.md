@@ -1,7 +1,7 @@
 # 17: Handle null DeepSWE job finish time
 
 Type: task
-Status: needs-triage
+Status: resolved
 Blocked by: none
 
 ## Incident
@@ -85,3 +85,15 @@ The current evidence supports option 1 until the upstream semantics are known. O
 ## Investigation notes
 
 No repository code or data files were changed during diagnosis. No debug instrumentation or temporary files remain.
+
+## Decision (grilled 2026-08-27)
+
+Option 2: a null `finished_at` is valid provenance. DeepSWE displays the entry on its own leaderboard while the job runs, so we snapshot what it shows; if results later change, a future refresh picks them up. No upstream contact — a response isn't expected.
+
+- Schema widens only for the observed state: `finished_at` becomes nullable, the `latest_job` object stays required (an absent job has never been observed and stays a loud failure).
+- `source_latest_job` stays in the snapshot as provenance but is excluded from `hasMeaningfulChange`: the app never reads it, so a job-only change no longer triggers a snapshot PR.
+- The `glm-5-3-flash` mapping is out of scope — [ticket 18](18-new-model-mapping-workflow.md) decides how new models are handled going forward, including whether the refresh can auto-populate mapping entries. Until then the refresh fails on the existing actionable mapping error, and the scheduled run's failure email is the designed alert.
+
+## Comments
+
+**2026-08-27** — Implemented: `finished_at` nullable in `leaderboardArtifactSchema` and `DeepsweSnapshot`; `source_latest_job` excluded from `hasMeaningfulChange`; tests cover null acceptance, absent-job rejection, and job-only non-meaningful change. Spec, ticket 10, and the research capture updated to match. Against the live artifact the refresh now reaches the intended outcome: the actionable `glm-5-3-flash` mapping error.
