@@ -5,7 +5,7 @@
 // without writing anything when a guard rail trips.
 
 import { existsSync } from "node:fs";
-import { readFile, writeFile } from "node:fs/promises";
+import { appendFile, readFile, writeFile } from "node:fs/promises";
 import { setTimeout as sleep } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 import type { ModelMappingEntry, ThroughputSnapshot } from "../src/data/types.ts";
@@ -94,3 +94,25 @@ console.log(
   `Wrote data/openrouter-throughput.json: ${Object.keys(snapshot.models).length} models, ` +
     `captured at ${capturedAt}.`,
 );
+
+// The PR body's summary (ADR 0004): the snapshot has no load-time invariants,
+// so the reviewer's count acknowledgement — and any omission or disappearance
+// warning, whose previous values live only in the review — must reach the PR.
+const summary = [
+  "### Data summary",
+  "",
+  "| Measure | Before | After |",
+  "| --- | ---: | ---: |",
+  `| Models | ${existing ? Object.keys(existing.models).length : "—"} | ${Object.keys(snapshot.models).length} |`,
+  "",
+  `Captured at ${capturedAt}.`,
+];
+if (warnings.length > 0) {
+  summary.push("", "Warnings:", ...warnings.map((warning) => `- ${warning}`));
+}
+if (process.env.GITHUB_OUTPUT) {
+  await appendFile(
+    process.env.GITHUB_OUTPUT,
+    `summary<<SUMMARY_EOF\n${summary.join("\n")}\nSUMMARY_EOF\n`,
+  );
+}

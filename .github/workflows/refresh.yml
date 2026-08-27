@@ -36,3 +36,32 @@ jobs:
 
 
             ${{ steps.refresh.outputs.summary }}
+
+  refresh-openrouter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with: { persist-credentials: false }
+      - uses: voidzero-dev/setup-vp@v1.17.0
+        with: { cache: true }
+      - run: vp run refresh:openrouter
+        id: refresh
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      - uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.REFRESH_PR_TOKEN }}
+          branch: refresh/openrouter
+          add-paths: data/openrouter-throughput.json
+          commit-message: "Refresh OpenRouter snapshot"
+          title: "chore: Refresh OpenRouter snapshot"
+          labels: chore
+          body: >
+            Automated weekly refresh of `data/openrouter-throughput.json` from
+            OpenRouter's model-endpoints API. The per-model value changes are
+            rolling-30-minute jitter; review the model count and any warnings
+            below — a disappeared model's previous value appears there, not in
+            the data.
+
+
+            ${{ steps.refresh.outputs.summary }}
