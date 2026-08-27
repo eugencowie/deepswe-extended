@@ -36,18 +36,24 @@ describe("deriveRows", () => {
       0,
     );
     expect(rows).toHaveLength(expected);
-    // Literal spot-check so the count isn't purely self-confirming.
-    expect(rows).toHaveLength(185);
+    // No literal count here: snapshot-size drift checks moved to the
+    // load-time schema and PR review (ADR 0004).
     expect(rows.filter((row) => row.accessRoute === "api")).toHaveLength(
       deepsweSnapshot.entries.length,
     );
   });
 
-  test("splits tier rows 63 Claude / 60 ChatGPT with the current data", () => {
+  test("every tier row uses one of its own mapping family's tiers", () => {
     const familyOf = new Map(modelMapping.map((entry) => [entry.leaderboardModel, entry.family]));
+    const tierFamily = new Map<string, string>(tiers.map((tier) => [tier.id, tier.family]));
     const tierRows = rows.filter((row) => row.accessRoute !== "api");
-    expect(tierRows.filter((row) => familyOf.get(row.model) === "claude")).toHaveLength(63);
-    expect(tierRows.filter((row) => familyOf.get(row.model) === "chatgpt")).toHaveLength(60);
+    expect(tierRows.length).toBeGreaterThan(0);
+    for (const row of tierRows) {
+      // Cross-checked against the mapping, not just the row's own family, so
+      // a derive bug assigning the wrong family cannot self-confirm.
+      expect(row.family).toBe(familyOf.get(row.model));
+      expect(tierFamily.get(row.accessRoute)).toBe(row.family);
+    }
   });
 
   test("family none models never get tier rows", () => {

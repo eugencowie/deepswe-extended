@@ -4,7 +4,7 @@
 // when a guard rail trips.
 
 import { createHash } from "node:crypto";
-import { readFile, writeFile } from "node:fs/promises";
+import { appendFile, readFile, writeFile } from "node:fs/promises";
 import type { DeepsweSnapshot, ModelMappingEntry } from "../src/data/types.ts";
 import {
   artifactUrl,
@@ -97,5 +97,30 @@ if (existing && !hasMeaningfulChange(existing, snapshot)) {
   console.log(
     `Wrote data/deepswe-v1.1.json: ${snapshot.entries.length} entries, ` +
       `source generated at ${snapshot.source_generated_at}.`,
+  );
+}
+
+// The PR body's before/after summary (ADR 0004): count drift is acknowledged
+// in review, not by test literals, so the reviewer must see it.
+const modelCount = (s: DeepsweSnapshot) => new Set(s.entries.map((entry) => entry.model)).size;
+const summary = [
+  "### Data summary",
+  "",
+  "| Measure | Before | After |",
+  "| --- | ---: | ---: |",
+  `| Leaderboard entries | ${existing?.entries.length ?? "—"} | ${snapshot.entries.length} |`,
+  `| Models | ${existing ? modelCount(existing) : "—"} | ${modelCount(snapshot)} |`,
+  `| Mapping entries | ${mapping.length} | ${mapping.length + generated.length} |`,
+];
+if (generated.length > 0) {
+  summary.push(
+    "",
+    `Generated mapping entries: ${generated.map((entry) => entry.leaderboardModel).join(", ")}.`,
+  );
+}
+if (process.env.GITHUB_OUTPUT) {
+  await appendFile(
+    process.env.GITHUB_OUTPUT,
+    `summary<<SUMMARY_EOF\n${summary.join("\n")}\nSUMMARY_EOF\n`,
   );
 }

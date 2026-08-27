@@ -21,8 +21,9 @@ const familyRoutes = (family: "claude" | "chatgpt"): AccessRoute[] => [
 describe("defaultFilters", () => {
   test("shows one API row per model", () => {
     const visible = filterRows(rows, defaultFilters(allModels));
+    // Counts assert relationships, never snapshot-size literals; drift checks
+    // moved to the load-time schema and PR review (ADR 0004).
     expect(visible).toHaveLength(allModels.length);
-    expect(visible).toHaveLength(25);
     expect(new Set(visible.map((row) => row.model)).size).toBe(visible.length);
     expect(visible.every((row) => row.accessRoute === "api")).toBe(true);
   });
@@ -45,7 +46,6 @@ describe("filterRows", () => {
   test("All effort levels with API only shows every entry once", () => {
     const visible = filterRows(rows, filters({ effortView: "all" }));
     expect(visible).toHaveLength(deepsweSnapshot.entries.length);
-    expect(visible).toHaveLength(62);
     expect(visible.every((row) => row.accessRoute === "api")).toBe(true);
   });
 
@@ -79,12 +79,15 @@ describe("filterRows", () => {
 
   test("the picker changes pricing, never row count", () => {
     // Exactly one route per family means every entry appears on exactly one
-    // row: 62 in the All view and 25 in Best, whatever the picker says.
+    // row: every entry in the All view and one per model in Best, whatever
+    // the picker says.
     for (const claude of familyRoutes("claude")) {
       for (const chatgpt of familyRoutes("chatgpt")) {
         const subscriptions = { claude, chatgpt };
-        expect(filterRows(rows, filters({ effortView: "all", subscriptions }))).toHaveLength(62);
-        expect(filterRows(rows, filters({ subscriptions }))).toHaveLength(25);
+        expect(filterRows(rows, filters({ effortView: "all", subscriptions }))).toHaveLength(
+          deepsweSnapshot.entries.length,
+        );
+        expect(filterRows(rows, filters({ subscriptions }))).toHaveLength(allModels.length);
       }
     }
   });
