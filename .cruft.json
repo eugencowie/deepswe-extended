@@ -1,0 +1,13 @@
+{
+  "template": "https://github.com/eugencowie/templates",
+  "commit": "00a15af4b6f47480f918dac051b859926f7a5029",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_slug": "deepswe-extended",
+      "_template": "https://github.com/eugencowie/templates",
+      "_commit": "00a15af4b6f47480f918dac051b859926f7a5029"
+    }
+  },
+  "directory": "bare"
+}
