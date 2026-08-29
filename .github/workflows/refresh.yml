@@ -24,7 +24,7 @@ jobs:
             data/deepswe-v1.1.json
             data/model-mapping.json
           commit-message: "Refresh DeepSWE snapshot"
-          title: "chore: Refresh DeepSWE snapshot"
+          title: "chore(deps): Refresh DeepSWE snapshot"
           labels: chore
           body: >
             Automated weekly refresh of `data/deepswe-v1.1.json` from the live
@@ -54,7 +54,7 @@ jobs:
           branch: refresh/openrouter
           add-paths: data/openrouter-throughput.json
           commit-message: "Refresh OpenRouter snapshot"
-          title: "chore: Refresh OpenRouter snapshot"
+          title: "chore(deps): Refresh OpenRouter snapshot"
           labels: chore
           body: >
             Automated weekly refresh of `data/openrouter-throughput.json` from
