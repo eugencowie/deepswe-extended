@@ -207,5 +207,13 @@
     "openrouterId": "z-ai/glm-5.3-flash",
     "family": "none",
     "usageMultiplier": 1
+  },
+  {
+    "leaderboardModel": "gemini-3-8-flash",
+    "displayName": "Gemini 3.8 Flash",
+    "vendor": "Google",
+    "openrouterId": "google/gemini-3.8-flash",
+    "family": "none",
+    "usageMultiplier": 1
   }
 ]
