@@ -4,15 +4,15 @@
   "source": "DeepSWE leaderboard",
   "sourceUrl": "https://deepswe.datacurve.ai",
   "source_url": "https://deepswe.datacurve.ai/artifacts/v1.1/leaderboard-live.json",
-  "source_generated_at": "2026-08-26T07:38:24.821609+00:00",
+  "source_generated_at": "2026-09-02T15:18:19Z",
   "source_latest_job": {
-    "name": "20260825-deep-swe-glm-5-3-flash",
-    "finished_at": null
+    "name": "20260901-deep-swe-1-1-gemini-3-8-flash-medium",
+    "finished_at": "2026-09-01T18:09:24.138799Z"
   },
   "n_tasks_in_set": 113,
   "source_scope": "Every DeepSWE rollout across imported Pier jobs, grouped by configuration (harness + model + reasoning effort)",
   "source_unit": "pass@1 is attempt pass rate over scored rollout attempts. pass@4 is tasks with at least one passing rollout divided by tasks attempted. Context-window failures and agent timeouts are scored failures; provider/verifier/network errors are excluded. Efficiency aggregates are over every scored attempt.",
-  "raw_sha256": "fa747b5d67bd146dfc9685568f28c1211580563ce960a11ae7232a0264f59a7b",
+  "raw_sha256": "ddee8c4ce1bc8e92b642632e6a92e5ab6e7046bec5f9f7c03947556716828947",
   "cost_adjustments": [
     {
       "model": "gpt-5-6-luna",
@@ -28,6 +28,18 @@
     }
   ],
   "entries": [
+    {
+      "model": "gemini-3-8-flash",
+      "effort": "high",
+      "pass_at_1": 0.738255033557047,
+      "average_cost_usd": 2.362349413758389,
+      "output_tokens": 143242.6644295302,
+      "steps": 166.3131991051454,
+      "source_config": "mini_swe_agent_gemini_3_8_flash_high",
+      "n_scored_attempts": 447,
+      "raw_average_cost_usd": 2.362349413758389,
+      "cost_adjustment_factor": 1
+    },
     {
       "model": "claude-opus-5",
       "effort": "max",
@@ -74,6 +86,18 @@
       "source_config": "mini_swe_agent_gpt_5_6_sol_max",
       "n_scored_attempts": 450,
       "raw_average_cost_usd": 8.386436346666667,
+      "cost_adjustment_factor": 1
+    },
+    {
+      "model": "gemini-3-8-flash",
+      "effort": "medium",
+      "pass_at_1": 0.7101769911504425,
+      "average_cost_usd": 1.9671024789823006,
+      "output_tokens": 124684.36283185841,
+      "steps": 147.30088495575222,
+      "source_config": "mini_swe_agent_gemini_3_8_flash_medium",
+      "n_scored_attempts": 452,
+      "raw_average_cost_usd": 1.9671024789823006,
       "cost_adjustment_factor": 1
     },
     {
