@@ -49,7 +49,7 @@ const playwrightConfig: UserConfig = {
 };
 
 const projectConfig: UserConfig = {
-  fmt: { ignorePatterns: ["docs/"] },
+  fmt: { ignorePatterns: ["docs/", ".github/", ".cruft.json"] },
 };
 
 function defineMergedConfig(configs: UserConfig[]) {
