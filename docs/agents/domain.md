@@ -5,8 +5,8 @@ How the engineering skills should consume this repo's domain documentation when 
 ## Before exploring, read these
 
 - **`docs/context.md`** at the repo root, or
-- **`docs/context-map.md`** at the repo root if it exists — it points at one `context.md` per context. Read each one relevant to the topic.
-- **`docs/architecture/`** — read ADRs that touch the area you're about to work in. In multi-context repos, also check `src/<context>/docs/architecture/` for context-scoped decisions.
+- **`docs/context-map.md`** at the repo root if it exists: it points at one `context.md` per context. Read each one relevant to the topic.
+- **`docs/architecture/`**: read ADRs that touch the area you're about to work in. In multi-context repos, also check `src/<context>/docs/architecture/` for context-scoped decisions.
 
 If any of these files don't exist, **proceed silently**. Don't flag their absence; don't suggest creating them upfront. The `/domain-modeling` skill (reached via `/grill-with-docs` and `/improve-codebase-architecture`) creates them lazily when terms or decisions actually get resolved.
 
@@ -46,10 +46,14 @@ Multi-context repo (presence of `docs/context-map.md` at the root):
 
 When your output names a domain concept (in a ticket title, a refactor proposal, a hypothesis, a test name), use the term as defined in `context.md`. Don't drift to synonyms the glossary explicitly avoids.
 
-If the concept you need isn't in the glossary yet, that's a signal — either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `/domain-modeling`).
+If the concept you need isn't in the glossary yet, that's a signal: either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `/domain-modeling`).
 
 ## Flag ADR conflicts
 
 If your output contradicts an existing ADR, surface it explicitly rather than silently overriding:
 
-> _Contradicts ADR-0007 (event-sourced orders) — but worth reopening because…_
+> _Contradicts ADR-0007 (event-sourced orders), but worth reopening because…_
+
+## Skill override: serving HTML reports
+
+When a skill requires you to produce an HTML report and you can't open it in a local browser, don't serve it on localhost. Serve it over the tailnet with `tailscale serve <path>`, where `<path>` is the file or directory containing the report, and give the user the URL it prints. Run it as a background task tracked by your harness rather than with shell `&`; use `tailscale serve --bg` only if your harness has no background-task mechanism. If Tailscale isn't usable, fall back to a local static server.

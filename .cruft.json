@@ -1,12 +1,16 @@
 {
   "template": "https://github.com/eugencowie/templates",
-  "commit": "00a15af4b6f47480f918dac051b859926f7a5029",
-  "checkout": null,
+  "commit": "a1963b5c09f193fda570977ca84c986a7df39e0c",
+  "checkout": "v1.4.0",
   "context": {
     "cookiecutter": {
       "project_slug": "deepswe-extended",
+      "_copy_without_render": [
+        ".github/renovate.json5",
+        ".github/workflows/renovate.yml"
+      ],
       "_template": "https://github.com/eugencowie/templates",
-      "_commit": "00a15af4b6f47480f918dac051b859926f7a5029"
+      "_commit": "a1963b5c09f193fda570977ca84c986a7df39e0c"
     }
   },
   "directory": "bare"

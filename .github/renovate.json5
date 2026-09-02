@@ -1,0 +1,47 @@
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: ['config:best-practices'],
+  labels: ['chore'],
+
+  customManagers: [
+    {
+      description: 'Track template updates',
+      customType: 'regex',
+      managerFilePatterns: ['/^\\.cruft\\.json$/'],
+      matchStrings: ['"checkout"\\s*:\\s*"(?<currentValue>[^"]+)"'],
+      datasourceTemplate: 'github-tags',
+      depNameTemplate: 'eugencowie/templates',
+    },
+    {
+      description: 'Bootstrap template release tracking',
+      customType: 'regex',
+      managerFilePatterns: ['/^\\.cruft\\.json$/'],
+      matchStrings: ['"checkout"\\s*:\\s*null'],
+      datasourceTemplate: 'github-tags',
+      depNameTemplate: 'eugencowie/templates',
+      currentValueTemplate: 'v0.0.0',
+      autoReplaceStringTemplate: '"checkout": "{{{newValue}}}"',
+    },
+  ],
+
+  packageRules: [
+    {
+      description: 'Template updates get their own PR and apply via cruft',
+      matchManagers: ['custom.regex'],
+      matchDepNames: ['eugencowie/templates'],
+      groupName: 'eugencowie/templates',
+      postUpgradeTasks: {
+        commands: [
+          'git restore --source=HEAD -- .cruft.json',
+          'mise run template:update -- -y --checkout {{{newValue}}}',
+        ],
+        executionMode: 'branch',
+        fileFilters: ['**/*'],
+        installTools: {
+          mise: {},
+          python: {},
+        },
+      },
+    },
+  ],
+}
