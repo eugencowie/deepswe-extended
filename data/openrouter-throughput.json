@@ -1,85 +1,85 @@
 {
   "source": "OpenRouter",
   "sourceUrl": "https://openrouter.ai",
-  "capturedAt": "2026-08-29T00:28:53Z",
+  "capturedAt": "2026-09-02T16:49:53Z",
   "models": {
     "anthropic/claude-opus-5": {
-      "consumerP50": 66
+      "consumerP50": 56
     },
     "anthropic/claude-fable-5": {
-      "consumerP50": 41
+      "consumerP50": 45
     },
     "anthropic/claude-sonnet-5": {
-      "consumerP50": 63
+      "consumerP50": 52
     },
     "anthropic/claude-opus-4.8": {
-      "consumerP50": 68
+      "consumerP50": 60
     },
     "anthropic/claude-sonnet-4.6": {
-      "consumerP50": 18
+      "consumerP50": 33
     },
     "openai/gpt-5.6-sol": {
-      "consumerP50": 53
+      "consumerP50": 44
     },
     "openai/gpt-5.6-terra": {
-      "consumerP50": 62
+      "consumerP50": 41
     },
     "openai/gpt-5.6-luna": {
-      "consumerP50": 67
+      "consumerP50": 59
     },
     "openai/gpt-5.5": {
-      "consumerP50": 50
+      "consumerP50": 48
     },
     "openai/gpt-5.4": {
-      "consumerP50": 54
+      "consumerP50": 46
     },
     "google/gemini-3.7-flash": {
-      "consumerP50": 126
+      "consumerP50": 97
     },
     "google/gemini-3.6-flash": {
-      "consumerP50": 141
+      "consumerP50": 57
     },
     "google/gemini-3.5-flash": {
-      "consumerP50": 178
+      "consumerP50": 123
     },
     "google/gemini-3.1-pro-preview": {
-      "consumerP50": 99
+      "consumerP50": 90
     },
     "deepseek/deepseek-v4-pro-0813": {
-      "consumerP50": 29
+      "consumerP50": 32
     },
     "deepseek/deepseek-v4-flash-0731": {
-      "consumerP50": 82
+      "consumerP50": 97
     },
     "z-ai/glm-5.3": {
       "consumerP50": 51
     },
-    "z-ai/glm-5.2": {
-      "consumerP50": 39
-    },
     "moonshotai/kimi-k3": {
-      "consumerP50": 27
+      "consumerP50": 25
     },
     "moonshotai/kimi-k2.7-code": {
-      "consumerP50": 54
-    },
-    "qwen/qwen3.8-max": {
-      "consumerP50": 40
-    },
-    "x-ai/grok-4.6": {
-      "consumerP50": 52
-    },
-    "x-ai/grok-4.5": {
       "consumerP50": 49
     },
+    "qwen/qwen3.8-max": {
+      "consumerP50": 37
+    },
+    "x-ai/grok-4.6": {
+      "consumerP50": 55
+    },
+    "x-ai/grok-4.5": {
+      "consumerP50": 52
+    },
     "meta/muse-spark-1.1": {
-      "consumerP50": 159
+      "consumerP50": 142
     },
     "meta/muse-spark-1.2": {
-      "consumerP50": 93
+      "consumerP50": 104
     },
     "z-ai/glm-5.3-flash": {
-      "consumerP50": 32
+      "consumerP50": 21
+    },
+    "google/gemini-3.8-flash": {
+      "consumerP50": 109
     }
   }
 }
