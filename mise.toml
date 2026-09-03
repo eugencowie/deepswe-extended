@@ -67,6 +67,10 @@ run = "vp preview"
 description = "Preview production build on tailnet"
 run = "vp run preview:tailnet"
 
+[tasks.refresh]
+description = "Refresh all snapshots in workflow order (DeepSWE, then OpenRouter)"
+run = "vp run refresh"
+
 [tasks."refresh:deepswe"]
 description = "Refresh DeepSWE data"
 run = "vp run refresh:deepswe"

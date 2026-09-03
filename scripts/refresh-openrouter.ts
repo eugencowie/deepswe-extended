@@ -16,6 +16,7 @@ import {
   endpointsResponseSchema,
   endpointsUrl,
   retryAfterMs,
+  summarizeRefresh,
   vendorMappingSchema,
 } from "./openrouter-snapshot.ts";
 
@@ -110,27 +111,10 @@ console.log(
     `captured at ${capturedAt}.`,
 );
 
-// The PR body's summary (ADR 0004): the snapshot has no load-time invariants,
-// so the reviewer's count acknowledgement — and any omission or disappearance
-// warning, whose previous values live only in the review — must reach the PR.
-const summary = [
-  "### Data summary",
-  "",
-  "| Measure | Before | After |",
-  "| --- | ---: | ---: |",
-  `| Models | ${existing ? Object.keys(existing.models).length : "—"} | ${Object.keys(snapshot.models).length} |`,
-  "",
-  `Captured at ${capturedAt}.`,
-];
-if (warnings.length > 0) {
-  summary.push("", "Warnings:", ...warnings.map((warning) => `- ${warning}`));
-}
+const summary = summarizeRefresh(existing, snapshot, warnings);
 if (process.env.GITHUB_OUTPUT) {
   // Unique delimiter per GitHub's guidance: the summary splices in
   // upstream-derived text, which must not be able to terminate the heredoc.
   const delimiter = `SUMMARY_${randomUUID()}`;
-  await appendFile(
-    process.env.GITHUB_OUTPUT,
-    `summary<<${delimiter}\n${summary.join("\n")}\n${delimiter}\n`,
-  );
+  await appendFile(process.env.GITHUB_OUTPUT, `summary<<${delimiter}\n${summary}\n${delimiter}\n`);
 }

@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  refresh-deepswe:
+  refresh:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -15,53 +15,42 @@ jobs:
       - uses: voidzero-dev/setup-vp@313600b80b104eadebb9111787d37a2e83e014ca # v1.17.0
         with: { cache: true }
       - run: vp run refresh:deepswe
-        id: refresh
-      - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
-        with:
-          token: ${{ secrets.REFRESH_PR_TOKEN }}
-          branch: refresh/deepswe
-          add-paths: |
-            data/deepswe-v1.1.json
-            data/model-mapping.json
-          commit-message: "Refresh DeepSWE snapshot"
-          title: "chore(deps): Refresh DeepSWE snapshot"
-          labels: chore
-          body: >
-            Automated weekly refresh of `data/deepswe-v1.1.json` from the live
-            DeepSWE source, plus generated `data/model-mapping.json` entries
-            for any new models from known vendors. Review the diff against the
-            [changelog](https://deepswe.datacurve.ai/changelog) before merging;
-            if costs shifted, re-check the site bundle's cost adjustment
-            factors per the spec's version-bump workflow.
-
-
-            ${{ steps.refresh.outputs.summary }}
-
-  refresh-openrouter:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with: { persist-credentials: false }
-      - uses: voidzero-dev/setup-vp@313600b80b104eadebb9111787d37a2e83e014ca # v1.17.0
-        with: { cache: true }
+        id: deepswe
+        continue-on-error: true
       - run: vp run refresh:openrouter
-        id: refresh
+        id: openrouter
+        continue-on-error: true
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
       - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
         with:
           token: ${{ secrets.REFRESH_PR_TOKEN }}
-          branch: refresh/openrouter
-          add-paths: data/openrouter-throughput.json
-          commit-message: "Refresh OpenRouter snapshot"
-          title: "chore(deps): Refresh OpenRouter snapshot"
+          branch: refresh/snapshots
+          add-paths: |
+            data/deepswe-v1.1.json
+            data/model-mapping.json
+            data/openrouter-throughput.json
+          commit-message: "Refresh data snapshots"
+          title: "chore(deps): Refresh data snapshots"
           labels: chore
-          body: >
-            Automated weekly refresh of `data/openrouter-throughput.json` from
-            OpenRouter's model-endpoints API. The per-model value changes are
-            rolling-30-minute jitter; review the model count and any warnings
-            below — a disappeared model's previous value appears there, not in
-            the data.
+          body: |
+            Automated weekly refresh of both data snapshots. A half that failed left its files untouched and is named below; the run is red in that case.
 
+            ## DeepSWE
 
-            ${{ steps.refresh.outputs.summary }}
+            `data/deepswe-v1.1.json` from the live DeepSWE source, plus generated `data/model-mapping.json` entries for any new models from known vendors. Review the diff against the [changelog](https://deepswe.datacurve.ai/changelog) before merging; if costs shifted, re-check the site bundle's cost adjustment factors per the spec's version-bump workflow.
+
+            ${{ steps.deepswe.outcome == 'failure' && '**The DeepSWE refresh failed**; see the run log.' || steps.deepswe.outputs.summary }}
+
+            ## OpenRouter
+
+            `data/openrouter-throughput.json` from OpenRouter's model-endpoints API. The per-model value changes are rolling-30-minute jitter; review the model count and any warnings below — a disappeared model's previous value appears there, not in the data.
+
+            ${{ steps.openrouter.outcome == 'failure' && '**The OpenRouter refresh failed**; see the run log.' || steps.openrouter.outputs.summary }}
+      - if: steps.deepswe.outcome == 'failure' || steps.openrouter.outcome == 'failure'
+        env:
+          DEEPSWE: ${{ steps.deepswe.outcome }}
+          OPENROUTER: ${{ steps.openrouter.outcome }}
+        run: |
+          echo "::error::A refresh half failed (deepswe: $DEEPSWE, openrouter: $OPENROUTER); see the step logs above."
+          exit 1

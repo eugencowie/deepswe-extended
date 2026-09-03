@@ -1,5 +1,5 @@
 // Generates model-mapping entries for new leaderboard models from known
-// vendors (ADR 0003), so the weekly refresh PR carries the mapping change and
+// vendors (ADR 0003), so the Refresh PR carries the mapping change and
 // review replaces hand-editing. Pure: the fetch lives in the refresh shell.
 
 import { z } from "zod";

@@ -179,3 +179,40 @@ export function normalize(
     warnings,
   };
 }
+
+// The Refresh PR body's before/after summary (ADR 0004): count drift is
+// acknowledged in review, not by test literals, so the reviewer must see it.
+// The heading names the source because the body also carries the OpenRouter
+// summary (ticket 21).
+export function summarizeRefresh(input: {
+  existing: DeepsweSnapshot | null;
+  snapshot: DeepsweSnapshot;
+  mappingCount: number;
+  generated: ModelMappingEntry[];
+  changed: boolean;
+}): string {
+  const { existing, snapshot, mappingCount, generated, changed } = input;
+  const modelCount = (s: DeepsweSnapshot) => new Set(s.entries.map((entry) => entry.model)).size;
+  const lines = [
+    "### DeepSWE data summary",
+    "",
+    "| Measure | Before | After |",
+    "| --- | ---: | ---: |",
+    `| Leaderboard entries | ${existing?.entries.length ?? "—"} | ${snapshot.entries.length} |`,
+    `| Models | ${existing ? modelCount(existing) : "—"} | ${modelCount(snapshot)} |`,
+    `| Mapping entries | ${mappingCount} | ${mappingCount + generated.length} |`,
+  ];
+  if (!changed) {
+    // Equal counts alone cannot distinguish an untouched snapshot from a
+    // changed one of the same size, and the Refresh PR opens every week
+    // regardless because the OpenRouter half always changes.
+    lines.push("", "No content change: the snapshot was left untouched this run.");
+  }
+  if (generated.length > 0) {
+    lines.push(
+      "",
+      `Generated mapping entries: ${generated.map((entry) => entry.leaderboardModel).join(", ")}.`,
+    );
+  }
+  return lines.join("\n");
+}

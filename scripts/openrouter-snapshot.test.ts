@@ -6,6 +6,7 @@ import {
   type OpenrouterEndpoint,
   buildSnapshot,
   retryAfterMs,
+  summarizeRefresh,
   vendorMappingSchema,
 } from "./openrouter-snapshot.ts";
 
@@ -308,5 +309,33 @@ describe("checked-in data files", () => {
     for (const entry of rawModelMapping as ModelMappingEntry[]) {
       expect(covered).toContain(entry.vendor);
     }
+  });
+});
+
+describe("summarizeRefresh", () => {
+  const snapshotWith = (ids: string[]): ThroughputSnapshot => ({
+    source: "OpenRouter",
+    sourceUrl: "https://openrouter.ai",
+    capturedAt,
+    models: Object.fromEntries(ids.map((id) => [id, { consumerP50: 50 }])),
+  });
+
+  it("names its source in the heading so it can share a PR body", () => {
+    const text = summarizeRefresh(null, snapshotWith(["a/one"]), []);
+    expect(text.startsWith("### OpenRouter data summary")).toBe(true);
+  });
+
+  it("tabulates before/after model counts, with a dash on first run", () => {
+    expect(summarizeRefresh(null, snapshotWith(["a/one"]), [])).toContain("| Models | — | 1 |");
+    expect(
+      summarizeRefresh(snapshotWith(["a/one", "a/two"]), snapshotWith(["a/one"]), []),
+    ).toContain("| Models | 2 | 1 |");
+  });
+
+  it("carries the capture time and every warning", () => {
+    const text = summarizeRefresh(null, snapshotWith([]), ["gone", "omitted"]);
+    expect(text).toContain(`Captured at ${capturedAt}.`);
+    expect(text).toContain("Warnings:\n- gone\n- omitted");
+    expect(summarizeRefresh(null, snapshotWith([]), [])).not.toContain("Warnings:");
   });
 });

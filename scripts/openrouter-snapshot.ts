@@ -193,3 +193,28 @@ export function buildSnapshot(
     warnings,
   };
 }
+
+// The Refresh PR body's summary (ADR 0004): the snapshot has no load-time
+// invariants, so the reviewer's count acknowledgement, and any omission or
+// disappearance warning whose previous value lives only in the review, must
+// reach the PR. The heading names the source because the body also carries
+// the DeepSWE summary (ticket 21).
+export function summarizeRefresh(
+  existing: ThroughputSnapshot | null,
+  snapshot: ThroughputSnapshot,
+  warnings: string[],
+): string {
+  const lines = [
+    "### OpenRouter data summary",
+    "",
+    "| Measure | Before | After |",
+    "| --- | ---: | ---: |",
+    `| Models | ${existing ? Object.keys(existing.models).length : "—"} | ${Object.keys(snapshot.models).length} |`,
+    "",
+    `Captured at ${snapshot.capturedAt}.`,
+  ];
+  if (warnings.length > 0) {
+    lines.push("", "Warnings:", ...warnings.map((warning) => `- ${warning}`));
+  }
+  return lines.join("\n");
+}

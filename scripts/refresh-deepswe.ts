@@ -13,6 +13,7 @@ import {
   leaderboardArtifactSchema,
   normalize,
   origin,
+  summarizeRefresh,
   unmappedModels,
   versionManifestSchema,
 } from "./deepswe-snapshot.ts";
@@ -87,7 +88,8 @@ const existing = await readFile(snapshotPath, "utf8").then(
   (text) => JSON.parse(text) as DeepsweSnapshot,
   () => null,
 );
-if (existing && !hasMeaningfulChange(existing, snapshot)) {
+const changed = !existing || hasMeaningfulChange(existing, snapshot);
+if (!changed) {
   console.log(
     "No content change; leaving data/deepswe-v1.1.json untouched " +
       `(upstream raw_sha256 ${rawSha256}, generated at ${snapshot.source_generated_at}).`,
@@ -100,30 +102,16 @@ if (existing && !hasMeaningfulChange(existing, snapshot)) {
   );
 }
 
-// The PR body's before/after summary (ADR 0004): count drift is acknowledged
-// in review, not by test literals, so the reviewer must see it.
-const modelCount = (s: DeepsweSnapshot) => new Set(s.entries.map((entry) => entry.model)).size;
-const summary = [
-  "### Data summary",
-  "",
-  "| Measure | Before | After |",
-  "| --- | ---: | ---: |",
-  `| Leaderboard entries | ${existing?.entries.length ?? "—"} | ${snapshot.entries.length} |`,
-  `| Models | ${existing ? modelCount(existing) : "—"} | ${modelCount(snapshot)} |`,
-  `| Mapping entries | ${mapping.length} | ${mapping.length + generated.length} |`,
-];
-if (generated.length > 0) {
-  summary.push(
-    "",
-    `Generated mapping entries: ${generated.map((entry) => entry.leaderboardModel).join(", ")}.`,
-  );
-}
+const summary = summarizeRefresh({
+  existing,
+  snapshot,
+  mappingCount: mapping.length,
+  generated,
+  changed,
+});
 if (process.env.GITHUB_OUTPUT) {
   // Unique delimiter per GitHub's guidance: the summary splices in
   // upstream-derived text, which must not be able to terminate the heredoc.
   const delimiter = `SUMMARY_${randomUUID()}`;
-  await appendFile(
-    process.env.GITHUB_OUTPUT,
-    `summary<<${delimiter}\n${summary.join("\n")}\n${delimiter}\n`,
-  );
+  await appendFile(process.env.GITHUB_OUTPUT, `summary<<${delimiter}\n${summary}\n${delimiter}\n`);
 }
