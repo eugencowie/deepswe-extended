@@ -7,6 +7,7 @@ import {
   type VersionManifest,
   costAdjustmentsSchema,
   hasMeaningfulChange,
+  summarizeRefresh,
   leaderboardArtifactSchema,
   normalize,
 } from "./deepswe-snapshot.ts";
@@ -239,5 +240,71 @@ describe("hasMeaningfulChange", () => {
     );
     const next = snapshotFrom(changed, "def456", "2026-08-21T00:00:00.000000+00:00");
     expect(hasMeaningfulChange(existing, next)).toBe(true);
+  });
+});
+
+describe("summarizeRefresh", () => {
+  const snapshotFrom = (rows: LeaderboardArtifact["rows"]) =>
+    normalize(manifest, artifact(rows), mappingFor(allModels), factors, "abc123").snapshot;
+  const rows = allModels.map((model) => row(model));
+  const generatedEntry = mappingFor(["new-model"])[0]!;
+
+  it("names its source in the heading so it can share a PR body", () => {
+    const text = summarizeRefresh({
+      existing: null,
+      snapshot: snapshotFrom(rows),
+      mappingCount: 25,
+      generated: [],
+      changed: true,
+    });
+    expect(text.startsWith("### DeepSWE data summary")).toBe(true);
+  });
+
+  it("tabulates before/after counts, with a dash on first run", () => {
+    const snapshot = snapshotFrom(rows);
+    const first = summarizeRefresh({
+      existing: null,
+      snapshot,
+      mappingCount: 25,
+      generated: [],
+      changed: true,
+    });
+    expect(first).toContain(`| Leaderboard entries | — | ${snapshot.entries.length} |`);
+    expect(first).toContain(`| Models | — | ${allModels.length} |`);
+    expect(first).toContain("| Mapping entries | 25 | 25 |");
+
+    const later = summarizeRefresh({
+      existing: snapshot,
+      snapshot,
+      mappingCount: 25,
+      generated: [generatedEntry],
+      changed: true,
+    });
+    expect(later).toContain(
+      `| Leaderboard entries | ${snapshot.entries.length} | ${snapshot.entries.length} |`,
+    );
+    expect(later).toContain("| Mapping entries | 25 | 26 |");
+    expect(later).toContain("Generated mapping entries: new-model.");
+  });
+
+  it("states a no-op week explicitly", () => {
+    const snapshot = snapshotFrom(rows);
+    const text = summarizeRefresh({
+      existing: snapshot,
+      snapshot,
+      mappingCount: 25,
+      generated: [],
+      changed: false,
+    });
+    expect(text).toContain("No content change");
+    expect(
+      summarizeRefresh({
+        existing: snapshot,
+        snapshot,
+        mappingCount: 25,
+        generated: [],
+        changed: true,
+      }),
+    ).not.toContain("No content change");
   });
 });

@@ -80,7 +80,7 @@ The reviewed link from a leaderboard model to its OpenRouter id, subscription fa
 _Avoid_: hand-curated (entries for known vendors are generated)
 
 **Generated mapping entry**:
-A model-mapping entry the refresh derives itself for a new model from a known vendor — one whose other models already appear in the mapping. Reviewed in the refresh PR rather than written by hand; a new model from an unknown vendor still demands a hand-written entry.
+A model-mapping entry the refresh derives itself for a new model from a known vendor — one whose other models already appear in the mapping. Reviewed in the Refresh PR rather than written by hand; a new model from an unknown vendor still demands a hand-written entry.
 _Avoid_: stub, auto-mapping
 
 **Vendor**:
@@ -105,6 +105,10 @@ _Avoid_: author, owner
 **Snapshot**:
 A checked-in, point-in-time capture of a source, refreshed only through human-reviewed commits, never at build or run time.
 _Avoid_: live data, cache
+
+**Refresh PR**:
+The single weekly pull request through which every snapshot change and generated mapping entry reaches main; the human review gate for all of them.
+_Avoid_: Friday PR, weekly PR, refresh PRs (plural)
 
 **Cost adjustment factor**:
 The DeepSWE site's retroactive repricing multiplier for a model's costs. The snapshot keeps raw values beside adjusted ones.
