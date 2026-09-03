@@ -263,7 +263,7 @@ importers:
         specifier: 1.61.1
         version: 1.61.1
       '@types/node':
-        specifier: ^26.2.0
+        specifier: 26.2.0
         version: 26.2.0
       '@types/react':
         specifier: ^19.2.18
@@ -272,19 +272,19 @@ importers:
         specifier: ^19.2.4
         version: 19.2.4(@types/react@19.2.18)
       '@vitejs/plugin-react':
-        specifier: ^6.1.0
+        specifier: 6.1.0
         version: 6.1.0(@voidzero-dev/vite-plus-core@0.2.9(@types/node@26.2.0)(jiti@2.7.0)(typescript@7.0.2))
       concurrently:
-        specifier: ^10.0.5
+        specifier: 10.0.5
         version: 10.0.5
       node:
         specifier: runtime:26.7.0
         version: runtime:26.7.0
       shadcn:
-        specifier: ^4.19.0
+        specifier: 4.19.0
         version: 4.19.0(patch_hash=c3f0f1862c892d82d3c9047b7b14f2da21c2d3e8d096435f2e597a5f4f76540c)(supports-color@10.2.2)(typescript@7.0.2)
       typescript:
-        specifier: ~7.0.2
+        specifier: 7.0.2
         version: 7.0.2
       vite:
         specifier: npm:@voidzero-dev/vite-plus-core@0.2.9
@@ -293,7 +293,7 @@ importers:
         specifier: 'catalog:'
         version: 0.2.9(@types/node@26.2.0)(@voidzero-dev/vite-plus-core@0.2.9(@types/node@26.2.0)(jiti@2.7.0)(typescript@7.0.2))(jiti@2.7.0)(typescript@7.0.2)
       zod:
-        specifier: ^4.4.3
+        specifier: 4.4.3
         version: 4.4.3
 
 packages:
