@@ -12,7 +12,12 @@ import {
   tiersSnapshot,
 } from "@/data/sources";
 
-const leaderboard = createLeaderboard(deepsweSnapshot, modelMapping, throughputSnapshot, tiers);
+const leaderboard = createLeaderboard({
+  snapshot: deepsweSnapshot,
+  mapping: modelMapping,
+  throughput: throughputSnapshot,
+  tiers,
+});
 
 // The UTC date of a snapshot timestamp, robust to non-UTC offsets in a
 // future refresh (a plain slice would take the offset-local date).

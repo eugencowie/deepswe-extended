@@ -1,6 +1,5 @@
 import { describe, expect, test } from "vite-plus/test";
 
-import costAdjustments from "../../data/cost-adjustments.json" with { type: "json" };
 import { deepsweSnapshot, modelMapping, throughputSnapshot, tiers } from "./sources.ts";
 import {
   createLeaderboard,
@@ -11,7 +10,7 @@ import {
   type LeaderboardFilters,
   type LeaderboardRow,
 } from "./leaderboard.ts";
-import type { AccessRoute, ThroughputSnapshot } from "./types.ts";
+import type { AccessRoute, ModelMappingEntry, ThroughputSnapshot } from "./types.ts";
 
 // Value-asserting throughput tests use this fixture rather than the live
 // snapshot, so a data refresh never re-touches them; live-data tests below
@@ -26,7 +25,23 @@ const throughputFixture: ThroughputSnapshot = {
   },
 };
 
-const live = () => createLeaderboard(deepsweSnapshot, modelMapping, throughputSnapshot, tiers);
+const sources = {
+  snapshot: deepsweSnapshot,
+  mapping: modelMapping,
+  throughput: throughputSnapshot,
+  tiers,
+};
+const live = () => createLeaderboard(sources);
+
+const mappingFixture = (models: string[]): ModelMappingEntry[] =>
+  models.map((model) => ({
+    leaderboardModel: model,
+    displayName: model,
+    vendor: "Test",
+    openrouterId: null,
+    family: "none",
+    usageMultiplier: 1,
+  }));
 
 describe("rows", () => {
   const { rows } = live();
@@ -141,14 +156,14 @@ describe("rows", () => {
     expect(tier?.apiCostPerSolvedTaskUsd).toBe(api?.costPerSolvedTaskUsd);
   });
 
-  test("cost per solved task recomputes from the row's effective cost", () => {
+  test("cost per solved task follows the row's effective cost", () => {
+    // claude-pro scales cost by 0.05, so cost per solved task scales the same.
     const api = rows.find((r) => r.model === "claude-opus-5" && r.accessRoute === "api");
     const tier = rows.find(
       (r) =>
         r.model === "claude-opus-5" && r.effort === api?.effort && r.accessRoute === "claude-pro",
     );
-    expect(tier?.costPerSolvedTaskUsd).toBeCloseTo(tier!.effectiveCostUsd / tier!.passAt1, 10);
-    expect(tier?.costPerSolvedTaskUsd).not.toBe(api?.costPerSolvedTaskUsd);
+    expect(tier?.costPerSolvedTaskUsd).toBeCloseTo(api!.costPerSolvedTaskUsd! * 0.05, 10);
   });
 
   test("cost per solved task is blank when Pass@1 is 0", () => {
@@ -156,7 +171,7 @@ describe("rows", () => {
       ...deepsweSnapshot,
       entries: [{ ...deepsweSnapshot.entries[0], model: "claude-fable-5", pass_at_1: 0 }],
     };
-    const [row] = createLeaderboard(snapshot, modelMapping, throughputFixture, tiers).rows;
+    const [row] = createLeaderboard({ ...sources, snapshot, throughput: throughputFixture }).rows;
     expect(row.costPerSolvedTaskUsd).toBeNull();
     expect(row.apiCostPerSolvedTaskUsd).toBeNull();
   });
@@ -169,33 +184,37 @@ describe("rows", () => {
     expect(rows.find((row) => row.model === "kimi-k3")?.family).toBe("none");
   });
 
-  test("Luna rows use cost-adjusted costs, not raw source values", () => {
-    const lunaFactor = costAdjustments.factors["gpt-5-6-luna"];
-    expect(lunaFactor).toBeLessThan(1);
-    const luna = deepsweSnapshot.entries.filter((entry) => entry.model === "gpt-5-6-luna");
-    expect(luna.length).toBeGreaterThan(0);
-    for (const entry of luna) {
-      const row = rows.find((r) => r.model === entry.model && r.effort === entry.effort);
-      expect(row?.effectiveCostUsd).toBe(entry.average_cost_usd);
-      expect(row?.effectiveCostUsd).toBeCloseTo(entry.raw_average_cost_usd * lunaFactor, 10);
-      expect(row?.effectiveCostUsd).not.toBe(entry.raw_average_cost_usd);
-    }
+  test("rows use the snapshot's cost-adjusted average cost, not the raw value", () => {
+    const snapshot = {
+      ...deepsweSnapshot,
+      entries: [
+        {
+          ...deepsweSnapshot.entries[0],
+          model: "adjusted",
+          average_cost_usd: 1,
+          raw_average_cost_usd: 4,
+          cost_adjustment_factor: 0.25,
+        },
+      ],
+    };
+    const [row] = createLeaderboard({
+      ...sources,
+      snapshot,
+      mapping: mappingFixture(["adjusted"]),
+    }).rows;
+    expect(row.effectiveCostUsd).toBe(1);
+    expect(row.apiCostUsd).toBe(1);
   });
 
   test("throws when a leaderboard model is missing from the mapping", () => {
     const mapping = modelMapping.filter((entry) => entry.leaderboardModel !== "glm-5-3");
-    expect(() => createLeaderboard(deepsweSnapshot, mapping, throughputSnapshot, tiers)).toThrow(
-      /glm-5-3/,
-    );
+    expect(() => createLeaderboard({ ...sources, mapping })).toThrow(/glm-5-3/);
   });
 
   test("a model's rows share one throughput figure across effort levels", () => {
-    const opus = createLeaderboard(
-      deepsweSnapshot,
-      modelMapping,
-      throughputFixture,
-      tiers,
-    ).rows.filter((row) => row.model === "claude-opus-5");
+    const opus = createLeaderboard({ ...sources, throughput: throughputFixture }).rows.filter(
+      (row) => row.model === "claude-opus-5",
+    );
     expect(opus.length).toBeGreaterThan(1);
     for (const row of opus) {
       expect(row.throughputTokPerSec).toBe(50);
@@ -207,7 +226,7 @@ describe("rows", () => {
       ...deepsweSnapshot,
       entries: [{ ...deepsweSnapshot.entries[0], model: "claude-fable-5", output_tokens: 8400 }],
     };
-    const [row] = createLeaderboard(snapshot, modelMapping, throughputFixture, tiers).rows;
+    const [row] = createLeaderboard({ ...sources, snapshot, throughput: throughputFixture }).rows;
     expect(row.throughputTokPerSec).toBe(42);
     expect(row.averageTimeSeconds).toBe(200);
   });
@@ -216,7 +235,7 @@ describe("rows", () => {
     const mapping = modelMapping.map((entry) =>
       entry.leaderboardModel === "glm-5-3" ? { ...entry, openrouterId: null } : entry,
     );
-    const glm = createLeaderboard(deepsweSnapshot, mapping, throughputSnapshot, tiers).rows.filter(
+    const glm = createLeaderboard({ ...sources, mapping }).rows.filter(
       (row) => row.model === "glm-5-3",
     );
     expect(glm.length).toBeGreaterThan(0);
@@ -229,12 +248,10 @@ describe("rows", () => {
   test("a model absent from the throughput snapshot blanks throughput and time", () => {
     const models = { ...throughputSnapshot.models };
     delete models["z-ai/glm-5.3"];
-    const glm = createLeaderboard(
-      deepsweSnapshot,
-      modelMapping,
-      { ...throughputSnapshot, models },
-      tiers,
-    ).rows.filter((row) => row.model === "glm-5-3");
+    const glm = createLeaderboard({
+      ...sources,
+      throughput: { ...throughputSnapshot, models },
+    }).rows.filter((row) => row.model === "glm-5-3");
     expect(glm.length).toBeGreaterThan(0);
     for (const row of glm) {
       expect(row.throughputTokPerSec).toBeNull();
@@ -264,13 +281,25 @@ describe("access tags", () => {
 });
 
 describe("modelOptions", () => {
-  test("lists each model once, sorted by display name", () => {
+  test("lists each model once", () => {
     const { modelOptions } = live();
     const models = modelOptions.map((option) => option.model);
     expect(new Set(models).size).toBe(models.length);
     expect(new Set(models)).toEqual(new Set(deepsweSnapshot.entries.map((entry) => entry.model)));
-    const names = modelOptions.map((option) => option.displayName);
-    expect(names).toEqual(names.toSorted((a, b) => a.localeCompare(b, "en")));
+  });
+
+  test("sorts by display name, case-insensitively", () => {
+    const base = deepsweSnapshot.entries[0];
+    const snapshot = {
+      ...deepsweSnapshot,
+      entries: ["beta", "Gamma", "Alpha"].flatMap((model) => [
+        { ...base, model, effort: null },
+        { ...base, model, effort: "max" },
+      ]),
+    };
+    const mapping = mappingFixture(["beta", "Gamma", "Alpha"]);
+    const { modelOptions } = createLeaderboard({ ...sources, snapshot, mapping });
+    expect(modelOptions.map((option) => option.displayName)).toEqual(["Alpha", "beta", "Gamma"]);
   });
 
   test("uses the mapping's display name", () => {
@@ -329,12 +358,7 @@ describe("pickerFamilies", () => {
         ? { ...entry, usageMultiplier: 2, shortName: undefined }
         : entry,
     );
-    const { pickerFamilies } = createLeaderboard(
-      deepsweSnapshot,
-      mapping,
-      throughputSnapshot,
-      tiers,
-    );
+    const { pickerFamilies } = createLeaderboard({ ...sources, mapping });
     const plus = pickerFamilies
       .find((f) => f.family === "chatgpt")!
       .tiers.find((tier) => tier.id === "chatgpt-plus");
@@ -347,6 +371,27 @@ describe("pickerFamilies", () => {
 
 describe("visibleRows", () => {
   const leaderboard = live();
+  const bestFixture = () => {
+    const base = deepsweSnapshot.entries[0];
+    const entry = (model: string, effort: string | null, pass_at_1: number) => ({
+      ...base,
+      model,
+      effort,
+      pass_at_1,
+    });
+    const snapshot = {
+      ...deepsweSnapshot,
+      entries: [
+        entry("inverted", "max", 0.5),
+        entry("inverted", "xhigh", 0.6),
+        entry("ordinary", "high", 0.4),
+        entry("ordinary", "xhigh", 0.3),
+        entry("single", null, 0.7),
+      ],
+    };
+    const mapping = mappingFixture(["inverted", "ordinary", "single"]);
+    return createLeaderboard({ ...sources, snapshot, mapping });
+  };
   const { rows, modelOptions } = leaderboard;
   const filters = (overrides: Partial<LeaderboardFilters>): LeaderboardFilters => ({
     ...leaderboard.defaultFilters(),
@@ -367,16 +412,16 @@ describe("visibleRows", () => {
   });
 
   test("Best keeps the highest effort, not the best Pass@1", () => {
-    // claude-fable-5's xhigh entry outscores max, but Best still shows max
-    // (matching the DeepSWE site's Best view).
-    const visible = leaderboard.visibleRows(leaderboard.defaultFilters());
-    expect(visible.find((row) => row.model === "claude-fable-5")?.effort).toBe("max");
-    expect(visible.find((row) => row.model === "grok-4-6")?.effort).toBe("xhigh");
+    // Mirrors claude-fable-5, whose xhigh entry outscores max while the
+    // DeepSWE site's Best view still shows max.
+    const visible = bestFixture().visibleRows(bestFixture().defaultFilters());
+    expect(visible.find((row) => row.model === "inverted")?.effort).toBe("max");
+    expect(visible.find((row) => row.model === "ordinary")?.effort).toBe("xhigh");
   });
 
   test("Best keeps a single default-effort entry", () => {
-    const visible = leaderboard.visibleRows(leaderboard.defaultFilters());
-    expect(visible.find((row) => row.model === "kimi-k2-7-code")?.effort).toBeNull();
+    const visible = bestFixture().visibleRows(bestFixture().defaultFilters());
+    expect(visible.find((row) => row.model === "single")?.effort).toBeNull();
   });
 
   test("All effort levels with API only shows every entry once", () => {
@@ -556,12 +601,7 @@ describe("compareModel", () => {
   });
 
   test("the route order follows the tiers it was built with, not a constant", () => {
-    const reversed = createLeaderboard(
-      deepsweSnapshot,
-      modelMapping,
-      throughputSnapshot,
-      tiers.toReversed(),
-    );
+    const reversed = createLeaderboard({ ...sources, tiers: tiers.toReversed() });
     const routes: AccessRoute[] = ["claude-pro", "api", "chatgpt-pro-20x"];
     const sorted = routes.map((route) => row("A", "max", route)).toSorted(reversed.compareModel);
     expect(sorted.map((r) => r.accessRoute)).toEqual(["api", "chatgpt-pro-20x", "claude-pro"]);

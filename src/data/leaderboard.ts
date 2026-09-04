@@ -85,12 +85,19 @@ export type Leaderboard = {
 
 const FAMILIES: PickerFamily["family"][] = ["claude", "chatgpt"];
 
-export function createLeaderboard(
-  snapshot: DeepsweSnapshot,
-  mapping: ModelMappingEntry[],
-  throughput: ThroughputSnapshot,
-  tiers: Tier[],
-): Leaderboard {
+export type LeaderboardSources = {
+  snapshot: DeepsweSnapshot;
+  mapping: ModelMappingEntry[];
+  throughput: ThroughputSnapshot;
+  tiers: Tier[];
+};
+
+export function createLeaderboard({
+  snapshot,
+  mapping,
+  throughput,
+  tiers,
+}: LeaderboardSources): Leaderboard {
   const rows = deriveRows(snapshot, mapping, throughput, tiers);
   const modelOptions = [...new Map(rows.map((row) => [row.model, row.displayName]))]
     .map(([model, displayName]) => ({ model, displayName }))

@@ -4,7 +4,12 @@ import { createLeaderboard } from "../src/data/leaderboard.ts";
 import { deepsweSnapshot, modelMapping, throughputSnapshot, tiers } from "../src/data/sources.ts";
 
 // The default view: Best effort levels, API rows only (ticket 09).
-const leaderboard = createLeaderboard(deepsweSnapshot, modelMapping, throughputSnapshot, tiers);
+const leaderboard = createLeaderboard({
+  snapshot: deepsweSnapshot,
+  mapping: modelMapping,
+  throughput: throughputSnapshot,
+  tiers,
+});
 const rowCount = leaderboard.visibleRows(leaderboard.defaultFilters()).length;
 
 test("e2e build renders the table with no failed requests", async ({ page }) => {
