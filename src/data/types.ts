@@ -88,22 +88,3 @@ export type TiersSnapshot = Provenance & {
 };
 
 export type AccessRoute = "api" | TierId;
-
-export type LeaderboardRow = {
-  model: string;
-  displayName: string;
-  vendor: string;
-  family: SubscriptionFamily;
-  effort: string | null;
-  accessRoute: AccessRoute;
-  passAt1: number;
-  effectiveCostUsd: number;
-  costPerSolvedTaskUsd: number | null; // null when passAt1 is 0
-  apiCostUsd: number; // the entry's average cost at API pricing; equals effectiveCostUsd on API rows
-  apiCostPerSolvedTaskUsd: number | null; // apiCostUsd ÷ passAt1; null when passAt1 is 0
-  outputTokens: number;
-  steps: number;
-  openrouterId: string | null; // shown in the model-name tooltip
-  throughputTokPerSec: number | null; // null when unmapped or absent from the snapshot
-  averageTimeSeconds: number | null; // null when throughput is null
-};

@@ -37,9 +37,9 @@ export function formatInteger(value: number): string {
   return `${Math.round(value)}`;
 }
 
-// A subsidisation factor as the tier discount it amounts to: one decimal
-// where needed ("−95%", "−97.5%"), minus sign U+2212.
-export function formatTierDiscount(factor: number): string {
-  const percent = Math.round((1 - factor) * 1000) / 10;
+// A tier discount (0.95 for 95% off) as a percentage: one decimal where
+// needed ("−95%", "−97.5%"), minus sign U+2212.
+export function formatTierDiscount(discount: number): string {
+  const percent = Math.round(discount * 1000) / 10;
   return `−${percent}%`;
 }

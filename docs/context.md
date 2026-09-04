@@ -4,6 +4,10 @@ Combines the DeepSWE leaderboard with OpenRouter throughput data and SemiAnalysi
 
 ## Language
 
+**Leaderboard**:
+The derived, filterable set of rows this project computes from the snapshots: every entry combined with every access route its family allows. Distinct from the DeepSWE leaderboard, which is the upstream source.
+_Avoid_: table model, ranking
+
 **Leaderboard entry**:
 One (model, effort level) result from the DeepSWE leaderboard: Pass@1, average cost, output tokens, steps.
 _Avoid_: model row, result

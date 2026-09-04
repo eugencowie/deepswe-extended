@@ -78,15 +78,15 @@ describe("formatDuration", () => {
 });
 
 describe("formatTierDiscount", () => {
-  test("renders the factor as a percentage discount", () => {
-    expect(formatTierDiscount(0.05)).toBe("−95%");
-    expect(formatTierDiscount(0.1)).toBe("−90%");
+  test("renders the discount as a negative percentage", () => {
+    expect(formatTierDiscount(0.95)).toBe("−95%");
+    expect(formatTierDiscount(0.9)).toBe("−90%");
   });
 
   test("keeps one decimal where rounding needs it", () => {
-    expect(formatTierDiscount(0.025)).toBe("−97.5%");
-    expect(formatTierDiscount(20 / 700)).toBe("−97.1%");
-    expect(formatTierDiscount(200 / 14000)).toBe("−98.6%");
+    expect(formatTierDiscount(0.975)).toBe("−97.5%");
+    expect(formatTierDiscount(1 - 20 / 700)).toBe("−97.1%");
+    expect(formatTierDiscount(1 - 200 / 14000)).toBe("−98.6%");
   });
 });
 

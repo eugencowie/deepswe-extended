@@ -1,12 +1,16 @@
 import { expect, test } from "@playwright/test";
 
-import { deriveRows } from "../src/data/derive.ts";
-import { defaultFilters, filterRows } from "../src/data/filter.ts";
+import { createLeaderboard } from "../src/data/leaderboard.ts";
 import { deepsweSnapshot, modelMapping, throughputSnapshot, tiers } from "../src/data/sources.ts";
 
 // The default view: Best effort levels, API rows only (ticket 09).
-const rows = deriveRows(deepsweSnapshot, modelMapping, throughputSnapshot, tiers);
-const rowCount = filterRows(rows, defaultFilters(new Set(rows.map((row) => row.model)))).length;
+const leaderboard = createLeaderboard({
+  snapshot: deepsweSnapshot,
+  mapping: modelMapping,
+  throughput: throughputSnapshot,
+  tiers,
+});
+const rowCount = leaderboard.visibleRows(leaderboard.defaultFilters()).length;
 
 test("e2e build renders the table with no failed requests", async ({ page }) => {
   const failures: string[] = [];

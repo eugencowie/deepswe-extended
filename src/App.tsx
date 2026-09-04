@@ -1,14 +1,9 @@
 import { useMemo, useState } from "react";
 
 import { LeaderboardTable } from "@/components/leaderboard-table";
-import {
-  LeaderboardToolbar,
-  type ModelOption,
-  type UsageLimitNote,
-} from "@/components/leaderboard-toolbar";
+import { LeaderboardToolbar } from "@/components/leaderboard-toolbar";
 import { ModeToggle } from "@/components/ui/mode-toggle";
-import { deriveRows } from "@/data/derive";
-import { defaultFilters, filterRows } from "@/data/filter";
+import { createLeaderboard } from "@/data/leaderboard";
 import {
   deepsweSnapshot,
   modelMapping,
@@ -17,25 +12,12 @@ import {
   tiersSnapshot,
 } from "@/data/sources";
 
-const rows = deriveRows(deepsweSnapshot, modelMapping, throughputSnapshot, tiers);
-
-const modelOptions: ModelOption[] = [...new Map(rows.map((row) => [row.model, row.displayName]))]
-  .map(([model, displayName]) => ({ model, displayName }))
-  .toSorted((a, b) => a.displayName.localeCompare(b.displayName, "en"));
-
-// Family models with non-standard usage limits get their own discount badge
-// per tier in the Subscriptions picker.
-const usageLimitNotes: UsageLimitNote[] = modelMapping.flatMap((entry) =>
-  entry.family === "none" || entry.usageMultiplier === 1
-    ? []
-    : [
-        {
-          family: entry.family,
-          name: entry.shortName ?? entry.displayName,
-          usageMultiplier: entry.usageMultiplier,
-        },
-      ],
-);
+const leaderboard = createLeaderboard({
+  snapshot: deepsweSnapshot,
+  mapping: modelMapping,
+  throughput: throughputSnapshot,
+  tiers,
+});
 
 // The UTC date of a snapshot timestamp, robust to non-UTC offsets in a
 // future refresh (a plain slice would take the offset-local date).
@@ -58,10 +40,8 @@ function FooterLink({ href, children }: { href: string; children: React.ReactNod
 }
 
 function App() {
-  const [filters, setFilters] = useState(() =>
-    defaultFilters(modelOptions.map(({ model }) => model)),
-  );
-  const visibleRows = useMemo(() => filterRows(rows, filters), [filters]);
+  const [filters, setFilters] = useState(leaderboard.defaultFilters);
+  const visibleRows = useMemo(() => leaderboard.visibleRows(filters), [filters]);
 
   return (
     // max-w-5xl: wide enough for tier rows' struck-out API costs.
@@ -74,12 +54,12 @@ function App() {
         <LeaderboardToolbar
           filters={filters}
           onChange={setFilters}
-          models={modelOptions}
-          tiers={tiers}
-          usageLimitNotes={usageLimitNotes}
+          models={leaderboard.modelOptions}
+          pickerFamilies={leaderboard.pickerFamilies}
         />
         <LeaderboardTable
           rows={visibleRows}
+          compareModel={leaderboard.compareModel}
           empty="No models selected. Use the Models menu to pick one or more."
         />
       </main>

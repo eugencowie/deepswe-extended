@@ -14,8 +14,6 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/components/ui/utils";
 import { VendorMark } from "@/components/vendor-mark";
-import { compareBlankLast, compareModel, type SortDirection } from "@/data/derive";
-import { tiers } from "@/data/sources";
 import {
   formatDuration,
   formatInteger,
@@ -24,7 +22,10 @@ import {
   formatTokens,
   formatUsd,
 } from "@/data/format";
-import type { LeaderboardRow } from "@/data/types";
+import { compareBlankLast, type SortDirection } from "@/components/leaderboard-sort";
+import type { LeaderboardRow } from "@/data/leaderboard";
+
+type CompareModel = (a: LeaderboardRow, b: LeaderboardRow) => number;
 
 type ColumnId =
   | "model"
@@ -48,7 +49,12 @@ type ColumnSpec = {
   // DeepSWE leaderboard; a border separates them from the source columns.
   derived?: boolean;
   cell: (row: LeaderboardRow) => ReactNode;
-  compare: (a: LeaderboardRow, b: LeaderboardRow, direction: SortDirection) => number;
+  compare: (
+    a: LeaderboardRow,
+    b: LeaderboardRow,
+    direction: SortDirection,
+    compareModel: CompareModel,
+  ) => number;
 };
 
 function numericColumn(spec: {
@@ -67,8 +73,6 @@ function numericColumn(spec: {
   };
 }
 
-const tierById = new Map(tiers.map((tier) => [tier.id, tier]));
-
 // Access tags are colour-coded by subscription family.
 const tagClassByFamily = {
   claude: "border-amber-600 text-amber-600 dark:border-amber-400 dark:text-amber-400",
@@ -81,9 +85,9 @@ const columnSpecs: ColumnSpec[] = [
     header: "Model",
     align: "left",
     firstDirection: "asc",
-    compare: (a, b, direction) => (direction === "asc" ? compareModel(a, b) : compareModel(b, a)),
+    compare: (a, b, direction, compareModel) =>
+      direction === "asc" ? compareModel(a, b) : compareModel(b, a),
     cell: (row) => {
-      const tier = row.accessRoute === "api" ? undefined : tierById.get(row.accessRoute);
       // The display name mirrors DeepSWE and omits the model revision; the
       // tooltip exposes the pinned OpenRouter id for readers cross-checking
       // model cards (ADR 0002).
@@ -99,9 +103,9 @@ const columnSpecs: ColumnSpec[] = [
             </Tooltip>
           )}
           {row.effort !== null && <span className="text-muted-foreground"> [{row.effort}]</span>}
-          {tier && (
-            <Badge variant="outline" className={cn("ml-2", tagClassByFamily[tier.family])}>
-              {tier.shortLabel}
+          {row.accessTag && (
+            <Badge variant="outline" className={cn("ml-2", tagClassByFamily[row.accessTag.family])}>
+              {row.accessTag.label}
             </Badge>
           )}
         </>
@@ -193,7 +197,15 @@ const columns = helper.columns(
   ),
 );
 
-export function LeaderboardTable({ rows, empty }: { rows: LeaderboardRow[]; empty?: ReactNode }) {
+export function LeaderboardTable({
+  rows,
+  compareModel,
+  empty,
+}: {
+  rows: LeaderboardRow[];
+  compareModel: CompareModel;
+  empty?: ReactNode;
+}) {
   const [sort, setSort] = useState<{ columnId: ColumnId; direction: SortDirection }>({
     columnId: "passAt1",
     direction: "desc",
@@ -204,8 +216,8 @@ export function LeaderboardTable({ rows, empty }: { rows: LeaderboardRow[]; empt
   // comparators receive the direction instead, so blanks sort last both ways.
   const sortedRows = useMemo(() => {
     const spec = columnSpecs.find((s) => s.id === sort.columnId) ?? columnSpecs[0];
-    return rows.toSorted((a, b) => spec.compare(a, b, sort.direction));
-  }, [rows, sort]);
+    return rows.toSorted((a, b) => spec.compare(a, b, sort.direction, compareModel));
+  }, [rows, sort, compareModel]);
 
   const table = useTable({ features, columns, data: sortedRows });
 
