@@ -68,7 +68,7 @@ export const modelMappingSchema = z.array(modelMappingEntrySchema).superRefine((
 });
 
 // Coverage must hold in both directions: an uncovered snapshot model would
-// throw deep in deriveRows, and an orphaned mapping entry is refresh output
+// throw deep in createLeaderboard, and an orphaned mapping entry is refresh output
 // pointing at nothing.
 export function assertMappingCoverage(
   snapshot: DeepsweSnapshot,
