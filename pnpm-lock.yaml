@@ -213,7 +213,7 @@ overrides:
   vite: npm:@voidzero-dev/vite-plus-core@0.2.9
 
 patchedDependencies:
-  shadcn@4.19.0: c3f0f1862c892d82d3c9047b7b14f2da21c2d3e8d096435f2e597a5f4f76540c
+  shadcn@4.19.1: 7fecad21eb3ded3f4a761c3e7725dbbc6f0f42e7b4f329951a234c05f8bab031
 
 importers:
 
@@ -281,8 +281,8 @@ importers:
         specifier: runtime:26.7.0
         version: runtime:26.7.0
       shadcn:
-        specifier: 4.19.0
-        version: 4.19.0(patch_hash=c3f0f1862c892d82d3c9047b7b14f2da21c2d3e8d096435f2e597a5f4f76540c)(supports-color@10.2.2)(typescript@7.0.2)
+        specifier: 4.19.1
+        version: 4.19.1(patch_hash=7fecad21eb3ded3f4a761c3e7725dbbc6f0f42e7b4f329951a234c05f8bab031)(supports-color@10.2.2)(typescript@7.0.2)
       typescript:
         specifier: 7.0.2
         version: 7.0.2
@@ -2710,8 +2710,8 @@ packages:
   setprototypeof@1.2.0:
     resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
 
-  shadcn@4.19.0:
-    resolution: {integrity: sha512-EQF6R+CUXTsEP2BpyhxrUEAFesrtFD1POvVOf5jM+wkgtA4kG1EW1+1Wlmi9LqiprSL681JJXBcS0u8WkVVVyQ==}
+  shadcn@4.19.1:
+    resolution: {integrity: sha512-QZ++YvYniZCEZHxBenWUsZnzKCDSUKwRqi0io7ovS9Him02zrg1U8AJCRTL0PWOaEM46NpTlw8PwewWk+9rCng==}
     engines: {node: '>=20.18.1'}
     hasBin: true
 
@@ -4983,7 +4983,7 @@ snapshots:
 
   setprototypeof@1.2.0: {}
 
-  shadcn@4.19.0(patch_hash=c3f0f1862c892d82d3c9047b7b14f2da21c2d3e8d096435f2e597a5f4f76540c)(supports-color@10.2.2)(typescript@7.0.2):
+  shadcn@4.19.1(patch_hash=7fecad21eb3ded3f4a761c3e7725dbbc6f0f42e7b4f329951a234c05f8bab031)(supports-color@10.2.2)(typescript@7.0.2):
     dependencies:
       '@babel/core': 7.29.7(supports-color@10.2.2)
       '@babel/parser': 7.29.8
