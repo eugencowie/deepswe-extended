@@ -22,6 +22,18 @@
       currentValueTemplate: 'v0.0.0',
       autoReplaceStringTemplate: '"checkout": "{{{newValue}}}"',
     },
+    {
+      description: 'Track the pinned Renovate version',
+      customType: 'regex',
+      managerFilePatterns: ['/^\\.github\/workflows\/renovate\\.yml$/'],
+      matchStrings: [
+        'renovate-version:\\s*(?<currentValue>[^@\\s]+)(?:@(?<currentDigest>\\S+))?',
+      ],
+      datasourceTemplate: 'docker',
+      depNameTemplate: 'ghcr.io/renovatebot/renovate',
+      autoReplaceStringTemplate:
+        'renovate-version: {{{newValue}}}{{#if newDigest}}@{{{newDigest}}}{{/if}}',
+    },
   ],
 
   packageRules: [
