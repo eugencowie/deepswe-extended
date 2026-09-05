@@ -215,5 +215,13 @@
     "openrouterId": "google/gemini-3.8-flash",
     "family": "none",
     "usageMultiplier": 1
+  },
+  {
+    "leaderboardModel": "gpt-6-astra",
+    "displayName": "GPT-6 Astra",
+    "vendor": "OpenAI",
+    "openrouterId": "openai/gpt-6-astra",
+    "family": "chatgpt",
+    "usageMultiplier": 1
   }
 ]

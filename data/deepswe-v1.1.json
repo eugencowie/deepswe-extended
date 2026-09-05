@@ -4,15 +4,15 @@
   "source": "DeepSWE leaderboard",
   "sourceUrl": "https://deepswe.datacurve.ai",
   "source_url": "https://deepswe.datacurve.ai/artifacts/v1.1/leaderboard-live.json",
-  "source_generated_at": "2026-09-02T15:18:19Z",
+  "source_generated_at": "2026-09-03T22:24:37.984682+00:00",
   "source_latest_job": {
-    "name": "20260901-deep-swe-1-1-gemini-3-8-flash-medium",
-    "finished_at": "2026-09-01T18:09:24.138799Z"
+    "name": "20260901-deep-swe-1-1-gpt-6-astra",
+    "finished_at": "2026-09-01T07:35:13Z"
   },
   "n_tasks_in_set": 113,
   "source_scope": "Every DeepSWE rollout across imported Pier jobs, grouped by configuration (harness + model + reasoning effort)",
   "source_unit": "pass@1 is attempt pass rate over scored rollout attempts. pass@4 is tasks with at least one passing rollout divided by tasks attempted. Context-window failures and agent timeouts are scored failures; provider/verifier/network errors are excluded. Efficiency aggregates are over every scored attempt.",
-  "raw_sha256": "ddee8c4ce1bc8e92b642632e6a92e5ab6e7046bec5f9f7c03947556716828947",
+  "raw_sha256": "005cbedb49f988ba3f0d9636300862ad7ace93ce1992b37faf9945fe5b383415",
   "cost_adjustments": [
     {
       "model": "gpt-5-6-luna",
@@ -28,6 +28,18 @@
     }
   ],
   "entries": [
+    {
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "pass_at_1": 0.7411504424778761,
+      "average_cost_usd": 6.52377356460177,
+      "output_tokens": 29557.327433628318,
+      "steps": 28.754424778761063,
+      "source_config": "mini_swe_agent_gpt_6_astra_xhigh",
+      "n_scored_attempts": 452,
+      "raw_average_cost_usd": 6.52377356460177,
+      "cost_adjustment_factor": 1
+    },
     {
       "model": "gemini-3-8-flash",
       "effort": "high",
@@ -53,6 +65,30 @@
       "cost_adjustment_factor": 1
     },
     {
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "pass_at_1": 0.7323008849557522,
+      "average_cost_usd": 5.723721956194691,
+      "output_tokens": 26505.853982300883,
+      "steps": 27.424778761061948,
+      "source_config": "mini_swe_agent_gpt_6_astra_high",
+      "n_scored_attempts": 452,
+      "raw_average_cost_usd": 5.723721956194691,
+      "cost_adjustment_factor": 1
+    },
+    {
+      "model": "gpt-6-astra",
+      "effort": "max",
+      "pass_at_1": 0.7323008849557522,
+      "average_cost_usd": 12.369032401327434,
+      "output_tokens": 61148.50663716814,
+      "steps": 28.45353982300885,
+      "source_config": "mini_swe_agent_gpt_6_astra_max",
+      "n_scored_attempts": 452,
+      "raw_average_cost_usd": 12.369032401327434,
+      "cost_adjustment_factor": 1
+    },
+    {
       "model": "claude-opus-5",
       "effort": "xhigh",
       "pass_at_1": 0.7315436241610739,
@@ -74,6 +110,18 @@
       "source_config": "mini_swe_agent_claude_opus_5_high",
       "n_scored_attempts": 449,
       "raw_average_cost_usd": 6.076084489977728,
+      "cost_adjustment_factor": 1
+    },
+    {
+      "model": "gpt-6-astra",
+      "effort": "medium",
+      "pass_at_1": 0.7278761061946902,
+      "average_cost_usd": 4.379527705752213,
+      "output_tokens": 20361.809734513274,
+      "steps": 26.030973451327434,
+      "source_config": "mini_swe_agent_gpt_6_astra_medium",
+      "n_scored_attempts": 452,
+      "raw_average_cost_usd": 4.379527705752213,
       "cost_adjustment_factor": 1
     },
     {
@@ -242,6 +290,18 @@
       "source_config": "mini_swe_agent_gpt_5_5_xhigh",
       "n_scored_attempts": 452,
       "raw_average_cost_usd": 7.226236674778761,
+      "cost_adjustment_factor": 1
+    },
+    {
+      "model": "gpt-6-astra",
+      "effort": "low",
+      "pass_at_1": 0.6703539823008849,
+      "average_cost_usd": 2.188762706637168,
+      "output_tokens": 10579.53982300885,
+      "steps": 19.537610619469028,
+      "source_config": "mini_swe_agent_gpt_6_astra_low",
+      "n_scored_attempts": 452,
+      "raw_average_cost_usd": 2.188762706637168,
       "cost_adjustment_factor": 1
     },
     {
