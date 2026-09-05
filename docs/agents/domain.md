@@ -53,7 +53,3 @@ If the concept you need isn't in the glossary yet, that's a signal: either you'r
 If your output contradicts an existing ADR, surface it explicitly rather than silently overriding:
 
 > _Contradicts ADR-0007 (event-sourced orders), but worth reopening because…_
-
-## Skill override: serving HTML reports
-
-When a skill requires you to produce an HTML report and you can't open it in a local browser, don't serve it on localhost. Serve it over the tailnet with `tailscale serve <path>`, where `<path>` is the file or directory containing the report, and give the user the URL it prints. Run it as a background task tracked by your harness rather than with shell `&`; use `tailscale serve --bg` only if your harness has no background-task mechanism. If Tailscale isn't usable, fall back to a local static server.
